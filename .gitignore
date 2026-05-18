@@ -1,0 +1,60 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project-local Claude state (commit CLAUDE.md, not session state)
+.claude/
+
+# ContextLayer-specific
+.contextlayer/
+*.log
+
+# Secrets
+.env
+.env.local
+.env.*.local
+
+# Demo data (commit per-decision; large pre-indexed SQLite DBs are git-LFS candidates)
+demo-data/*.db
+demo-data/*.db-wal
+demo-data/*.db-shm
+
+# Test artifacts
+.pytest_cache/
+.coverage
+htmlcov/
