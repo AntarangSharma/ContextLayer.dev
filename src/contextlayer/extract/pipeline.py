@@ -27,7 +27,7 @@ from contextlayer.embed import embed_one
 from contextlayer.extract import stage1_haiku, stage2_sonnet
 from contextlayer.extract.atom import Atom
 from contextlayer.extract.stage1_haiku import Stage1Result, classify_one
-from contextlayer.extract.stage2_sonnet import extract_one
+from contextlayer.extract.stage2_sonnet import extract_batch, extract_one
 from contextlayer.extract.stage3_opus import structure_atoms
 from contextlayer.ingest import RawEvent, ingest_repo, ingest_repo_scan_only
 from contextlayer.store import sqlite as sqlite_store
@@ -39,6 +39,10 @@ log = logging.getLogger(__name__)
 RPM_LIMIT = int(os.environ.get("CONTEXTLAYER_RPM_LIMIT", "50"))
 STAGE1_CONCURRENCY = int(os.environ.get("CONTEXTLAYER_STAGE1_CONCURRENCY", "2"))
 STAGE2_CONCURRENCY = int(os.environ.get("CONTEXTLAYER_STAGE2_CONCURRENCY", "2"))
+# Sonnet batching (Phase 2B): one Sonnet call extracts atoms from up to N events.
+# 15 is the spec default; set to 1 via env to disable and use per-event calls
+# (useful if a batched run shows a quality regression vs single-event extraction).
+STAGE2_BATCH_SIZE = int(os.environ.get("CONTEXTLAYER_STAGE2_BATCH_SIZE", "15"))
 
 
 class GlobalRateLimiter:
@@ -90,22 +94,65 @@ async def _stage2(
     limiter: GlobalRateLimiter,
     *,
     concurrency: int = STAGE2_CONCURRENCY,
+    batch_size: int = STAGE2_BATCH_SIZE,
 ) -> list[Atom]:
-    """Run Sonnet on every kept event with bounded concurrency + global RPM limit."""
+    """Run Sonnet on every kept event with bounded concurrency + global RPM limit.
+
+    Batching (T+24:30 Phase 2B): when batch_size > 1, group `batch_size` events
+    per Sonnet call and use the STAGE2_BATCH_TOOL. On batch failure, fall back
+    to single-event extract_one calls for that batch so we don't lose all 15
+    events to one transient API blip.
+
+    Set CONTEXTLAYER_STAGE2_BATCH_SIZE=1 to revert to pure single-event extraction
+    (useful for A/B'ing atom quality before/after batching).
+    """
     sem = asyncio.Semaphore(concurrency)
     atoms: list[Atom] = []
+    events = [e for e, _ in kept]
 
-    async def one(e: RawEvent) -> None:
+    if batch_size <= 1:
+        log.info("Stage 2: per-event mode (batch_size=1)")
+        async def one(e: RawEvent) -> None:
+            async with sem:
+                await limiter.acquire()
+                try:
+                    xs = await extract_one(client, e)
+                except Exception as ex:
+                    log.warning("Stage2 failed for %s: %s", e.source_id, ex)
+                    return
+            atoms.extend(xs)
+        await asyncio.gather(*(one(e) for e in events))
+        return atoms
+
+    # Batched path.
+    chunks = [events[i : i + batch_size] for i in range(0, len(events), batch_size)]
+    log.info(
+        "Stage 2: batched mode (%d events → %d batches of up to %d)",
+        len(events), len(chunks), batch_size,
+    )
+
+    async def one_batch(chunk: list[RawEvent]) -> None:
         async with sem:
             await limiter.acquire()
             try:
-                xs = await extract_one(client, e)
-            except Exception as ex:
-                log.warning("Stage2 failed for %s: %s", e.source_id, ex)
+                xs = await extract_batch(client, chunk)
+                atoms.extend(xs)
                 return
-        atoms.extend(xs)
+            except Exception as ex:
+                log.warning(
+                    "Stage2 BATCH failed (%d events: %s..) — falling back to single-event calls. err=%s",
+                    len(chunk), chunk[0].source_id if chunk else "?", ex,
+                )
+        # Fallback path: per-event calls for the failed batch, still inside the limiter.
+        for e in chunk:
+            await limiter.acquire()
+            try:
+                xs = await extract_one(client, e)
+                atoms.extend(xs)
+            except Exception as ex:
+                log.warning("Stage2 fallback single-call failed for %s: %s", e.source_id, ex)
 
-    await asyncio.gather(*(one(e) for e, _ in kept))
+    await asyncio.gather(*(one_batch(c) for c in chunks))
     return atoms
 
 

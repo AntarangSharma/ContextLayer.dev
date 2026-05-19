@@ -147,6 +147,82 @@ STAGE2_TOOL = {
 }
 
 
+# Stage 2 BATCHED variant (Sonnet, multi-event per call): same atom schema but the
+# tool returns an `extractions` list, one entry per event in the input batch, so we
+# can attribute extracted atoms back to their originating event's source_id.
+STAGE2_BATCH_TOOL = {
+    "name": "extract_atoms_batch",
+    "description": (
+        "For each event in the input batch (numbered 0..N-1 in the user message), "
+        "extract zero to three knowledge atoms. Return one entry per event in the "
+        "`extractions` array, even if the entry's atoms list is empty. An atom is "
+        "a durable rule (convention/decision/deprecation/anti-pattern) that an AI "
+        "coding agent should respect when modifying this codebase."
+    ),
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "extractions": {
+                "type": "array",
+                "description": (
+                    "One entry per event in the input batch, in the same order. "
+                    "event_index is 0-based and corresponds to the event's position "
+                    "in the user message's batch."
+                ),
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "event_index": {
+                            "type": "integer",
+                            "description": "0-based index of the event in the user-message batch.",
+                        },
+                        "atoms": {
+                            "type": "array",
+                            "maxItems": 3,
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "category": {
+                                        "type": "string",
+                                        "enum": ["convention", "decision", "deprecation", "anti-pattern"],
+                                    },
+                                    "summary": {
+                                        "type": "string",
+                                        "maxLength": 200,
+                                        "description": (
+                                            "One-line statement of the rule. Imperative voice "
+                                            "when possible. e.g. 'Use Result<T> for domain errors.'"
+                                        ),
+                                    },
+                                    "rationale": {
+                                        "type": "string",
+                                        "maxLength": 600,
+                                        "description": "WHY the rule exists — cite the incident, PR, or principle.",
+                                    },
+                                    "scope": {
+                                        "type": ["string", "null"],
+                                        "description": "Glob applying the rule (e.g. 'routes/**') or null for repo-wide.",
+                                    },
+                                    "confidence": {
+                                        "type": "number",
+                                        "minimum": 0.0,
+                                        "maximum": 1.0,
+                                        "description": "How durable this rule is. 0.9+ explicit; 0.6-0.8 inferred; <0.6 guess.",
+                                    },
+                                },
+                                "required": ["category", "summary", "confidence"],
+                            },
+                        },
+                    },
+                    "required": ["event_index", "atoms"],
+                },
+            },
+        },
+        "required": ["extractions"],
+    },
+}
+
+
 # Stage 3 (Opus, with extended thinking): dedup + topic clustering + rule promotion.
 STAGE3_TOOL = {
     "name": "structure_atoms",

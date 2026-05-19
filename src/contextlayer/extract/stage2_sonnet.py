@@ -15,7 +15,7 @@ import logging
 
 import anthropic
 
-from contextlayer.extract.atom import STAGE2_TOOL, Atom
+from contextlayer.extract.atom import STAGE2_BATCH_TOOL, STAGE2_TOOL, Atom
 from contextlayer.ingest import RawEvent
 from contextlayer.models import SONNET_MODEL
 
@@ -147,3 +147,79 @@ async def extract_one(client: anthropic.AsyncAnthropic, event: RawEvent) -> list
             a = a.model_copy(update={"source_refs": [event.source_id]})
             atoms.append(a.assign_id())
     return atoms
+
+
+def _format_batch_user_msg(events: list[RawEvent]) -> str:
+    """Format a numbered, delimited list of events for the batch tool prompt.
+
+    The model must return one entry per event indexed 0..len(events)-1.
+    """
+    lines = [
+        f"Extract atoms from each of the {len(events)} events below. These events have "
+        "already been pre-filtered by Stage 1 as likely to document a durable rule, so "
+        "extract atoms generously — typically 1-2 atoms per event, up to 3 if the event "
+        f"documents multiple distinct rules.\n\nReturn ONE extraction entry per event in "
+        f"order (event_index 0..{len(events)-1}), even if a particular entry's atoms=[].\n",
+    ]
+    for i, e in enumerate(events):
+        lines.append(f"--- Event {i} ---")
+        lines.append(f"source_type: {e.source_type}")
+        lines.append(f"source_id: {e.source_id}")
+        lines.append("text:")
+        lines.append(e.text)
+        lines.append("")
+    return "\n".join(lines)
+
+
+async def extract_batch(
+    client: anthropic.AsyncAnthropic,
+    events: list[RawEvent],
+) -> list[Atom]:
+    """Batched Sonnet call: one request handles ~15 events.
+
+    Returns a flat list of atoms, each tagged back to its originating event's
+    source_id via Atom.source_refs.
+
+    Per-event attribution is preserved by the tool schema (`extractions[].event_index`).
+    If the model returns an out-of-range index, that group is dropped with a warning.
+    """
+    if not events:
+        return []
+    user_msg = _format_batch_user_msg(events)
+    # max_tokens scales with batch size: ~250 tokens per event for up to 3 atoms.
+    max_tokens = min(4096, 600 + 250 * len(events))
+    resp = await client.messages.create(
+        model=SONNET_MODEL,
+        max_tokens=max_tokens,
+        system=_SYSTEM_BLOCKS,
+        tools=[STAGE2_BATCH_TOOL],
+        tool_choice={"type": "tool", "name": "extract_atoms_batch"},
+        messages=[{"role": "user", "content": user_msg}],
+    )
+    usage = getattr(resp, "usage", None)
+    if usage is not None:
+        _USAGE["calls"] += 1
+        _USAGE["cache_read"] += getattr(usage, "cache_read_input_tokens", 0) or 0
+        _USAGE["cache_write"] += getattr(usage, "cache_creation_input_tokens", 0) or 0
+        _USAGE["input_tokens"] += getattr(usage, "input_tokens", 0) or 0
+        _USAGE["output_tokens"] += getattr(usage, "output_tokens", 0) or 0
+
+    out: list[Atom] = []
+    for block in resp.content:
+        if block.type != "tool_use" or block.name != "extract_atoms_batch":
+            continue
+        for entry in block.input.get("extractions", []):
+            idx = entry.get("event_index")
+            if not isinstance(idx, int) or idx < 0 or idx >= len(events):
+                log.warning("Stage2 batch: out-of-range event_index=%s (batch=%d)", idx, len(events))
+                continue
+            ev = events[idx]
+            for raw_atom in entry.get("atoms", []):
+                try:
+                    a = Atom(**raw_atom)
+                except Exception as e:
+                    log.warning("Stage2 batch atom validation failed for %s: %s", ev.source_id, e)
+                    continue
+                a = a.model_copy(update={"source_refs": [ev.source_id]})
+                out.append(a.assign_id())
+    return out
