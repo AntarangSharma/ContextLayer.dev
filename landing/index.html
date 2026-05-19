@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ContextLayer.dev — The Missing Context Layer for AI Coding Agents</title>
+    <meta name="description" content="ContextLayer extracts team conventions, decisions, and anti-patterns from your repo and serves them to Claude Code via MCP. Your AI answers like a senior engineer who read everything.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0f4ff',
+                            100: '#dbe4ff',
+                            200: '#bac8ff',
+                            300: '#91a7ff',
+                            400: '#748ffc',
+                            500: '#5c7cfa',
+                            600: '#4c6ef5',
+                            700: '#4263eb',
+                            800: '#3b5bdb',
+                            900: '#364fc7',
+                        },
+                        surface: {
+                            50: '#f8f9fa',
+                            100: '#f1f3f5',
+                            800: '#1a1b2e',
+                            850: '#141524',
+                            900: '#0f1019',
+                            950: '#0a0b12',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background: #0a0b12;
+            color: #e9ecef;
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #748ffc 0%, #9775fa 50%, #da77f2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .glass-card {
+            background: rgba(26, 27, 46, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(116, 143, 252, 0.15);
+        }
+
+        .glow-border {
+            box-shadow: 0 0 0 1px rgba(116, 143, 252, 0.2),
+                        0 0 40px -10px rgba(116, 143, 252, 0.15);
+        }
+
+        .code-block {
+            background: #141524;
+            border: 1px solid rgba(116, 143, 252, 0.1);
+        }
+
+        .hero-glow {
+            background: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(116, 143, 252, 0.15) 0%, transparent 70%);
+        }
+
+        .pulse-dot {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+        }
+
+        .float-anim {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.8s ease-out forwards;
+            opacity: 0;
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        .fade-in-delay-1 { animation-delay: 0.2s; }
+        .fade-in-delay-2 { animation-delay: 0.4s; }
+        .fade-in-delay-3 { animation-delay: 0.6s; }
+    </style>
+</head>
+<body class="font-sans antialiased">
+    <!-- Hero glow background -->
+    <div class="hero-glow fixed inset-0 pointer-events-none"></div>
+
+    <!-- Nav -->
+    <nav class="relative z-10 max-w-6xl mx-auto px-6 py-6 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-lg bg-brand-600 flex items-center justify-center">
+                <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                </svg>
+            </div>
+            <span class="text-lg font-bold text-white">ContextLayer<span class="text-brand-400">.dev</span></span>
+        </div>
+        <div class="flex items-center gap-6">
+            <a href="https://github.com/AntarangSharma/ContextLayer.dev" target="_blank"
+               class="text-sm text-gray-400 hover:text-white transition-colors flex items-center gap-1.5">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                GitHub
+            </a>
+            <a href="#waitlist"
+               class="text-sm font-medium bg-brand-600 hover:bg-brand-500 text-white px-4 py-2 rounded-lg transition-all hover:shadow-lg hover:shadow-brand-600/20">
+                Join Waitlist
+            </a>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <main class="relative z-10">
+        <section class="max-w-4xl mx-auto px-6 pt-16 pb-20 text-center">
+            <div class="fade-in">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full glass-card text-xs font-medium text-brand-300 mb-8">
+                    <span class="pulse-dot w-2 h-2 rounded-full bg-green-400 inline-block"></span>
+                    Open Source · MIT License · Free
+                </div>
+            </div>
+
+            <h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold leading-tight mb-6 fade-in fade-in-delay-1">
+                Your AI agent forgets<br>
+                your team's rules.<br>
+                <span class="gradient-text">Every. Single. Session.</span>
+            </h1>
+
+            <p class="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto mb-10 fade-in fade-in-delay-2">
+                ContextLayer extracts conventions, decisions, and anti-patterns from your repo's history
+                and serves them to Claude Code via MCP. Your AI answers like a senior engineer who read everything
+                — including the unwritten parts.
+            </p>
+
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4 fade-in fade-in-delay-3">
+                <div class="code-block rounded-xl px-5 py-3 font-mono text-sm text-brand-300 select-all">
+                    uvx contextlayer index .
+                </div>
+                <span class="text-gray-600 text-sm">then</span>
+                <div class="code-block rounded-xl px-5 py-3 font-mono text-sm text-brand-300 select-all">
+                    uvx contextlayer mcp
+                </div>
+            </div>
+        </section>
+
+        <!-- Before / After -->
+        <section class="max-w-5xl mx-auto px-6 pb-20">
+            <div class="text-center mb-12">
+                <h2 class="text-2xl md:text-3xl font-bold text-white mb-3">Same Claude Code. Same question.</h2>
+                <p class="text-gray-400">The only difference is ContextLayer.</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-6">
+                <!-- Before -->
+                <div class="glass-card rounded-2xl p-6 glow-border">
+                    <div class="flex items-center gap-2 mb-4">
+                        <span class="w-3 h-3 rounded-full bg-red-400/80"></span>
+                        <span class="text-sm font-medium text-red-300">Without ContextLayer</span>
+                    </div>
+                    <div class="code-block rounded-xl p-4 font-mono text-xs leading-relaxed text-gray-400">
+                        <p class="text-gray-300 mb-2">→ "Add a billing history endpoint"</p>
+                        <p class="mb-1"><span class="text-gray-500"># Generic answer:</span></p>
+                        <p>@app.get("/billing/{user_id}")</p>
+                        <p><span class="text-red-400">def</span> get_billing(user_id: int):</p>
+                        <p>&nbsp;&nbsp;items = db.query(Billing)...</p>
+                        <p>&nbsp;&nbsp;<span class="text-red-400">raise HTTPException</span>(404)</p>
+                        <p class="mt-3 text-gray-500 italic"># ❌ sync, not async</p>
+                        <p class="text-gray-500 italic"># ❌ exceptions, not Result&lt;T&gt;</p>
+                        <p class="text-gray-500 italic"># ❌ uses deprecated db_helper</p>
+                        <p class="text-gray-500 italic"># ❌ no source citations</p>
+                    </div>
+                </div>
+
+                <!-- After -->
+                <div class="glass-card rounded-2xl p-6 glow-border float-anim" style="animation-delay: 0.5s;">
+                    <div class="flex items-center gap-2 mb-4">
+                        <span class="w-3 h-3 rounded-full bg-green-400/80"></span>
+                        <span class="text-sm font-medium text-green-300">With ContextLayer</span>
+                    </div>
+                    <div class="code-block rounded-xl p-4 font-mono text-xs leading-relaxed text-gray-400">
+                        <p class="text-gray-300 mb-2">→ "Add a billing history endpoint"</p>
+                        <p class="mb-1"><span class="text-gray-500"># Team-aware answer:</span></p>
+                        <p>@app.get("/billing/{user_id}")</p>
+                        <p><span class="text-green-400">async def</span> get_billing(</p>
+                        <p>&nbsp;&nbsp;user_id: int,</p>
+                        <p>&nbsp;&nbsp;<span class="text-green-400">session: Session = Depends(get_session)</span></p>
+                        <p>) -> <span class="text-green-400">Result[list[Billing]]</span>:</p>
+                        <p class="mt-3 text-brand-300 italic"># ✅ async (PR #11: async-first)</p>
+                        <p class="text-brand-300 italic"># ✅ Result&lt;T&gt; (PR #3: no exceptions)</p>
+                        <p class="text-brand-300 italic"># ✅ Depends() (PR #8: db_helper deprecated)</p>
+                        <p class="text-brand-300 italic"># ✅ Cites source PRs</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- How it works -->
+        <section class="max-w-5xl mx-auto px-6 pb-20">
+            <div class="text-center mb-12">
+                <h2 class="text-2xl md:text-3xl font-bold text-white mb-3">Three models. One pipeline. $1.50/repo.</h2>
+                <p class="text-gray-400">Cost-quality fit across three stages — not three models for show.</p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="glass-card rounded-2xl p-6 text-center">
+                    <div class="text-3xl mb-3">🔍</div>
+                    <h3 class="font-bold text-white mb-2">Haiku — Filter</h3>
+                    <p class="text-sm text-gray-400">Processes thousands of events. Keeps only the ~10% that document real conventions. ~$0.15/repo.</p>
+                </div>
+                <div class="glass-card rounded-2xl p-6 text-center">
+                    <div class="text-3xl mb-3">⚗️</div>
+                    <h3 class="font-bold text-white mb-2">Sonnet — Extract</h3>
+                    <p class="text-sm text-gray-400">Extracts structured atoms via tool use. Batched 15/call with prompt caching. ~$0.30/repo.</p>
+                </div>
+                <div class="glass-card rounded-2xl p-6 text-center">
+                    <div class="text-3xl mb-3">🧠</div>
+                    <h3 class="font-bold text-white mb-2">Opus — Structure</h3>
+                    <p class="text-sm text-gray-400">One call with extended thinking. Dedup, topic clustering, rule promotion. ~$1.00/repo.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features -->
+        <section class="max-w-5xl mx-auto px-6 pb-20">
+            <div class="text-center mb-12">
+                <h2 class="text-2xl md:text-3xl font-bold text-white mb-3">Works on any repo. Day one.</h2>
+                <p class="text-gray-400">No PR history required. Three ways to get value immediately.</p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="glass-card rounded-2xl p-6">
+                    <div class="text-xl font-mono text-brand-400 mb-3">$ contextlayer scan</div>
+                    <h3 class="font-bold text-white mb-2">Code-Aware Ingestion</h3>
+                    <p class="text-sm text-gray-400">Reads manifests, README, and source files to extract conventions — even with zero PRs.</p>
+                </div>
+                <div class="glass-card rounded-2xl p-6">
+                    <div class="text-xl font-mono text-brand-400 mb-3">$ contextlayer note</div>
+                    <h3 class="font-bold text-white mb-2">Decision Journal</h3>
+                    <p class="text-sm text-gray-400">Capture decisions in one line. No API call. Free. Every future AI session knows it forever.</p>
+                </div>
+                <div class="glass-card rounded-2xl p-6">
+                    <div class="text-xl font-mono text-brand-400 mb-3">$ contextlayer explain</div>
+                    <h3 class="font-bold text-white mb-2">Onboarding Doc</h3>
+                    <p class="text-sm text-gray-400">Generate a project brief from indexed atoms. Skip the "let me explain my project" tax.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Waitlist -->
+        <section id="waitlist" class="max-w-2xl mx-auto px-6 pb-24">
+            <div class="glass-card rounded-2xl p-8 md:p-12 text-center glow-border">
+                <h2 class="text-2xl md:text-3xl font-bold text-white mb-3">Get early access</h2>
+                <p class="text-gray-400 mb-8">Open source and free. Join the waitlist for hosted features, team sharing, and drift detection.</p>
+
+                <!-- Tally embed — replace with your form URL -->
+                <div class="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+                    <input type="email" id="waitlist-email" placeholder="you@company.com"
+                           class="flex-1 px-4 py-3 rounded-lg bg-surface-900 border border-gray-700 text-white placeholder-gray-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 text-sm">
+                    <button onclick="joinWaitlist()" id="waitlist-btn"
+                            class="px-6 py-3 rounded-lg bg-brand-600 hover:bg-brand-500 text-white font-medium text-sm transition-all hover:shadow-lg hover:shadow-brand-600/20 whitespace-nowrap">
+                        Join Waitlist
+                    </button>
+                </div>
+                <p id="waitlist-msg" class="text-sm text-green-400 mt-4 hidden">✓ You're on the list!</p>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="max-w-6xl mx-auto px-6 py-8 border-t border-gray-800/50">
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div class="text-sm text-gray-500">
+                    © 2026 ContextLayer.dev · MIT License
+                </div>
+                <div class="flex items-center gap-6 text-sm text-gray-500">
+                    <a href="https://github.com/AntarangSharma/ContextLayer.dev" target="_blank" class="hover:text-white transition-colors">GitHub</a>
+                    <a href="https://github.com/AntarangSharma/ContextLayer.dev#-quick-start-30-seconds" target="_blank" class="hover:text-white transition-colors">Docs</a>
+                </div>
+            </div>
+        </footer>
+    </main>
+
+    <script>
+        function joinWaitlist() {
+            const email = document.getElementById('waitlist-email').value;
+            if (!email || !email.includes('@')) {
+                alert('Please enter a valid email.');
+                return;
+            }
+            // For now, just show success — replace with Tally or Formspree integration
+            document.getElementById('waitlist-btn').textContent = 'Joined!';
+            document.getElementById('waitlist-btn').disabled = true;
+            document.getElementById('waitlist-btn').classList.add('opacity-50');
+            document.getElementById('waitlist-msg').classList.remove('hidden');
+            // Store locally as a fallback
+            const existing = JSON.parse(localStorage.getItem('waitlist') || '[]');
+            existing.push({ email, ts: new Date().toISOString() });
+            localStorage.setItem('waitlist', JSON.stringify(existing));
+        }
+    </script>
+</body>
+</html>
