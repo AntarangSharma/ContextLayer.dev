@@ -59,3 +59,7 @@ demo-data/*.db-shm
 .coverage
 htmlcov/
 
+
+# Generated synthetic demo repo (run demo-data/build_acme.py to materialize)
+demo-data/acme-billing-api/
+demo-data/fastapi/
