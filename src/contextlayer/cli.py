@@ -70,10 +70,20 @@ def index(
 def mcp(
     repo: str = typer.Option(".", "--repo", help="Path to the repo whose index to serve."),
 ) -> None:
-    """Start the stdio MCP server against the indexed DB. (T+13 — implemented in upcoming step.)"""
-    typer.echo(f"[T+0 stub] mcp: repo={repo}")
-    typer.echo("Implementation lands at T+13 (Phase 1). See tasks/todo.md.")
-    raise typer.Exit(code=1)
+    """Start the stdio MCP server against the indexed DB."""
+    from contextlayer.mcp_server.server import serve
+    from contextlayer.store.repo_hash import index_db_path
+
+    db_path = index_db_path(repo)
+    if not db_path.exists():
+        typer.secho(
+            f"No index found at {db_path}.\n"
+            f"Run `contextlayer index {repo}` first.",
+            fg=typer.colors.RED, err=True,
+        )
+        raise typer.Exit(code=2)
+    # serve() blocks until stdin closes (stdio MCP convention)
+    serve(db_path)
 
 
 @app.command()

@@ -740,6 +740,45 @@ def main() -> int:
     )
     assert int(counts.stdout.strip()) == len(PRS), "commit count mismatch"
     print(f"\n✓ {counts.stdout.strip()} commits confirmed.")
+
+    # Write demo infrastructure files AFTER commits (so they don't appear in git log).
+    # These are working-tree-only — Claude Code reads them without caring about git.
+    import json as _json
+    outer_repo = Path(__file__).resolve().parent.parent
+
+    mcp_config = {
+        "mcpServers": {
+            "contextlayer": {
+                "command": "uv",
+                "args": [
+                    "run", "--directory", str(outer_repo),
+                    "contextlayer", "mcp",
+                    "--repo", str(REPO_PATH),
+                ],
+            }
+        }
+    }
+    (REPO_PATH / ".mcp.json").write_text(_json.dumps(mcp_config, indent=2) + "\n")
+
+    (REPO_PATH / "CLAUDE.md").write_text(
+        "# Working in this repo\n\n"
+        "## ContextLayer is wired here\n\n"
+        "This repository has a ContextLayer knowledge index. **Before proposing code "
+        "changes or design decisions, call the `context_query` MCP tool** with a short "
+        "description of what you intend to do.\n\n"
+        "The repo has team conventions, design decisions, deprecations, and anti-patterns "
+        "codified into atoms. Your training data does NOT know about them. Querying first "
+        "ensures your answer reflects this team's actual conventions — not generic advice.\n\n"
+        "After querying, briefly cite the atom source refs (PR numbers, commit SHAs) when "
+        "explaining your reasoning.\n"
+    )
+
+    print(f"✓ Wrote {REPO_PATH / '.mcp.json'}")
+    print(f"✓ Wrote {REPO_PATH / 'CLAUDE.md'}")
+    print()
+    print("Demo setup is complete. Next:")
+    print(f"  contextlayer index {REPO_PATH}")
+    print(f"  cd {REPO_PATH} && claude  # then ask: 'Add an endpoint that fetches a user's billing history.'")
     return 0
 
 
