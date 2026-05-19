@@ -67,6 +67,10 @@ def index(
     typer.echo(f"  Opus structured:    {result['atoms_written']} canonical atoms ({result.get('stage3_status', '?')})")
     typer.echo(f"  Topics:             {result.get('topics_written', 0)}")
     typer.echo(f"  Rules promoted:     {result.get('rules_promoted', 0)}")
+    cr = result.get("cache_read_tokens", 0)
+    cw = result.get("cache_write_tokens", 0)
+    if cr or cw:
+        typer.echo(f"  Prompt cache:       {cr:,} read tokens / {cw:,} write tokens")
     typer.echo(f"  DB:                 {result['db_path']}")
     typer.echo(f"  Elapsed:            {result['elapsed_seconds']}s")
 
@@ -229,6 +233,10 @@ def scan(
     typer.echo(f"  Opus structured:    {result['atoms_written']} canonical atoms ({result.get('stage3_status', '?')})")
     typer.echo(f"  Topics:             {result.get('topics_written', 0)}")
     typer.echo(f"  Rules promoted:     {result.get('rules_promoted', 0)}")
+    cr = result.get("cache_read_tokens", 0)
+    cw = result.get("cache_write_tokens", 0)
+    if cr or cw:
+        typer.echo(f"  Prompt cache:       {cr:,} read tokens / {cw:,} write tokens")
     typer.echo(f"  DB:                 {result['db_path']}")
     typer.echo(f"  Elapsed:            {result['elapsed_seconds']}s")
 

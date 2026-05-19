@@ -24,6 +24,7 @@ from pathlib import Path
 import anthropic
 
 from contextlayer.embed import embed_one
+from contextlayer.extract import stage1_haiku, stage2_sonnet
 from contextlayer.extract.atom import Atom
 from contextlayer.extract.stage1_haiku import Stage1Result, classify_one
 from contextlayer.extract.stage2_sonnet import extract_one
@@ -148,6 +149,10 @@ async def _run_extraction(
     client = anthropic.AsyncAnthropic()
     limiter = GlobalRateLimiter(rpm=RPM_LIMIT)
 
+    # Reset cumulative cache-hit counters so this run's stats are clean.
+    stage1_haiku.reset_usage()
+    stage2_sonnet.reset_usage()
+
     log.info("Stage 1 Haiku — filtering %d events (RPM=%d)...", len(events), RPM_LIMIT)
     kept = await _stage1(client, events, limiter)
     log.info("Haiku kept %d / %d events", len(kept), len(events))
@@ -202,6 +207,8 @@ async def _run_extraction(
     finally:
         conn.close()
 
+    stage1_usage = stage1_haiku.get_usage()
+    stage2_usage = stage2_sonnet.get_usage()
     return {
         "repo_path": str(repo_path),
         "db_path": str(db_path),
@@ -212,6 +219,10 @@ async def _run_extraction(
         "topics_written": len(topics),
         "rules_promoted": sum(1 for a in canonical_atoms if a.is_rule),
         "stage3_status": "opus" if stage3_ok else "python_dedup_fallback",
+        "stage1_usage": stage1_usage,
+        "stage2_usage": stage2_usage,
+        "cache_read_tokens": stage1_usage["cache_read"] + stage2_usage["cache_read"],
+        "cache_write_tokens": stage1_usage["cache_write"] + stage2_usage["cache_write"],
         "elapsed_seconds": round(time.time() - t0, 1),
     }
 
