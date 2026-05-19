@@ -1,0 +1,567 @@
+{
+  "queries": [
+    {
+      "q": "I need to add an endpoint that fetches a user's billing history.",
+      "atoms": [
+        {
+          "id": "a_21023d",
+          "summary": "NEVER create module-level SQLAlchemy sessions or share sessions across requests. Sessions must be request-scoped via Depends(get_session) or Depends(get_async_session).",
+          "rationale": "PR #14 fixes routes/legacy.py module-level session that caused: (1) concurrent requests sharing transaction state, (2) connection leaks causing 'too many connections' alerts in staging, (3) unbounded identity map growth leading to OOM. Sessions are not thread/task-safe; one request's rollback affects another's writes.",
+          "scope": "",
+          "source_refs": [
+            "pr:14:description",
+            "commit:7773cde97ec0b9f5eaf9c99404f51f8371d22731",
+            "file:README.md"
+          ],
+          "is_rule": true,
+          "score": 0.454
+        },
+        {
+          "id": "a_259809",
+          "summary": "Do not use utils/db_helper; use Depends(get_session) or Depends(get_async_session) instead. Module raises RuntimeError after 2027-Q1.",
+          "rationale": "PR #8 deprecates db_helper after a staging incident where concurrent calls exhausted the connection pool (20 conn limit), stalling the app for 90s. Injected sessions enforce pool limits and per-request lifecycle. Grace window until 2027-Q1 for external forks to migrate.",
+          "scope": "",
+          "source_refs": [
+            "pr:8:description",
+            "commit:7417a789be26cdd5aed8b512e97ad1d019c6960e",
+            "file:utils/db_helper.py"
+          ],
+          "is_rule": true,
+          "score": 0.451
+        },
+        {
+          "id": "a_123e62",
+          "summary": "Use Result<T> for expected business failures; middleware can raise exceptions, domain handlers must return Result<T>.",
+          "rationale": "Q3 incident: async exception propagation inside asyncio.gather silently dropped distributed-tracing spans. Establishes explicit exception boundary: middleware (infra-level) can raise, domain handlers (business logic) must use Result<T> for consistency and tracing compatibility. Exceptions reserved for truly exceptional conditions (DB unreachable, kernel panic, config error).",
+          "scope": "",
+          "source_refs": [
+            "commit:dce6492ea891d860baee30b9c3d8c824295f1303",
+            "pr:3:description",
+            "file:README.md"
+          ],
+          "is_rule": true,
+          "score": 0.447
+        },
+        {
+          "id": "a_76ab71",
+          "summary": "Do not bypass get_session because 'the session is too short-lived'; fix the route lifecycle instead.",
+          "rationale": "Bypassing the injected session pool prevents enforcement of connection-pool limits and per-request lifecycle, leading to connection exhaustion.",
+          "scope": "",
+          "source_refs": [
+            "pr:8:description",
+            "commit:7417a789be26cdd5aed8b512e97ad1d019c6960e"
+          ],
+          "is_rule": true,
+          "score": 0.445
+        },
+        {
+          "id": "a_4e92f7",
+          "summary": "CI must fail the build if any FastAPI route handler awaits known-async functions without being async def.",
+          "rationale": "PR #11 adds pytest-collect hook (check_async_routes.py) to enforce async-first mechanically and prevent drift over time. Without CI check, the policy erodes in 6 months.",
+          "scope": "routes/**",
+          "source_refs": [
+            "pr:11:description",
+            "commit:1dc68af7022e66eb99f002ddacb6f1219867bdf5"
+          ],
+          "is_rule": true,
+          "score": 0.442
+        }
+      ]
+    },
+    {
+      "q": "How should I handle errors in route handlers?",
+      "atoms": [
+        {
+          "id": "a_123e62",
+          "summary": "Use Result<T> for expected business failures; middleware can raise exceptions, domain handlers must return Result<T>.",
+          "rationale": "Q3 incident: async exception propagation inside asyncio.gather silently dropped distributed-tracing spans. Establishes explicit exception boundary: middleware (infra-level) can raise, domain handlers (business logic) must use Result<T> for consistency and tracing compatibility. Exceptions reserved for truly exceptional conditions (DB unreachable, kernel panic, config error).",
+          "scope": "",
+          "source_refs": [
+            "commit:dce6492ea891d860baee30b9c3d8c824295f1303",
+            "pr:3:description",
+            "file:README.md"
+          ],
+          "is_rule": true,
+          "score": 0.521
+        },
+        {
+          "id": "a_b13520",
+          "summary": "Route handlers that perform I/O (DB, HTTP, queue, file) MUST be async def; pure-compute routes can remain def.",
+          "rationale": "PR #11 locks async-first policy. Sync handlers block workers on I/O, capping throughput at ~270 req/s; async lifts that ~3x. Also enables asyncio.gather fan-out and avoids sync-async footguns. Load testing shows ~3x improvement with 8 workers and 30ms DB latency.",
+          "scope": "routes/**",
+          "source_refs": [
+            "pr:11:description",
+            "commit:1dc68af7022e66eb99f002ddacb6f1219867bdf5",
+            "file:README.md"
+          ],
+          "is_rule": true,
+          "score": 0.499
+        },
+        {
+          "id": "a_4e92f7",
+          "summary": "CI must fail the build if any FastAPI route handler awaits known-async functions without being async def.",
+          "rationale": "PR #11 adds pytest-collect hook (check_async_routes.py) to enforce async-first mechanically and prevent drift over time. Without CI check, the policy erodes in 6 months.",
+          "scope": "routes/**",
+          "source_refs": [
+            "pr:11:description",
+            "commit:1dc68af7022e66eb99f002ddacb6f1219867bdf5"
+          ],
+          "is_rule": true,
+          "score": 0.493
+        },
+        {
+          "id": "a_76ab71",
+          "summary": "Do not bypass get_session because 'the session is too short-lived'; fix the route lifecycle instead.",
+          "rationale": "Bypassing the injected session pool prevents enforcement of connection-pool limits and per-request lifecycle, leading to connection exhaustion.",
+          "scope": "",
+          "source_refs": [
+            "pr:8:description",
+            "commit:7417a789be26cdd5aed8b512e97ad1d019c6960e"
+          ],
+          "is_rule": true,
+          "score": 0.481
+        },
+        {
+          "id": "a_21023d",
+          "summary": "NEVER create module-level SQLAlchemy sessions or share sessions across requests. Sessions must be request-scoped via Depends(get_session) or Depends(get_async_session).",
+          "rationale": "PR #14 fixes routes/legacy.py module-level session that caused: (1) concurrent requests sharing transaction state, (2) connection leaks causing 'too many connections' alerts in staging, (3) unbounded identity map growth leading to OOM. Sessions are not thread/task-safe; one request's rollback affects another's writes.",
+          "scope": "",
+          "source_refs": [
+            "pr:14:description",
+            "commit:7773cde97ec0b9f5eaf9c99404f51f8371d22731",
+            "file:README.md"
+          ],
+          "is_rule": true,
+          "score": 0.481
+        }
+      ]
+    },
+    {
+      "q": "Can I use threading to speed up DB writes?",
+      "atoms": [
+        {
+          "id": "a_b13520",
+          "summary": "Route handlers that perform I/O (DB, HTTP, queue, file) MUST be async def; pure-compute routes can remain def.",
+          "rationale": "PR #11 locks async-first policy. Sync handlers block workers on I/O, capping throughput at ~270 req/s; async lifts that ~3x. Also enables asyncio.gather fan-out and avoids sync-async footguns. Load testing shows ~3x improvement with 8 workers and 30ms DB latency.",
+          "scope": "routes/**",
+          "source_refs": [
+            "pr:11:description",
+            "commit:1dc68af7022e66eb99f002ddacb6f1219867bdf5",
+            "file:README.md"
+          ],
+          "is_rule": true,
+          "score": 0.516
+        },
+        {
+          "id": "a_259809",
+          "summary": "Do not use utils/db_helper; use Depends(get_session) or Depends(get_async_session) instead. Module raises RuntimeError after 2027-Q1.",
+          "rationale": "PR #8 deprecates db_helper after a staging incident where concurrent calls exhausted the connection pool (20 conn limit), stalling the app for 90s. Injected sessions enforce pool limits and per-request lifecycle. Grace window until 2027-Q1 for external forks to migrate.",
+          "scope": "",
+          "source_refs": [
+            "pr:8:description",
+            "commit:7417a789be26cdd5aed8b512e97ad1d019c6960e",
+            "file:utils/db_helper.py"
+          ],
+          "is_rule": true,
+          "score": 0.502
+        },
+        {
+          "id": "a_21023d",
+          "summary": "NEVER create module-level SQLAlchemy sessions or share sessions across requests. Sessions must be request-scoped via Depends(get_session) or Depends(get_async_session).",
+          "rationale": "PR #14 fixes routes/legacy.py module-level session that caused: (1) concurrent requests sharing transaction state, (2) connection leaks causing 'too many connections' alerts in staging, (3) unbounded identity map growth leading to OOM. Sessions are not thread/task-safe; one request's rollback affects another's writes.",
+          "scope": "",
+          "source_refs": [
+            "pr:14:description",
+            "commit:7773cde97ec0b9f5eaf9c99404f51f8371d22731",
+            "file:README.md"
+          ],
+          "is_rule": true,
+          "score": 0.499
+        },
+        {
+          "id": "a_123e62",
+          "summary": "Use Result<T> for expected business failures; middleware can raise exceptions, domain handlers must return Result<T>.",
+          "rationale": "Q3 incident: async exception propagation inside asyncio.gather silently dropped distributed-tracing spans. Establishes explicit exception boundary: middleware (infra-level) can raise, domain handlers (business logic) must use Result<T> for consistency and tracing compatibility. Exceptions reserved for truly exceptional conditions (DB unreachable, kernel panic, config error).",
+          "scope": "",
+          "source_refs": [
+            "commit:dce6492ea891d860baee30b9c3d8c824295f1303",
+            "pr:3:description",
+            "file:README.md"
+          ],
+          "is_rule": true,
+          "score": 0.48
+        },
+        {
+          "id": "a_76ab71",
+          "summary": "Do not bypass get_session because 'the session is too short-lived'; fix the route lifecycle instead.",
+          "rationale": "Bypassing the injected session pool prevents enforcement of connection-pool limits and per-request lifecycle, leading to connection exhaustion.",
+          "scope": "",
+          "source_refs": [
+            "pr:8:description",
+            "commit:7417a789be26cdd5aed8b512e97ad1d019c6960e"
+          ],
+          "is_rule": true,
+          "score": 0.457
+        }
+      ]
+    },
+    {
+      "q": "What's the right way to manage SQLAlchemy sessions?",
+      "atoms": [
+        {
+          "id": "a_21023d",
+          "summary": "NEVER create module-level SQLAlchemy sessions or share sessions across requests. Sessions must be request-scoped via Depends(get_session) or Depends(get_async_session).",
+          "rationale": "PR #14 fixes routes/legacy.py module-level session that caused: (1) concurrent requests sharing transaction state, (2) connection leaks causing 'too many connections' alerts in staging, (3) unbounded identity map growth leading to OOM. Sessions are not thread/task-safe; one request's rollback affects another's writes.",
+          "scope": "",
+          "source_refs": [
+            "pr:14:description",
+            "commit:7773cde97ec0b9f5eaf9c99404f51f8371d22731",
+            "file:README.md"
+          ],
+          "is_rule": true,
+          "score": 0.577
+        },
+        {
+          "id": "a_259809",
+          "summary": "Do not use utils/db_helper; use Depends(get_session) or Depends(get_async_session) instead. Module raises RuntimeError after 2027-Q1.",
+          "rationale": "PR #8 deprecates db_helper after a staging incident where concurrent calls exhausted the connection pool (20 conn limit), stalling the app for 90s. Injected sessions enforce pool limits and per-request lifecycle. Grace window until 2027-Q1 for external forks to migrate.",
+          "scope": "",
+          "source_refs": [
+            "pr:8:description",
+            "commit:7417a789be26cdd5aed8b512e97ad1d019c6960e",
+            "file:utils/db_helper.py"
+          ],
+          "is_rule": true,
+          "score": 0.51
+        },
+        {
+          "id": "a_76ab71",
+          "summary": "Do not bypass get_session because 'the session is too short-lived'; fix the route lifecycle instead.",
+          "rationale": "Bypassing the injected session pool prevents enforcement of connection-pool limits and per-request lifecycle, leading to connection exhaustion.",
+          "scope": "",
+          "source_refs": [
+            "pr:8:description",
+            "commit:7417a789be26cdd5aed8b512e97ad1d019c6960e"
+          ],
+          "is_rule": true,
+          "score": 0.489
+        },
+        {
+          "id": "a_805f3d",
+          "summary": "CI and pre-commit hooks must AST-check for SessionLocal() or async_sessionmaker()() calls outside function scope and fail the build.",
+          "rationale": "PR #14 adds tools/lint_session_check.py to mechanically prevent module-level session anti-pattern from reoccurring. Catches violations at PR time before runtime, preventing recurrence of connection-leak incidents.",
+          "scope": "",
+          "source_refs": [
+            "pr:14:description",
+            "commit:7773cde97ec0b9f5eaf9c99404f51f8371d22731",
+            "file:tools/lint_session_check.py"
+          ],
+          "is_rule": true,
+          "score": 0.489
+        },
+        {
+          "id": "a_b13520",
+          "summary": "Route handlers that perform I/O (DB, HTTP, queue, file) MUST be async def; pure-compute routes can remain def.",
+          "rationale": "PR #11 locks async-first policy. Sync handlers block workers on I/O, capping throughput at ~270 req/s; async lifts that ~3x. Also enables asyncio.gather fan-out and avoids sync-async footguns. Load testing shows ~3x improvement with 8 workers and 30ms DB latency.",
+          "scope": "routes/**",
+          "source_refs": [
+            "pr:11:description",
+            "commit:1dc68af7022e66eb99f002ddacb6f1219867bdf5",
+            "file:README.md"
+          ],
+          "is_rule": true,
+          "score": 0.463
+        }
+      ]
+    },
+    {
+      "q": "How do we structure async I/O in this codebase?",
+      "atoms": [
+        {
+          "id": "a_b13520",
+          "summary": "Route handlers that perform I/O (DB, HTTP, queue, file) MUST be async def; pure-compute routes can remain def.",
+          "rationale": "PR #11 locks async-first policy. Sync handlers block workers on I/O, capping throughput at ~270 req/s; async lifts that ~3x. Also enables asyncio.gather fan-out and avoids sync-async footguns. Load testing shows ~3x improvement with 8 workers and 30ms DB latency.",
+          "scope": "routes/**",
+          "source_refs": [
+            "pr:11:description",
+            "commit:1dc68af7022e66eb99f002ddacb6f1219867bdf5",
+            "file:README.md"
+          ],
+          "is_rule": true,
+          "score": 0.548
+        },
+        {
+          "id": "a_4e92f7",
+          "summary": "CI must fail the build if any FastAPI route handler awaits known-async functions without being async def.",
+          "rationale": "PR #11 adds pytest-collect hook (check_async_routes.py) to enforce async-first mechanically and prevent drift over time. Without CI check, the policy erodes in 6 months.",
+          "scope": "routes/**",
+          "source_refs": [
+            "pr:11:description",
+            "commit:1dc68af7022e66eb99f002ddacb6f1219867bdf5"
+          ],
+          "is_rule": true,
+          "score": 0.519
+        },
+        {
+          "id": "a_805f3d",
+          "summary": "CI and pre-commit hooks must AST-check for SessionLocal() or async_sessionmaker()() calls outside function scope and fail the build.",
+          "rationale": "PR #14 adds tools/lint_session_check.py to mechanically prevent module-level session anti-pattern from reoccurring. Catches violations at PR time before runtime, preventing recurrence of connection-leak incidents.",
+          "scope": "",
+          "source_refs": [
+            "pr:14:description",
+            "commit:7773cde97ec0b9f5eaf9c99404f51f8371d22731",
+            "file:tools/lint_session_check.py"
+          ],
+          "is_rule": true,
+          "score": 0.5
+        },
+        {
+          "id": "a_123e62",
+          "summary": "Use Result<T> for expected business failures; middleware can raise exceptions, domain handlers must return Result<T>.",
+          "rationale": "Q3 incident: async exception propagation inside asyncio.gather silently dropped distributed-tracing spans. Establishes explicit exception boundary: middleware (infra-level) can raise, domain handlers (business logic) must use Result<T> for consistency and tracing compatibility. Exceptions reserved for truly exceptional conditions (DB unreachable, kernel panic, config error).",
+          "scope": "",
+          "source_refs": [
+            "commit:dce6492ea891d860baee30b9c3d8c824295f1303",
+            "pr:3:description",
+            "file:README.md"
+          ],
+          "is_rule": true,
+          "score": 0.493
+        },
+        {
+          "id": "a_21023d",
+          "summary": "NEVER create module-level SQLAlchemy sessions or share sessions across requests. Sessions must be request-scoped via Depends(get_session) or Depends(get_async_session).",
+          "rationale": "PR #14 fixes routes/legacy.py module-level session that caused: (1) concurrent requests sharing transaction state, (2) connection leaks causing 'too many connections' alerts in staging, (3) unbounded identity map growth leading to OOM. Sessions are not thread/task-safe; one request's rollback affects another's writes.",
+          "scope": "",
+          "source_refs": [
+            "pr:14:description",
+            "commit:7773cde97ec0b9f5eaf9c99404f51f8371d22731",
+            "file:README.md"
+          ],
+          "is_rule": true,
+          "score": 0.475
+        }
+      ]
+    },
+    {
+      "q": "Can I cache user-specific responses globally?",
+      "atoms": [
+        {
+          "id": "a_ef174c",
+          "summary": "Cache keys must include user identity if the response depends on requesting user's permissions.",
+          "rationale": "PR #10 review highlights auth risk: cached objects that depend on user permissions must include user in cache key to avoid unauthorized data leakage. Confirm independence before using user-agnostic keys.",
+          "scope": "",
+          "source_refs": [
+            "pr:10:review:0",
+            "commit:90f222ad9d59f1831627190d4fe84e16f3932761"
+          ],
+          "is_rule": true,
+          "score": 0.518
+        },
+        {
+          "id": "a_21023d",
+          "summary": "NEVER create module-level SQLAlchemy sessions or share sessions across requests. Sessions must be request-scoped via Depends(get_session) or Depends(get_async_session).",
+          "rationale": "PR #14 fixes routes/legacy.py module-level session that caused: (1) concurrent requests sharing transaction state, (2) connection leaks causing 'too many connections' alerts in staging, (3) unbounded identity map growth leading to OOM. Sessions are not thread/task-safe; one request's rollback affects another's writes.",
+          "scope": "",
+          "source_refs": [
+            "pr:14:description",
+            "commit:7773cde97ec0b9f5eaf9c99404f51f8371d22731",
+            "file:README.md"
+          ],
+          "is_rule": true,
+          "score": 0.472
+        },
+        {
+          "id": "a_805f3d",
+          "summary": "CI and pre-commit hooks must AST-check for SessionLocal() or async_sessionmaker()() calls outside function scope and fail the build.",
+          "rationale": "PR #14 adds tools/lint_session_check.py to mechanically prevent module-level session anti-pattern from reoccurring. Catches violations at PR time before runtime, preventing recurrence of connection-leak incidents.",
+          "scope": "",
+          "source_refs": [
+            "pr:14:description",
+            "commit:7773cde97ec0b9f5eaf9c99404f51f8371d22731",
+            "file:tools/lint_session_check.py"
+          ],
+          "is_rule": true,
+          "score": 0.463
+        },
+        {
+          "id": "a_123e62",
+          "summary": "Use Result<T> for expected business failures; middleware can raise exceptions, domain handlers must return Result<T>.",
+          "rationale": "Q3 incident: async exception propagation inside asyncio.gather silently dropped distributed-tracing spans. Establishes explicit exception boundary: middleware (infra-level) can raise, domain handlers (business logic) must use Result<T> for consistency and tracing compatibility. Exceptions reserved for truly exceptional conditions (DB unreachable, kernel panic, config error).",
+          "scope": "",
+          "source_refs": [
+            "commit:dce6492ea891d860baee30b9c3d8c824295f1303",
+            "pr:3:description",
+            "file:README.md"
+          ],
+          "is_rule": true,
+          "score": 0.456
+        },
+        {
+          "id": "a_b13520",
+          "summary": "Route handlers that perform I/O (DB, HTTP, queue, file) MUST be async def; pure-compute routes can remain def.",
+          "rationale": "PR #11 locks async-first policy. Sync handlers block workers on I/O, capping throughput at ~270 req/s; async lifts that ~3x. Also enables asyncio.gather fan-out and avoids sync-async footguns. Load testing shows ~3x improvement with 8 workers and 30ms DB latency.",
+          "scope": "routes/**",
+          "source_refs": [
+            "pr:11:description",
+            "commit:1dc68af7022e66eb99f002ddacb6f1219867bdf5",
+            "file:README.md"
+          ],
+          "is_rule": true,
+          "score": 0.455
+        }
+      ]
+    },
+    {
+      "q": "What's the convention for deprecating an API endpoint?",
+      "atoms": [
+        {
+          "id": "a_805f3d",
+          "summary": "CI and pre-commit hooks must AST-check for SessionLocal() or async_sessionmaker()() calls outside function scope and fail the build.",
+          "rationale": "PR #14 adds tools/lint_session_check.py to mechanically prevent module-level session anti-pattern from reoccurring. Catches violations at PR time before runtime, preventing recurrence of connection-leak incidents.",
+          "scope": "",
+          "source_refs": [
+            "pr:14:description",
+            "commit:7773cde97ec0b9f5eaf9c99404f51f8371d22731",
+            "file:tools/lint_session_check.py"
+          ],
+          "is_rule": true,
+          "score": 0.491
+        },
+        {
+          "id": "a_259809",
+          "summary": "Do not use utils/db_helper; use Depends(get_session) or Depends(get_async_session) instead. Module raises RuntimeError after 2027-Q1.",
+          "rationale": "PR #8 deprecates db_helper after a staging incident where concurrent calls exhausted the connection pool (20 conn limit), stalling the app for 90s. Injected sessions enforce pool limits and per-request lifecycle. Grace window until 2027-Q1 for external forks to migrate.",
+          "scope": "",
+          "source_refs": [
+            "pr:8:description",
+            "commit:7417a789be26cdd5aed8b512e97ad1d019c6960e",
+            "file:utils/db_helper.py"
+          ],
+          "is_rule": true,
+          "score": 0.481
+        },
+        {
+          "id": "a_123e62",
+          "summary": "Use Result<T> for expected business failures; middleware can raise exceptions, domain handlers must return Result<T>.",
+          "rationale": "Q3 incident: async exception propagation inside asyncio.gather silently dropped distributed-tracing spans. Establishes explicit exception boundary: middleware (infra-level) can raise, domain handlers (business logic) must use Result<T> for consistency and tracing compatibility. Exceptions reserved for truly exceptional conditions (DB unreachable, kernel panic, config error).",
+          "scope": "",
+          "source_refs": [
+            "commit:dce6492ea891d860baee30b9c3d8c824295f1303",
+            "pr:3:description",
+            "file:README.md"
+          ],
+          "is_rule": true,
+          "score": 0.475
+        },
+        {
+          "id": "a_21023d",
+          "summary": "NEVER create module-level SQLAlchemy sessions or share sessions across requests. Sessions must be request-scoped via Depends(get_session) or Depends(get_async_session).",
+          "rationale": "PR #14 fixes routes/legacy.py module-level session that caused: (1) concurrent requests sharing transaction state, (2) connection leaks causing 'too many connections' alerts in staging, (3) unbounded identity map growth leading to OOM. Sessions are not thread/task-safe; one request's rollback affects another's writes.",
+          "scope": "",
+          "source_refs": [
+            "pr:14:description",
+            "commit:7773cde97ec0b9f5eaf9c99404f51f8371d22731",
+            "file:README.md"
+          ],
+          "is_rule": true,
+          "score": 0.47
+        },
+        {
+          "id": "a_b13520",
+          "summary": "Route handlers that perform I/O (DB, HTTP, queue, file) MUST be async def; pure-compute routes can remain def.",
+          "rationale": "PR #11 locks async-first policy. Sync handlers block workers on I/O, capping throughput at ~270 req/s; async lifts that ~3x. Also enables asyncio.gather fan-out and avoids sync-async footguns. Load testing shows ~3x improvement with 8 workers and 30ms DB latency.",
+          "scope": "routes/**",
+          "source_refs": [
+            "pr:11:description",
+            "commit:1dc68af7022e66eb99f002ddacb6f1219867bdf5",
+            "file:README.md"
+          ],
+          "is_rule": true,
+          "score": 0.467
+        }
+      ]
+    },
+    {
+      "q": "How do I validate request bodies?",
+      "atoms": [
+        {
+          "id": "a_21023d",
+          "summary": "NEVER create module-level SQLAlchemy sessions or share sessions across requests. Sessions must be request-scoped via Depends(get_session) or Depends(get_async_session).",
+          "rationale": "PR #14 fixes routes/legacy.py module-level session that caused: (1) concurrent requests sharing transaction state, (2) connection leaks causing 'too many connections' alerts in staging, (3) unbounded identity map growth leading to OOM. Sessions are not thread/task-safe; one request's rollback affects another's writes.",
+          "scope": "",
+          "source_refs": [
+            "pr:14:description",
+            "commit:7773cde97ec0b9f5eaf9c99404f51f8371d22731",
+            "file:README.md"
+          ],
+          "is_rule": true,
+          "score": 0.487
+        },
+        {
+          "id": "a_259809",
+          "summary": "Do not use utils/db_helper; use Depends(get_session) or Depends(get_async_session) instead. Module raises RuntimeError after 2027-Q1.",
+          "rationale": "PR #8 deprecates db_helper after a staging incident where concurrent calls exhausted the connection pool (20 conn limit), stalling the app for 90s. Injected sessions enforce pool limits and per-request lifecycle. Grace window until 2027-Q1 for external forks to migrate.",
+          "scope": "",
+          "source_refs": [
+            "pr:8:description",
+            "commit:7417a789be26cdd5aed8b512e97ad1d019c6960e",
+            "file:utils/db_helper.py"
+          ],
+          "is_rule": true,
+          "score": 0.466
+        },
+        {
+          "id": "a_805f3d",
+          "summary": "CI and pre-commit hooks must AST-check for SessionLocal() or async_sessionmaker()() calls outside function scope and fail the build.",
+          "rationale": "PR #14 adds tools/lint_session_check.py to mechanically prevent module-level session anti-pattern from reoccurring. Catches violations at PR time before runtime, preventing recurrence of connection-leak incidents.",
+          "scope": "",
+          "source_refs": [
+            "pr:14:description",
+            "commit:7773cde97ec0b9f5eaf9c99404f51f8371d22731",
+            "file:tools/lint_session_check.py"
+          ],
+          "is_rule": true,
+          "score": 0.464
+        },
+        {
+          "id": "a_ef174c",
+          "summary": "Cache keys must include user identity if the response depends on requesting user's permissions.",
+          "rationale": "PR #10 review highlights auth risk: cached objects that depend on user permissions must include user in cache key to avoid unauthorized data leakage. Confirm independence before using user-agnostic keys.",
+          "scope": "",
+          "source_refs": [
+            "pr:10:review:0",
+            "commit:90f222ad9d59f1831627190d4fe84e16f3932761"
+          ],
+          "is_rule": true,
+          "score": 0.456
+        },
+        {
+          "id": "a_4e92f7",
+          "summary": "CI must fail the build if any FastAPI route handler awaits known-async functions without being async def.",
+          "rationale": "PR #11 adds pytest-collect hook (check_async_routes.py) to enforce async-first mechanically and prevent drift over time. Without CI check, the policy erodes in 6 months.",
+          "scope": "routes/**",
+          "source_refs": [
+            "pr:11:description",
+            "commit:1dc68af7022e66eb99f002ddacb6f1219867bdf5"
+          ],
+          "is_rule": true,
+          "score": 0.455
+        }
+      ]
+    }
+  ],
+  "stats": {
+    "atoms": 15,
+    "rules": 8,
+    "topics": 7,
+    "citations": 24,
+    "repo": "acme-billing-api (demo)"
+  },
+  "benchmark": {
+    "queries_with_cited_rule_in_top5": 8,
+    "total_queries": 8,
+    "rate_pct": 100,
+    "baseline_rate_pct": 0
+  }
+}
