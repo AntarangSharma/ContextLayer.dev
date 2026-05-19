@@ -3,11 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ContextLayer.dev - The Missing Context Layer for AI Coding Agents</title>
-    <meta name="description" content="ContextLayer extracts team conventions, decisions, and anti-patterns from your repo and serves them to Claude Code via MCP. Your AI answers like a senior engineer who read everything.">
+    <title>ContextLayer.dev — The Missing Context Layer for AI Coding Agents</title>
+    <meta name="description" content="ContextLayer extracts conventions, decisions, and anti-patterns from your repo and serves them to Claude Code via MCP. Push verdicts with context_validate. Local-first, BYOK, MIT.">
+    <meta property="og:title" content="ContextLayer.dev — The Missing Context Layer for AI Coding Agents">
+    <meta property="og:description" content="Your AI answers like a senior engineer who read everything — including the unwritten parts.">
+    <meta property="og:type" content="website">
+    <meta name="theme-color" content="#0a0b12">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -30,6 +34,12 @@
                             800: '#3b5bdb',
                             900: '#364fc7',
                         },
+                        accent: {
+                            violet: '#9775fa',
+                            pink: '#da77f2',
+                            cyan: '#3bc9db',
+                            green: '#51cf66',
+                        },
                         surface: {
                             50: '#f8f9fa',
                             100: '#f1f3f5',
@@ -44,134 +54,413 @@
         }
     </script>
     <style>
+        :root {
+            color-scheme: dark;
+        }
+
+        html { scroll-behavior: smooth; }
+
         body {
-            background: #0a0b12;
+            background: #06070d;
             color: #e9ecef;
+            overflow-x: hidden;
+        }
+
+        /* Animated mesh-gradient background */
+        .bg-mesh {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            background:
+                radial-gradient(at 18% 12%, rgba(116, 143, 252, 0.22) 0px, transparent 50%),
+                radial-gradient(at 82% 8%, rgba(151, 117, 250, 0.18) 0px, transparent 50%),
+                radial-gradient(at 50% 80%, rgba(218, 119, 242, 0.10) 0px, transparent 55%),
+                radial-gradient(at 95% 60%, rgba(59, 201, 219, 0.08) 0px, transparent 50%);
+            filter: blur(20px);
+            animation: meshShift 22s ease-in-out infinite alternate;
+        }
+
+        @keyframes meshShift {
+            0%   { transform: translate3d(0, 0, 0) scale(1); }
+            50%  { transform: translate3d(-2%, 1%, 0) scale(1.05); }
+            100% { transform: translate3d(2%, -1%, 0) scale(1.02); }
+        }
+
+        /* Dotted grid */
+        .bg-grid {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            background-image:
+                radial-gradient(circle at 1px 1px, rgba(116, 143, 252, 0.10) 1px, transparent 0);
+            background-size: 28px 28px;
+            mask-image: radial-gradient(ellipse 70% 55% at 50% 30%, #000 30%, transparent 75%);
+            -webkit-mask-image: radial-gradient(ellipse 70% 55% at 50% 30%, #000 30%, transparent 75%);
+        }
+
+        /* Subtle film grain */
+        .bg-grain::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0.04;
+            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
         }
 
         .gradient-text {
-            background: linear-gradient(135deg, #748ffc 0%, #9775fa 50%, #da77f2 100%);
+            background: linear-gradient(135deg, #91a7ff 0%, #9775fa 45%, #da77f2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .gradient-text-cool {
+            background: linear-gradient(135deg, #3bc9db 0%, #748ffc 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
 
         .glass-card {
-            background: rgba(26, 27, 46, 0.7);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(116, 143, 252, 0.15);
+            background: linear-gradient(180deg, rgba(26, 27, 46, 0.65) 0%, rgba(20, 21, 36, 0.6) 100%);
+            backdrop-filter: blur(20px) saturate(140%);
+            -webkit-backdrop-filter: blur(20px) saturate(140%);
+            border: 1px solid rgba(116, 143, 252, 0.14);
+            transition: border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+        }
+        .glass-card:hover {
+            border-color: rgba(116, 143, 252, 0.32);
+            transform: translateY(-2px);
+            box-shadow: 0 18px 40px -20px rgba(116, 143, 252, 0.25);
         }
 
         .glow-border {
-            box-shadow: 0 0 0 1px rgba(116, 143, 252, 0.2),
-                        0 0 40px -10px rgba(116, 143, 252, 0.15);
+            box-shadow:
+                0 0 0 1px rgba(116, 143, 252, 0.18),
+                0 30px 60px -30px rgba(116, 143, 252, 0.35);
+        }
+
+        .ring-gradient {
+            position: relative;
+        }
+        .ring-gradient::before {
+            content: "";
+            position: absolute;
+            inset: -1px;
+            border-radius: inherit;
+            padding: 1px;
+            background: linear-gradient(135deg, rgba(116, 143, 252, 0.5), rgba(218, 119, 242, 0.35) 50%, rgba(59, 201, 219, 0.4));
+            -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+            -webkit-mask-composite: xor;
+                    mask-composite: exclude;
+            pointer-events: none;
+            opacity: 0.6;
         }
 
         .code-block {
-            background: #141524;
-            border: 1px solid rgba(116, 143, 252, 0.1);
+            background: linear-gradient(180deg, #10111c 0%, #0b0c16 100%);
+            border: 1px solid rgba(116, 143, 252, 0.12);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
         }
 
-        .hero-glow {
-            background: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(116, 143, 252, 0.15) 0%, transparent 70%);
-        }
-
-        .pulse-dot {
-            animation: pulse 2s infinite;
-        }
-
+        .pulse-dot { animation: pulse 2s infinite; }
         @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50%      { opacity: 0.45; transform: scale(0.9); }
         }
 
         @keyframes float {
             0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-6px); }
+            50%      { transform: translateY(-6px); }
         }
-
-        .float-anim {
-            animation: float 6s ease-in-out infinite;
-        }
+        .float-anim { animation: float 6s ease-in-out infinite; }
 
         .fade-in {
-            animation: fadeIn 0.8s ease-out forwards;
+            animation: fadeIn 0.9s ease-out forwards;
             opacity: 0;
+            transform: translateY(8px);
         }
-
         @keyframes fadeIn {
-            to { opacity: 1; }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in-delay-1 { animation-delay: 0.15s; }
+        .fade-in-delay-2 { animation-delay: 0.30s; }
+        .fade-in-delay-3 { animation-delay: 0.45s; }
+        .fade-in-delay-4 { animation-delay: 0.60s; }
+
+        /* Reveal on scroll */
+        .reveal {
+            opacity: 0;
+            transform: translateY(18px);
+            transition: opacity 0.7s ease, transform 0.7s ease;
+        }
+        .reveal.in {
+            opacity: 1;
+            transform: none;
         }
 
-        .fade-in-delay-1 { animation-delay: 0.2s; }
-        .fade-in-delay-2 { animation-delay: 0.4s; }
-        .fade-in-delay-3 { animation-delay: 0.6s; }
+        /* Stat cards */
+        .stat-num {
+            background: linear-gradient(135deg, #91a7ff, #da77f2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* Pipeline arrow */
+        .arrow {
+            position: relative;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(116, 143, 252, 0.4), transparent);
+        }
+        .arrow::after {
+            content: "";
+            position: absolute;
+            right: -4px;
+            top: -3px;
+            width: 8px;
+            height: 8px;
+            border-top: 2px solid rgba(116, 143, 252, 0.6);
+            border-right: 2px solid rgba(116, 143, 252, 0.6);
+            transform: rotate(45deg);
+        }
+
+        /* Soft chip */
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            border: 1px solid rgba(116, 143, 252, 0.18);
+            background: rgba(116, 143, 252, 0.08);
+            color: #bac8ff;
+        }
+
+        /* Selection */
+        ::selection { background: rgba(116, 143, 252, 0.35); color: white; }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 10px; height: 10px; }
+        ::-webkit-scrollbar-thumb { background: #1a1b2e; border-radius: 8px; }
+        ::-webkit-scrollbar-thumb:hover { background: #2a2b46; }
+
+        /* Copy button */
+        .copy-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            font-size: 11px;
+            padding: 4px 8px;
+            border-radius: 6px;
+            background: rgba(116, 143, 252, 0.12);
+            color: #bac8ff;
+            border: 1px solid rgba(116, 143, 252, 0.15);
+            cursor: pointer;
+            transition: all 0.15s ease;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .copy-btn:hover { background: rgba(116, 143, 252, 0.25); color: white; }
+
+        /* Marquee for trust row */
+        .trust-row {
+            display: flex;
+            gap: 28px;
+            flex-wrap: wrap;
+            justify-content: center;
+            opacity: 0.85;
+        }
+
+        /* Table */
+        table.compare th, table.compare td {
+            padding: 14px 18px;
+            text-align: left;
+            vertical-align: top;
+            border-bottom: 1px solid rgba(116, 143, 252, 0.08);
+            font-size: 14px;
+        }
+        table.compare thead th {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #91a7ff;
+            background: rgba(116, 143, 252, 0.06);
+        }
+        table.compare tr:last-child td { border-bottom: none; }
+        table.compare td.bad { color: #ff8787; }
+        table.compare td.good { color: #b2f2bb; }
+
+        /* Tag */
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .tag-violet { background: rgba(151, 117, 250, 0.15); color: #d0bfff; border: 1px solid rgba(151, 117, 250, 0.25); }
+        .tag-cyan   { background: rgba(59, 201, 219, 0.12); color: #99e9f2; border: 1px solid rgba(59, 201, 219, 0.25); }
+        .tag-pink   { background: rgba(218, 119, 242, 0.12); color: #eebefa; border: 1px solid rgba(218, 119, 242, 0.25); }
+        .tag-green  { background: rgba(81, 207, 102, 0.12); color: #b2f2bb; border: 1px solid rgba(81, 207, 102, 0.25); }
+        .tag-amber  { background: rgba(250, 176, 5, 0.12); color: #ffec99; border: 1px solid rgba(250, 176, 5, 0.25); }
+
+        /* JSON syntax */
+        .json-key   { color: #91a7ff; }
+        .json-str   { color: #b2f2bb; }
+        .json-num   { color: #eebefa; }
+        .json-bool  { color: #ffd43b; }
+        .json-punct { color: #6c7193; }
+
+        /* Roadmap rail */
+        .rail {
+            position: relative;
+            padding-left: 24px;
+        }
+        .rail::before {
+            content: "";
+            position: absolute;
+            left: 6px;
+            top: 6px;
+            bottom: 6px;
+            width: 2px;
+            background: linear-gradient(180deg, rgba(116, 143, 252, 0.5), rgba(218, 119, 242, 0.2));
+        }
+        .rail-dot {
+            position: absolute;
+            left: 0;
+            top: 4px;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #0a0b12;
+            border: 2px solid rgba(116, 143, 252, 0.6);
+            box-shadow: 0 0 0 4px rgba(116, 143, 252, 0.08);
+        }
+
+        /* Section heading underline */
+        .eyebrow {
+            display: inline-block;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: #91a7ff;
+            margin-bottom: 12px;
+        }
     </style>
 </head>
-<body class="font-sans antialiased">
-    <!-- Hero glow background -->
-    <div class="hero-glow fixed inset-0 pointer-events-none"></div>
+<body class="font-sans antialiased bg-grain">
+    <div class="bg-mesh"></div>
+    <div class="bg-grid"></div>
 
     <!-- Nav -->
-    <nav class="relative z-10 max-w-6xl mx-auto px-6 py-6 flex items-center justify-between">
-        <div class="flex items-center gap-2">
-            <div class="w-8 h-8 rounded-lg bg-brand-600 flex items-center justify-center">
+    <nav class="relative z-20 max-w-6xl mx-auto px-6 py-5 flex items-center justify-between">
+        <a href="#top" class="flex items-center gap-2.5 group">
+            <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-brand-500 to-accent-violet flex items-center justify-center shadow-lg shadow-brand-600/30 ring-gradient">
                 <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
                 </svg>
             </div>
-            <span class="text-lg font-bold text-white">ContextLayer<span class="text-brand-400">.dev</span></span>
+            <span class="text-base font-bold text-white tracking-tight">ContextLayer<span class="text-brand-400">.dev</span></span>
+        </a>
+        <div class="hidden md:flex items-center gap-7 text-sm text-gray-400">
+            <a href="#how" class="hover:text-white transition-colors">How it works</a>
+            <a href="#validate" class="hover:text-white transition-colors">context_validate</a>
+            <a href="#compare" class="hover:text-white transition-colors">vs. others</a>
+            <a href="#roadmap" class="hover:text-white transition-colors">Roadmap</a>
         </div>
-        <div class="flex items-center gap-6">
+        <div class="flex items-center gap-3">
             <a href="https://github.com/AntarangSharma/ContextLayer.dev" target="_blank"
                class="text-sm text-gray-400 hover:text-white transition-colors flex items-center gap-1.5">
                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
-                GitHub
+                <span class="hidden sm:inline">GitHub</span>
             </a>
             <a href="#waitlist"
-               class="text-sm font-medium bg-brand-600 hover:bg-brand-500 text-white px-4 py-2 rounded-lg transition-all hover:shadow-lg hover:shadow-brand-600/20">
-                Join Waitlist
+               class="text-sm font-semibold bg-gradient-to-r from-brand-600 to-accent-violet hover:from-brand-500 hover:to-accent-violet text-white px-4 py-2 rounded-lg transition-all hover:shadow-lg hover:shadow-brand-600/30">
+                Get Early Access
             </a>
         </div>
     </nav>
 
-    <!-- Hero -->
-    <main class="relative z-10">
-        <section class="max-w-4xl mx-auto px-6 pt-16 pb-20 text-center">
+    <main id="top" class="relative z-10">
+        <!-- Hero -->
+        <section class="max-w-5xl mx-auto px-6 pt-14 pb-24 text-center">
             <div class="fade-in">
                 <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full glass-card text-xs font-medium text-brand-300 mb-8">
-                    <span class="pulse-dot w-2 h-2 rounded-full bg-green-400 inline-block"></span>
-                    Open Source · MIT License · Free
+                    <span class="pulse-dot w-2 h-2 rounded-full bg-accent-green inline-block"></span>
+                    Open Source · MIT · Local-First · BYOK
                 </div>
             </div>
 
-            <h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold leading-tight mb-6 fade-in fade-in-delay-1">
+            <h1 class="text-4xl sm:text-5xl md:text-[64px] font-extrabold leading-[1.05] tracking-tight mb-6 fade-in fade-in-delay-1">
                 Your AI agent forgets<br>
                 your team's rules.<br>
                 <span class="gradient-text">Every. Single. Session.</span>
             </h1>
 
-            <p class="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto mb-10 fade-in fade-in-delay-2">
-                ContextLayer extracts conventions, decisions, and anti-patterns from your repo's history
-                and serves them to Claude Code via MCP. Your AI answers like a senior engineer who read everything
-                including the unwritten parts.
+            <p class="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto mb-10 fade-in fade-in-delay-2 leading-relaxed">
+                ContextLayer turns your repo's history into <span class="text-white">structured knowledge atoms</span> and serves them to Claude Code via MCP — with citations. Your AI answers like a senior engineer who read everything, including the unwritten parts.
             </p>
 
-            <div class="flex flex-col sm:flex-row items-center justify-center gap-4 fade-in fade-in-delay-3">
-                <div class="code-block rounded-xl px-5 py-3 font-mono text-sm text-brand-300 select-all">
-                    uvx contextlayer-dev index .
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-3 fade-in fade-in-delay-3 mb-6">
+                <div class="code-block rounded-xl px-5 py-3 font-mono text-sm text-brand-300 select-all relative">
+                    <span class="text-gray-600 mr-2">$</span>uvx contextlayer-dev index .
                 </div>
                 <span class="text-gray-600 text-sm">then</span>
                 <div class="code-block rounded-xl px-5 py-3 font-mono text-sm text-brand-300 select-all">
-                    uvx contextlayer-dev mcp
+                    <span class="text-gray-600 mr-2">$</span>uvx contextlayer-dev mcp
+                </div>
+            </div>
+
+            <!-- Trust row -->
+            <div class="trust-row fade-in fade-in-delay-4 text-xs font-mono text-gray-500 mt-8">
+                <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-accent-green"></span>Local SQLite</span>
+                <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-brand-400"></span>BYOK · ANTHROPIC_API_KEY</span>
+                <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-accent-pink"></span>No telemetry</span>
+                <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-accent-cyan"></span>MCP-native</span>
+                <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-accent-violet"></span>~$1.50 / repo (one-time)</span>
+            </div>
+        </section>
+
+        <!-- Stats strip -->
+        <section class="max-w-5xl mx-auto px-6 pb-20 reveal">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="glass-card rounded-2xl p-5 text-center">
+                    <div class="text-3xl md:text-4xl font-extrabold stat-num">~40</div>
+                    <div class="text-xs text-gray-500 mt-1 uppercase tracking-wider">Canonical atoms / repo</div>
+                </div>
+                <div class="glass-card rounded-2xl p-5 text-center">
+                    <div class="text-3xl md:text-4xl font-extrabold stat-num">$1.50</div>
+                    <div class="text-xs text-gray-500 mt-1 uppercase tracking-wider">One-time index cost</div>
+                </div>
+                <div class="glass-card rounded-2xl p-5 text-center">
+                    <div class="text-3xl md:text-4xl font-extrabold stat-num">$0.001</div>
+                    <div class="text-xs text-gray-500 mt-1 uppercase tracking-wider">Per context_validate call</div>
+                </div>
+                <div class="glass-card rounded-2xl p-5 text-center">
+                    <div class="text-3xl md:text-4xl font-extrabold stat-num">3</div>
+                    <div class="text-xs text-gray-500 mt-1 uppercase tracking-wider">Claude models, picked right</div>
                 </div>
             </div>
         </section>
 
         <!-- Before / After -->
-        <section class="max-w-5xl mx-auto px-6 pb-20">
+        <section class="max-w-5xl mx-auto px-6 pb-24 reveal">
             <div class="text-center mb-12">
-                <h2 class="text-2xl md:text-3xl font-bold text-white mb-3">Same Claude Code. Same question.</h2>
+                <span class="eyebrow">Side by side</span>
+                <h2 class="text-3xl md:text-4xl font-bold text-white mb-3 tracking-tight">Same Claude Code. Same question.</h2>
                 <p class="text-gray-400">The only difference is ContextLayer.</p>
             </div>
 
@@ -180,7 +469,7 @@
                 <div class="glass-card rounded-2xl p-6 glow-border">
                     <div class="flex items-center gap-2 mb-4">
                         <span class="w-3 h-3 rounded-full bg-red-400/80"></span>
-                        <span class="text-sm font-medium text-red-300">Without ContextLayer</span>
+                        <span class="text-sm font-semibold text-red-300">Without ContextLayer</span>
                     </div>
                     <div class="code-block rounded-xl p-4 font-mono text-xs leading-relaxed text-gray-400">
                         <p class="text-gray-300 mb-2">→ "Add a billing history endpoint"</p>
@@ -200,7 +489,7 @@
                 <div class="glass-card rounded-2xl p-6 glow-border float-anim" style="animation-delay: 0.5s;">
                     <div class="flex items-center gap-2 mb-4">
                         <span class="w-3 h-3 rounded-full bg-green-400/80"></span>
-                        <span class="text-sm font-medium text-green-300">With ContextLayer</span>
+                        <span class="text-sm font-semibold text-green-300">With ContextLayer</span>
                     </div>
                     <div class="code-block rounded-xl p-4 font-mono text-xs leading-relaxed text-gray-400">
                         <p class="text-gray-300 mb-2">→ "Add a billing history endpoint"</p>
@@ -219,108 +508,413 @@
             </div>
         </section>
 
-        <!-- How it works -->
-        <section class="max-w-5xl mx-auto px-6 pb-20">
+        <!-- context_validate: the killer feature -->
+        <section id="validate" class="max-w-5xl mx-auto px-6 pb-24 reveal">
             <div class="text-center mb-12">
-                <h2 class="text-2xl md:text-3xl font-bold text-white mb-3">Three models. One pipeline. $1.50/repo.</h2>
-                <p class="text-gray-400">Cost-quality fit across three stages, not three models for show.</p>
+                <span class="eyebrow">Push, not just pull</span>
+                <h2 class="text-3xl md:text-4xl font-bold text-white mb-3 tracking-tight">
+                    <span class="font-mono text-brand-300">context_validate</span> — verdicts, not suggestions.
+                </h2>
+                <p class="text-gray-400 max-w-2xl mx-auto">
+                    Most retrieval is pull: the agent has to know to ask. ContextLayer also <span class="text-white">pushes</span> — the agent shows its proposed change and gets back a verdict with violated rules, severity, and citations.
+                </p>
             </div>
 
-            <div class="grid md:grid-cols-3 gap-6">
-                <div class="glass-card rounded-2xl p-6 text-center">
-                    <div class="text-3xl mb-3">🔍</div>
-                    <h3 class="font-bold text-white mb-2">Haiku - Filter</h3>
-                    <p class="text-sm text-gray-400">Processes thousands of events. Keeps only the ~10% that document real conventions. ~$0.15/repo.</p>
+            <div class="grid md:grid-cols-5 gap-6 items-stretch">
+                <!-- Left: how it flows -->
+                <div class="md:col-span-2 glass-card rounded-2xl p-6 ring-gradient">
+                    <div class="flex items-center gap-2 mb-4">
+                        <span class="tag tag-violet">FLOW</span>
+                    </div>
+                    <ol class="space-y-4 text-sm text-gray-300">
+                        <li class="flex gap-3">
+                            <span class="w-6 h-6 rounded-full bg-brand-600/20 border border-brand-500/40 text-brand-300 flex items-center justify-center text-xs font-bold flex-shrink-0">1</span>
+                            <div>
+                                <div class="font-semibold text-white">Agent drafts a change</div>
+                                <div class="text-gray-500 text-xs mt-0.5">Snippet, file path, intent.</div>
+                            </div>
+                        </li>
+                        <li class="flex gap-3">
+                            <span class="w-6 h-6 rounded-full bg-brand-600/20 border border-brand-500/40 text-brand-300 flex items-center justify-center text-xs font-bold flex-shrink-0">2</span>
+                            <div>
+                                <div class="font-semibold text-white">Calls <span class="font-mono text-brand-300">context_validate</span></div>
+                                <div class="text-gray-500 text-xs mt-0.5">Hybrid retrieval matches the proposal against rule atoms.</div>
+                            </div>
+                        </li>
+                        <li class="flex gap-3">
+                            <span class="w-6 h-6 rounded-full bg-brand-600/20 border border-brand-500/40 text-brand-300 flex items-center justify-center text-xs font-bold flex-shrink-0">3</span>
+                            <div>
+                                <div class="font-semibold text-white">Gets back a verdict</div>
+                                <div class="text-gray-500 text-xs mt-0.5">Passes? Violations? With severity + source PR/commit.</div>
+                            </div>
+                        </li>
+                        <li class="flex gap-3">
+                            <span class="w-6 h-6 rounded-full bg-brand-600/20 border border-brand-500/40 text-brand-300 flex items-center justify-center text-xs font-bold flex-shrink-0">4</span>
+                            <div>
+                                <div class="font-semibold text-white">Rewrites — or proceeds</div>
+                                <div class="text-gray-500 text-xs mt-0.5">Convention <span class="text-white">enforcement</span>, not suggestion.</div>
+                            </div>
+                        </li>
+                    </ol>
                 </div>
-                <div class="glass-card rounded-2xl p-6 text-center">
-                    <div class="text-3xl mb-3">⚗️</div>
-                    <h3 class="font-bold text-white mb-2">Sonnet - Extract</h3>
-                    <p class="text-sm text-gray-400">Extracts structured atoms via tool use. Batched 15/call with prompt caching. ~$0.30/repo.</p>
-                </div>
-                <div class="glass-card rounded-2xl p-6 text-center">
-                    <div class="text-3xl mb-3">🧠</div>
-                    <h3 class="font-bold text-white mb-2">Opus - Structure</h3>
-                    <p class="text-sm text-gray-400">One call with extended thinking. Dedup, topic clustering, rule promotion. ~$1.00/repo.</p>
+
+                <!-- Right: JSON sample -->
+                <div class="md:col-span-3 glass-card rounded-2xl p-6 glow-border relative">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="tag tag-cyan">RESPONSE</span>
+                        <span class="text-xs text-gray-500 font-mono">~$0.001 / call</span>
+                    </div>
+                    <div class="code-block rounded-xl p-4 font-mono text-[13px] leading-relaxed overflow-x-auto">
+<pre><span class="json-punct">{</span>
+  <span class="json-key">"passes"</span><span class="json-punct">:</span> <span class="json-bool">false</span><span class="json-punct">,</span>
+  <span class="json-key">"violations"</span><span class="json-punct">:</span> <span class="json-punct">[{</span>
+    <span class="json-key">"rule_summary"</span><span class="json-punct">:</span> <span class="json-str">"Do not use threading in workers —</span>
+                       <span class="json-str">caused race in issue #88"</span><span class="json-punct">,</span>
+    <span class="json-key">"severity"</span><span class="json-punct">:</span> <span class="json-str">"high"</span><span class="json-punct">,</span>
+    <span class="json-key">"source_refs"</span><span class="json-punct">:</span> <span class="json-punct">[</span><span class="json-str">"issue:88"</span><span class="json-punct">,</span> <span class="json-str">"pr:142"</span><span class="json-punct">]</span><span class="json-punct">,</span>
+    <span class="json-key">"suggested_fix"</span><span class="json-punct">:</span> <span class="json-str">"Use asyncio.gather; see PR #142"</span>
+  <span class="json-punct">}],</span>
+  <span class="json-key">"atoms_consulted"</span><span class="json-punct">:</span> <span class="json-num">6</span>
+<span class="json-punct">}</span></pre>
+                    </div>
+                    <div class="flex flex-wrap gap-2 mt-4">
+                        <span class="tag tag-pink">cited</span>
+                        <span class="tag tag-amber">severity-aware</span>
+                        <span class="tag tag-green">cheap</span>
+                        <span class="tag tag-violet">deterministic</span>
+                    </div>
                 </div>
             </div>
         </section>
 
-        <!-- Features -->
-        <section class="max-w-5xl mx-auto px-6 pb-20">
+        <!-- How it works: 3 models -->
+        <section id="how" class="max-w-5xl mx-auto px-6 pb-24 reveal">
             <div class="text-center mb-12">
-                <h2 class="text-2xl md:text-3xl font-bold text-white mb-3">Works on any repo. Day one.</h2>
-                <p class="text-gray-400">No PR history required. Three ways to get value immediately.</p>
+                <span class="eyebrow">Pipeline</span>
+                <h2 class="text-3xl md:text-4xl font-bold text-white mb-3 tracking-tight">Three models. One pipeline. <span class="gradient-text-cool">~$1.50/repo.</span></h2>
+                <p class="text-gray-400">Cheap models do the heavy lifting; the expensive one only sees what matters.</p>
             </div>
 
-            <div class="grid md:grid-cols-3 gap-6">
+            <div class="grid md:grid-cols-3 gap-6 relative">
+                <!-- Card 1 -->
                 <div class="glass-card rounded-2xl p-6">
-                    <div class="text-xl font-mono text-brand-400 mb-3">$ contextlayer scan</div>
-                    <h3 class="font-bold text-white mb-2">Code-Aware Ingestion</h3>
-                    <p class="text-sm text-gray-400">Reads manifests, README, and source files to extract conventions, even with zero PRs.</p>
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="tag tag-cyan">STAGE 1</span>
+                        <span class="text-[11px] font-mono text-gray-500">~$0.15</span>
+                    </div>
+                    <div class="text-3xl mb-3">🔍</div>
+                    <h3 class="font-bold text-white text-lg mb-1">Haiku · Filter</h3>
+                    <div class="text-xs text-brand-300 font-mono mb-3">~5,000 events → ~500 kept</div>
+                    <p class="text-sm text-gray-400 leading-relaxed">Scans every commit + PR + review comment. Asks one question: <span class="text-gray-300 italic">"is this documenting a rule?"</span></p>
                 </div>
+
+                <!-- Card 2 -->
                 <div class="glass-card rounded-2xl p-6">
-                    <div class="text-xl font-mono text-brand-400 mb-3">$ contextlayer note</div>
-                    <h3 class="font-bold text-white mb-2">Decision Journal</h3>
-                    <p class="text-sm text-gray-400">Capture decisions in one line. No API call. Free. Every future AI session knows it forever.</p>
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="tag tag-violet">STAGE 2</span>
+                        <span class="text-[11px] font-mono text-gray-500">~$0.30</span>
+                    </div>
+                    <div class="text-3xl mb-3">⚗️</div>
+                    <h3 class="font-bold text-white text-lg mb-1">Sonnet · Extract</h3>
+                    <div class="text-xs text-brand-300 font-mono mb-3">batched 15/call, cached</div>
+                    <p class="text-sm text-gray-400 leading-relaxed">Pulls structured atoms via tool use. Rule, citation, severity. Prompt-cached for repeats.</p>
                 </div>
+
+                <!-- Card 3 -->
                 <div class="glass-card rounded-2xl p-6">
-                    <div class="text-xl font-mono text-brand-400 mb-3">$ contextlayer explain</div>
-                    <h3 class="font-bold text-white mb-2">Onboarding Doc</h3>
-                    <p class="text-sm text-gray-400">Generate a project brief from indexed atoms. Skip the "let me explain my project" tax.</p>
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="tag tag-pink">STAGE 3</span>
+                        <span class="text-[11px] font-mono text-gray-500">~$1.00</span>
+                    </div>
+                    <div class="text-3xl mb-3">🧠</div>
+                    <h3 class="font-bold text-white text-lg mb-1">Opus · Structure</h3>
+                    <div class="text-xs text-brand-300 font-mono mb-3">1 call · extended thinking</div>
+                    <p class="text-sm text-gray-400 leading-relaxed">Dedup, topic clustering, rule promotion. Yields ~40 canonical atoms ready for retrieval.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features grid -->
+        <section class="max-w-5xl mx-auto px-6 pb-24 reveal">
+            <div class="text-center mb-12">
+                <span class="eyebrow">What's inside</span>
+                <h2 class="text-3xl md:text-4xl font-bold text-white mb-3 tracking-tight">Built like a senior engineer would build it.</h2>
+                <p class="text-gray-400">Hybrid retrieval, idempotent re-indexing, decision journal — no SaaS, no lock-in.</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+                <!-- Hybrid retrieval -->
+                <div class="glass-card rounded-2xl p-6">
+                    <span class="tag tag-cyan mb-3">RETRIEVAL</span>
+                    <h3 class="font-bold text-white text-lg mt-3 mb-2">Hybrid ranking</h3>
+                    <p class="text-sm text-gray-400 leading-relaxed">Not just vectors. Cosine (BGE-small local ONNX) <span class="text-gray-500">+</span> keyword overlap <span class="text-gray-500">+</span> rule boost <span class="text-gray-500">+</span> recency. Citations on every atom.</p>
+                </div>
+
+                <!-- Decision journal -->
+                <div class="glass-card rounded-2xl p-6">
+                    <span class="tag tag-green mb-3">FREE & INSTANT</span>
+                    <h3 class="font-bold text-white text-lg mt-3 mb-2">Decision journal</h3>
+                    <div class="code-block rounded-lg px-3 py-2 font-mono text-xs text-brand-300 mb-3 overflow-x-auto">contextlayer note "timestamps are UTC"</div>
+                    <p class="text-sm text-gray-400 leading-relaxed">Zero API cost. Captured forever. Surfaces in every future agent session via the same retrieval path.</p>
+                </div>
+
+                <!-- Code-aware ingestion -->
+                <div class="glass-card rounded-2xl p-6">
+                    <span class="tag tag-pink mb-3">DAY-ONE READY</span>
+                    <h3 class="font-bold text-white text-lg mt-3 mb-2">Works without PR history</h3>
+                    <p class="text-sm text-gray-400 leading-relaxed">Scans manifests, README, top source files. Greenfield repos get value immediately; mature repos get richer atoms.</p>
+                </div>
+
+                <!-- MCP-native -->
+                <div class="glass-card rounded-2xl p-6">
+                    <span class="tag tag-violet mb-3">MCP-NATIVE</span>
+                    <h3 class="font-bold text-white text-lg mt-3 mb-2">One <code class="font-mono text-brand-300">.mcp.json</code> away</h3>
+                    <p class="text-sm text-gray-400 leading-relaxed">Claude Code picks it up automatically. Any future MCP client works too — no vendor lock-in.</p>
+                </div>
+
+                <!-- Idempotent -->
+                <div class="glass-card rounded-2xl p-6">
+                    <span class="tag tag-amber mb-3">CHEAP REPEAT</span>
+                    <h3 class="font-bold text-white text-lg mt-3 mb-2">Idempotent re-indexing</h3>
+                    <p class="text-sm text-gray-400 leading-relaxed">Per-event caching. Run nightly via cron — only new commits/PRs pay an API call. Near-free updates.</p>
+                </div>
+
+                <!-- Local-first -->
+                <div class="glass-card rounded-2xl p-6">
+                    <span class="tag tag-green mb-3">PRIVATE</span>
+                    <h3 class="font-bold text-white text-lg mt-3 mb-2">Local-first · BYOK</h3>
+                    <p class="text-sm text-gray-400 leading-relaxed">SQLite (WAL) on your machine. Your <code class="font-mono text-brand-300">ANTHROPIC_API_KEY</code>, never stored on disk. No SaaS dashboard. No telemetry.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- MCP config snippet -->
+        <section class="max-w-4xl mx-auto px-6 pb-24 reveal">
+            <div class="text-center mb-8">
+                <span class="eyebrow">Drop-in</span>
+                <h2 class="text-3xl md:text-4xl font-bold text-white mb-3 tracking-tight">One block of JSON. You're done.</h2>
+                <p class="text-gray-400">Add this to your project's <span class="font-mono text-brand-300">.mcp.json</span>.</p>
+            </div>
+            <div class="glass-card rounded-2xl p-6 relative ring-gradient">
+                <button class="copy-btn" onclick="copyMcp(this)">copy</button>
+                <div class="code-block rounded-xl p-5 font-mono text-[13px] leading-relaxed overflow-x-auto">
+<pre id="mcp-snippet"><span class="json-punct">{</span>
+  <span class="json-key">"mcpServers"</span><span class="json-punct">: {</span>
+    <span class="json-key">"contextlayer"</span><span class="json-punct">: {</span>
+      <span class="json-key">"command"</span><span class="json-punct">:</span> <span class="json-str">"uvx"</span><span class="json-punct">,</span>
+      <span class="json-key">"args"</span><span class="json-punct">:</span> <span class="json-punct">[</span><span class="json-str">"contextlayer-dev"</span><span class="json-punct">,</span> <span class="json-str">"mcp"</span><span class="json-punct">,</span> <span class="json-str">"--repo"</span><span class="json-punct">,</span> <span class="json-str">"."</span><span class="json-punct">]</span>
+    <span class="json-punct">}</span>
+  <span class="json-punct">}</span>
+<span class="json-punct">}</span></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- Comparison table -->
+        <section id="compare" class="max-w-5xl mx-auto px-6 pb-24 reveal">
+            <div class="text-center mb-10">
+                <span class="eyebrow">vs. the rest</span>
+                <h2 class="text-3xl md:text-4xl font-bold text-white mb-3 tracking-tight">Why this is different.</h2>
+                <p class="text-gray-400">Most "AI context" tools treat the repo as a text corpus. ContextLayer treats it as a <span class="text-white">history of decisions</span>.</p>
+            </div>
+
+            <div class="glass-card rounded-2xl overflow-hidden glow-border">
+                <table class="compare w-full">
+                    <thead>
+                        <tr>
+                            <th>What others do</th>
+                            <th>What ContextLayer does</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="bad">Stuff the whole repo into every prompt</td>
+                            <td class="good">Extract ~40 canonical atoms that capture intent</td>
+                        </tr>
+                        <tr>
+                            <td class="bad">Vector-search over raw file chunks</td>
+                            <td class="good">Hybrid retrieval over structured atoms with citations</td>
+                        </tr>
+                        <tr>
+                            <td class="bad">Hope the agent reads CLAUDE.md</td>
+                            <td class="good">Push verdicts via <span class="font-mono">context_validate</span> — agent can't ignore it</td>
+                        </tr>
+                        <tr>
+                            <td class="bad">SaaS dashboard, vendor lock-in</td>
+                            <td class="good">Local SQLite, MIT license, one Python package</td>
+                        </tr>
+                        <tr>
+                            <td class="bad">Static rule files that go stale</td>
+                            <td class="good">Re-indexed from live git history + decision journal</td>
+                        </tr>
+                        <tr>
+                            <td class="bad">One model fits all</td>
+                            <td class="good">Haiku → Sonnet → Opus, right model per stage</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Roadmap -->
+        <section id="roadmap" class="max-w-4xl mx-auto px-6 pb-24 reveal">
+            <div class="text-center mb-12">
+                <span class="eyebrow">What's next</span>
+                <h2 class="text-3xl md:text-4xl font-bold text-white mb-3 tracking-tight">Roadmap</h2>
+                <p class="text-gray-400">From repo-local atoms to network effects.</p>
+            </div>
+
+            <div class="glass-card rounded-2xl p-8">
+                <ol class="space-y-7">
+                    <li class="rail relative">
+                        <span class="rail-dot"></span>
+                        <div class="flex items-baseline gap-3 mb-1">
+                            <span class="text-brand-300 font-mono text-sm font-semibold">v1.0</span>
+                            <span class="tag tag-green">shipping now</span>
+                        </div>
+                        <h3 class="font-bold text-white">Atoms · hybrid retrieval · <span class="font-mono">context_validate</span></h3>
+                        <p class="text-sm text-gray-400 mt-1">Everything on this page. Free, open source, MIT.</p>
+                    </li>
+                    <li class="rail relative">
+                        <span class="rail-dot"></span>
+                        <div class="flex items-baseline gap-3 mb-1">
+                            <span class="text-brand-300 font-mono text-sm font-semibold">v1.1</span>
+                            <span class="tag tag-amber">next</span>
+                        </div>
+                        <h3 class="font-bold text-white">Repo Health Score + real-time anti-pattern detection</h3>
+                        <p class="text-sm text-gray-400 mt-1">Surface drift the moment new code violates an extracted rule.</p>
+                    </li>
+                    <li class="rail relative">
+                        <span class="rail-dot"></span>
+                        <div class="flex items-baseline gap-3 mb-1">
+                            <span class="text-brand-300 font-mono text-sm font-semibold">v2</span>
+                            <span class="tag tag-violet">soon</span>
+                        </div>
+                        <h3 class="font-bold text-white">Convention Drift Detection + Failure Loop</h3>
+                        <p class="text-sm text-gray-400 mt-1">Incidents auto-become atoms. Your AI learns from prod, not just PRs.</p>
+                    </li>
+                    <li class="rail relative">
+                        <span class="rail-dot"></span>
+                        <div class="flex items-baseline gap-3 mb-1">
+                            <span class="text-brand-300 font-mono text-sm font-semibold">v3</span>
+                            <span class="tag tag-pink">vision</span>
+                        </div>
+                        <h3 class="font-bold text-white">Cross-Repo Intelligence</h3>
+                        <p class="text-sm text-gray-400 mt-1">Anonymized network effects across teams that opt in.</p>
+                    </li>
+                </ol>
+            </div>
+        </section>
+
+        <!-- Quick start CTA -->
+        <section class="max-w-3xl mx-auto px-6 pb-24 reveal">
+            <div class="glass-card rounded-2xl p-8 md:p-10 text-center ring-gradient">
+                <span class="eyebrow">30-second quick start</span>
+                <h3 class="text-2xl md:text-3xl font-bold text-white mt-3 mb-6">Try it in a real repo.</h3>
+                <div class="code-block rounded-xl p-5 font-mono text-sm text-left text-gray-300 leading-relaxed overflow-x-auto">
+<pre><span class="text-gray-600"># 1. Install</span>
+pip install <span class="text-brand-300">contextlayer-dev</span>
+
+<span class="text-gray-600"># 2. Set your key (BYOK, never stored on disk)</span>
+export <span class="text-brand-300">ANTHROPIC_API_KEY</span>=sk-ant-...
+
+<span class="text-gray-600"># 3. Index your repo (~$1.50, one-time)</span>
+contextlayer index .
+
+<span class="text-gray-600"># 4. Add the MCP block above to .mcp.json — open Claude Code. Done.</span></pre>
+                </div>
+                <div class="mt-6 flex flex-wrap items-center justify-center gap-3">
+                    <a href="https://github.com/AntarangSharma/ContextLayer.dev" target="_blank"
+                       class="inline-flex items-center gap-2 px-5 py-3 rounded-lg bg-gradient-to-r from-brand-600 to-accent-violet text-white font-semibold text-sm transition-all hover:shadow-lg hover:shadow-brand-600/30">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                        Star on GitHub
+                    </a>
+                    <a href="#waitlist" class="inline-flex items-center gap-2 px-5 py-3 rounded-lg glass-card text-gray-200 font-semibold text-sm transition-all hover:border-brand-500/40">
+                        Join the waitlist
+                    </a>
                 </div>
             </div>
         </section>
 
         <!-- Waitlist -->
-        <section id="waitlist" class="max-w-2xl mx-auto px-6 pb-24">
+        <section id="waitlist" class="max-w-2xl mx-auto px-6 pb-24 reveal">
             <div class="glass-card rounded-2xl p-8 md:p-12 text-center glow-border">
-                <h2 class="text-2xl md:text-3xl font-bold text-white mb-3">Get early access</h2>
-                <p class="text-gray-400 mb-8">Open source and free. Join the waitlist for hosted features, team sharing, and drift detection.</p>
+                <span class="eyebrow">Get early access</span>
+                <h2 class="text-2xl md:text-3xl font-bold text-white mt-3 mb-3">Hosted features. Team sharing. Drift detection.</h2>
+                <p class="text-gray-400 mb-8">Open source today. Sign up for what's coming next.</p>
 
-                <!-- Tally embed - replace with your form URL -->
                 <div class="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
                     <input type="email" id="waitlist-email" placeholder="you@company.com"
                            class="flex-1 px-4 py-3 rounded-lg bg-surface-900 border border-gray-700 text-white placeholder-gray-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 text-sm">
                     <button onclick="joinWaitlist()" id="waitlist-btn"
-                            class="px-6 py-3 rounded-lg bg-brand-600 hover:bg-brand-500 text-white font-medium text-sm transition-all hover:shadow-lg hover:shadow-brand-600/20 whitespace-nowrap">
+                            class="px-6 py-3 rounded-lg bg-gradient-to-r from-brand-600 to-accent-violet hover:from-brand-500 text-white font-semibold text-sm transition-all hover:shadow-lg hover:shadow-brand-600/30 whitespace-nowrap">
                         Join Waitlist
                     </button>
                 </div>
-                <p id="waitlist-msg" class="text-sm text-green-400 mt-4 hidden">✓ You're on the list!</p>
+                <p id="waitlist-msg" class="text-sm text-green-400 mt-4 hidden">✓ You're on the list.</p>
             </div>
         </section>
 
         <!-- Footer -->
-        <footer class="max-w-6xl mx-auto px-6 py-8 border-t border-gray-800/50">
+        <footer class="max-w-6xl mx-auto px-6 py-10 border-t border-white/5">
             <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
-                <div class="text-sm text-gray-500">
-                    © 2026 ContextLayer.dev · MIT License
+                <div class="flex items-center gap-2.5">
+                    <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-brand-500 to-accent-violet flex items-center justify-center">
+                        <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                        </svg>
+                    </div>
+                    <div class="text-sm text-gray-500">
+                        © 2026 ContextLayer.dev · MIT License
+                    </div>
                 </div>
                 <div class="flex items-center gap-6 text-sm text-gray-500">
                     <a href="https://github.com/AntarangSharma/ContextLayer.dev" target="_blank" class="hover:text-white transition-colors">GitHub</a>
                     <a href="https://github.com/AntarangSharma/ContextLayer.dev#-quick-start-30-seconds" target="_blank" class="hover:text-white transition-colors">Docs</a>
+                    <a href="https://pypi.org/project/contextlayer-dev/" target="_blank" class="hover:text-white transition-colors">PyPI</a>
                 </div>
             </div>
         </footer>
     </main>
 
     <script>
+        // Waitlist
         function joinWaitlist() {
             const email = document.getElementById('waitlist-email').value;
             if (!email || !email.includes('@')) {
                 alert('Please enter a valid email.');
                 return;
             }
-            // For now, just show success - replace with Tally or Formspree integration
-            document.getElementById('waitlist-btn').textContent = 'Joined!';
-            document.getElementById('waitlist-btn').disabled = true;
-            document.getElementById('waitlist-btn').classList.add('opacity-50');
+            const btn = document.getElementById('waitlist-btn');
+            btn.textContent = 'Joined ✓';
+            btn.disabled = true;
+            btn.classList.add('opacity-70');
             document.getElementById('waitlist-msg').classList.remove('hidden');
-            // Store locally as a fallback
             const existing = JSON.parse(localStorage.getItem('waitlist') || '[]');
             existing.push({ email, ts: new Date().toISOString() });
             localStorage.setItem('waitlist', JSON.stringify(existing));
         }
+
+        // Copy MCP snippet
+        function copyMcp(btn) {
+            const text = document.getElementById('mcp-snippet').innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                const prev = btn.textContent;
+                btn.textContent = 'copied!';
+                setTimeout(() => { btn.textContent = prev; }, 1500);
+            });
+        }
+
+        // Scroll reveal
+        const io = new IntersectionObserver((entries) => {
+            entries.forEach((e) => {
+                if (e.isIntersecting) {
+                    e.target.classList.add('in');
+                    io.unobserve(e.target);
+                }
+            });
+        }, { threshold: 0.12 });
+        document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
     </script>
 </body>
 </html>
