@@ -27,6 +27,7 @@ from contextlayer.embed import embed_one
 from contextlayer.extract.atom import Atom
 from contextlayer.extract.stage1_haiku import Stage1Result, classify_one
 from contextlayer.extract.stage2_sonnet import extract_one
+from contextlayer.extract.stage3_opus import structure_atoms
 from contextlayer.ingest import RawEvent, ingest_repo, ingest_repo_scan_only
 from contextlayer.store import sqlite as sqlite_store
 from contextlayer.store.repo_hash import index_db_path
@@ -139,7 +140,11 @@ async def _run_extraction(
     repo_path: Path,
     t0: float,
 ) -> dict:
-    """Shared core: events → Haiku → Sonnet → dedup → embed → SQLite."""
+    """Shared core: events → Haiku → Sonnet → Opus (dedup + topics + rules) → embed → SQLite.
+
+    If Stage 3 Opus fails (e.g., rate limit, API error), fall back to Python dedup
+    so we never lose Stage 2 output.
+    """
     client = anthropic.AsyncAnthropic()
     limiter = GlobalRateLimiter(rpm=RPM_LIMIT)
 
@@ -148,18 +153,51 @@ async def _run_extraction(
     log.info("Haiku kept %d / %d events", len(kept), len(events))
 
     log.info("Stage 2 Sonnet — extracting atoms from %d events (RPM=%d)...", len(kept), RPM_LIMIT)
-    atoms = await _stage2(client, kept, limiter)
-    log.info("Sonnet extracted %d raw atoms", len(atoms))
+    raw_atoms = await _stage2(client, kept, limiter)
+    log.info("Sonnet extracted %d raw atoms", len(raw_atoms))
 
-    unique = _dedupe(atoms)
-    log.info("After dedup: %d unique atoms", len(unique))
+    # Stage 3 — Opus with extended thinking. Falls back to Python dedup on failure.
+    canonical_atoms: list[Atom] = []
+    topics: list = []
+    stage3_ok = False
+    if raw_atoms:
+        try:
+            await limiter.acquire()
+            result = await structure_atoms(client, raw_atoms)
+            canonical_atoms = result.canonical_atoms
+            topics = result.topics
+            stage3_ok = True
+            log.info(
+                "Stage 3 Opus → %d canonical atoms, %d topics, %d rules promoted",
+                len(canonical_atoms),
+                len(topics),
+                sum(1 for a in canonical_atoms if a.is_rule),
+            )
+        except Exception as e:
+            log.warning("Stage 3 Opus failed (%s) — falling back to Python dedup.", e)
+
+    if not stage3_ok:
+        canonical_atoms = _dedupe(raw_atoms)
+        topics = []
+        log.info("Python dedup → %d unique atoms (no topic clustering)", len(canonical_atoms))
 
     db_path = index_db_path(repo_path)
     conn = sqlite_store.open_db(db_path)
     try:
-        written = _index_atoms(conn, unique)
+        # Fresh canonical set replaces previous pipeline atoms (preserves user notes).
+        sqlite_store.clear_pipeline_atoms(conn)
+        written = _index_atoms(conn, canonical_atoms)
+        for t in topics:
+            sqlite_store.insert_topic(
+                conn,
+                topic_id=t.get("id", "t_other"),
+                name=t.get("name", "Other"),
+                summary=t.get("summary", ""),
+                atom_ids=t.get("atom_ids", []),
+            )
         sqlite_store.set_meta(conn, "last_indexed_at", str(time.time()))
         sqlite_store.set_meta(conn, "repo_path", str(repo_path))
+        sqlite_store.set_meta(conn, "stage3_status", "opus" if stage3_ok else "python_dedup_fallback")
         conn.commit()
     finally:
         conn.close()
@@ -169,8 +207,11 @@ async def _run_extraction(
         "db_path": str(db_path),
         "ingested": len(events),
         "kept_after_stage1": len(kept),
-        "atoms_after_stage2": len(atoms),
+        "atoms_after_stage2": len(raw_atoms),
         "atoms_written": written,
+        "topics_written": len(topics),
+        "rules_promoted": sum(1 for a in canonical_atoms if a.is_rule),
+        "stage3_status": "opus" if stage3_ok else "python_dedup_fallback",
         "elapsed_seconds": round(time.time() - t0, 1),
     }
 

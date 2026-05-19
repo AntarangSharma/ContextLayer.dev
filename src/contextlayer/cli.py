@@ -64,7 +64,9 @@ def index(
     typer.echo(f"  Ingested:           {result['ingested']} events")
     typer.echo(f"  Haiku kept:         {result['kept_after_stage1']}")
     typer.echo(f"  Sonnet extracted:   {result['atoms_after_stage2']} raw atoms")
-    typer.echo(f"  After dedup:        {result['atoms_written']} unique atoms")
+    typer.echo(f"  Opus structured:    {result['atoms_written']} canonical atoms ({result.get('stage3_status', '?')})")
+    typer.echo(f"  Topics:             {result.get('topics_written', 0)}")
+    typer.echo(f"  Rules promoted:     {result.get('rules_promoted', 0)}")
     typer.echo(f"  DB:                 {result['db_path']}")
     typer.echo(f"  Elapsed:            {result['elapsed_seconds']}s")
 
@@ -224,7 +226,9 @@ def scan(
     typer.echo(f"  Scan events:        {result['ingested']}")
     typer.echo(f"  Haiku kept:         {result['kept_after_stage1']}")
     typer.echo(f"  Sonnet extracted:   {result['atoms_after_stage2']} raw atoms")
-    typer.echo(f"  After dedup:        {result['atoms_written']} unique atoms")
+    typer.echo(f"  Opus structured:    {result['atoms_written']} canonical atoms ({result.get('stage3_status', '?')})")
+    typer.echo(f"  Topics:             {result.get('topics_written', 0)}")
+    typer.echo(f"  Rules promoted:     {result.get('rules_promoted', 0)}")
     typer.echo(f"  DB:                 {result['db_path']}")
     typer.echo(f"  Elapsed:            {result['elapsed_seconds']}s")
 

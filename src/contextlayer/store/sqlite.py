@@ -120,6 +120,34 @@ def all_embeddings(conn: sqlite3.Connection) -> tuple[list[str], np.ndarray]:
     return ids, matrix
 
 
+def insert_topic(
+    conn: sqlite3.Connection,
+    topic_id: str,
+    name: str,
+    summary: str,
+    atom_ids: list[str],
+) -> None:
+    """Insert (or replace) a topic row."""
+    conn.execute(
+        "INSERT OR REPLACE INTO topics (id, name, summary, atom_ids) VALUES (?, ?, ?, ?)",
+        (topic_id, name, summary, json.dumps(atom_ids)),
+    )
+
+
+def clear_pipeline_atoms(conn: sqlite3.Connection) -> None:
+    """Drop pipeline-produced atoms (preserves user_decision atoms from `contextlayer note`).
+
+    Use before writing a fresh canonical atom set from Stage 3 Opus, so re-indexing
+    doesn't accumulate stale duplicates but also doesn't destroy user-authored notes.
+    """
+    conn.execute(
+        "DELETE FROM atom_embeddings WHERE atom_id IN "
+        "(SELECT id FROM atoms WHERE category != 'user_decision')"
+    )
+    conn.execute("DELETE FROM atoms WHERE category != 'user_decision'")
+    conn.execute("DELETE FROM topics")
+
+
 def set_meta(conn: sqlite3.Connection, key: str, value: str) -> None:
     conn.execute(
         "INSERT OR REPLACE INTO meta (key, value) VALUES (?, ?)",
