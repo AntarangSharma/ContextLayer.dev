@@ -183,12 +183,55 @@ def _index_atoms(conn, atoms: list[Atom]) -> int:
     return written
 
 
+def _split_by_cache(
+    conn,
+    events: list[RawEvent],
+) -> tuple[list[RawEvent], list[Atom], int]:
+    """Partition events into (miss, cached_atoms, n_kept_discards).
+
+    For each event:
+      - full cache hit + kept=True + stage2 atoms → atoms loaded from cache
+      - full cache hit + kept=False → contributed 0 atoms (counted, no API call)
+      - miss or partial → returned in `miss` list, will be re-run end-to-end
+    """
+    miss: list[RawEvent] = []
+    cached_atoms: list[Atom] = []
+    kept_discards = 0
+    for e in events:
+        s1, s2 = sqlite_store.get_cached_event(conn, e.source_id)
+        if s1 is None:
+            miss.append(e)
+            continue
+        if not s1.get("keep", False):
+            # cached as a discard — no atoms, no API call
+            kept_discards += 1
+            continue
+        if s2 is None:
+            # partial: kept in Stage 1 but Stage 2 never completed → re-run
+            miss.append(e)
+            continue
+        # Full hit. Rehydrate Atom objects from cached dicts.
+        for atom_dict in s2:
+            try:
+                a = Atom(**atom_dict)
+                # Cached atoms already have id/source_refs/created_at populated.
+                cached_atoms.append(a)
+            except Exception as ex:
+                log.warning("Cached atom for %s failed to rehydrate: %s", e.source_id, ex)
+    return miss, cached_atoms, kept_discards
+
+
 async def _run_extraction(
     events: list[RawEvent],
     repo_path: Path,
     t0: float,
 ) -> dict:
     """Shared core: events → Haiku → Sonnet → Opus (dedup + topics + rules) → embed → SQLite.
+
+    Idempotency cache (T+26:30): events already processed in a previous run are
+    skipped — their Stage 1 + Stage 2 results are loaded from ingest_cache so we
+    make zero API calls for them. Stage 3 Opus always re-runs on the full
+    (cached + fresh) atom set so dedup/topics/rules reflect the current state.
 
     If Stage 3 Opus fails (e.g., rate limit, API error), fall back to Python dedup
     so we never lose Stage 2 output.
@@ -200,13 +243,62 @@ async def _run_extraction(
     stage1_haiku.reset_usage()
     stage2_sonnet.reset_usage()
 
-    log.info("Stage 1 Haiku — filtering %d events (RPM=%d)...", len(events), RPM_LIMIT)
-    kept = await _stage1(client, events, limiter)
-    log.info("Haiku kept %d / %d events", len(kept), len(events))
+    # Open the DB early so we can do idempotency cache lookups + writes during the run.
+    db_path = index_db_path(repo_path)
+    conn = sqlite_store.open_db(db_path)
+
+    # ----- Idempotency cache lookup -----
+    miss_events, cached_atoms, kept_discards = _split_by_cache(conn, events)
+    n_cache_hits = len(events) - len(miss_events)
+    log.info(
+        "Idempotency cache: %d/%d events cached (%d → %d atoms loaded; %d cached-as-discard), "
+        "%d to process",
+        n_cache_hits, len(events),
+        n_cache_hits - kept_discards, len(cached_atoms), kept_discards,
+        len(miss_events),
+    )
+
+    log.info("Stage 1 Haiku — filtering %d events (RPM=%d)...", len(miss_events), RPM_LIMIT)
+    kept = await _stage1(client, miss_events, limiter)
+    log.info("Haiku kept %d / %d miss-events", len(kept), len(miss_events))
+
+    # Persist Stage 1 results (both keeps and discards) so a future rerun can skip them.
+    kept_ids = {e.source_id for e, _ in kept}
+    for e in miss_events:
+        if e.source_id in kept_ids:
+            r = next(r for ev, r in kept if ev.source_id == e.source_id)
+            sqlite_store.cache_stage1(
+                conn, e.source_id, e.source_type,
+                {"keep": True, "category": r.category},
+            )
+        else:
+            sqlite_store.cache_stage1(
+                conn, e.source_id, e.source_type,
+                {"keep": False, "category": "none"},
+            )
+    conn.commit()
 
     log.info("Stage 2 Sonnet — extracting atoms from %d events (RPM=%d)...", len(kept), RPM_LIMIT)
-    raw_atoms = await _stage2(client, kept, limiter)
-    log.info("Sonnet extracted %d raw atoms", len(raw_atoms))
+    fresh_atoms = await _stage2(client, kept, limiter)
+    log.info("Sonnet extracted %d fresh atoms (+ %d from cache)", len(fresh_atoms), len(cached_atoms))
+
+    # Persist Stage 2 results per-source_id (group fresh_atoms by source_refs[0]).
+    atoms_by_sid: dict[str, list[dict]] = {}
+    for a in fresh_atoms:
+        if not a.source_refs:
+            continue
+        sid = a.source_refs[0]
+        atoms_by_sid.setdefault(sid, []).append(a.model_dump())
+    # Every kept event needs a stage2_result row, even if it produced 0 atoms,
+    # so we don't keep re-running events that genuinely have no atoms.
+    for e, _ in kept:
+        sqlite_store.cache_stage2(conn, e.source_id, atoms_by_sid.get(e.source_id, []))
+    conn.commit()
+
+    # ----- Stage 3 input is union of cached + fresh atoms -----
+    raw_atoms = cached_atoms + fresh_atoms
+    log.info("Stage 3 input: %d raw atoms (cached=%d, fresh=%d)",
+             len(raw_atoms), len(cached_atoms), len(fresh_atoms))
 
     # Stage 3 — Opus with extended thinking. Falls back to Python dedup on failure.
     canonical_atoms: list[Atom] = []
@@ -233,10 +325,10 @@ async def _run_extraction(
         topics = []
         log.info("Python dedup → %d unique atoms (no topic clustering)", len(canonical_atoms))
 
-    db_path = index_db_path(repo_path)
-    conn = sqlite_store.open_db(db_path)
     try:
-        # Fresh canonical set replaces previous pipeline atoms (preserves user notes).
+        # Fresh canonical set replaces previous pipeline atoms (preserves user notes
+        # AND preserves the ingest_cache — it's intentionally NOT cleared, so reruns
+        # skip API calls).
         sqlite_store.clear_pipeline_atoms(conn)
         written = _index_atoms(conn, canonical_atoms)
         for t in topics:
@@ -260,8 +352,12 @@ async def _run_extraction(
         "repo_path": str(repo_path),
         "db_path": str(db_path),
         "ingested": len(events),
+        "events_cache_hit": n_cache_hits,
+        "events_cache_miss": len(miss_events),
         "kept_after_stage1": len(kept),
         "atoms_after_stage2": len(raw_atoms),
+        "atoms_fresh": len(fresh_atoms),
+        "atoms_from_cache": len(cached_atoms),
         "atoms_written": written,
         "topics_written": len(topics),
         "rules_promoted": sum(1 for a in canonical_atoms if a.is_rule),

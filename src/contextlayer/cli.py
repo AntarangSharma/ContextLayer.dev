@@ -67,6 +67,14 @@ def index(
     typer.echo(f"  Opus structured:    {result['atoms_written']} canonical atoms ({result.get('stage3_status', '?')})")
     typer.echo(f"  Topics:             {result.get('topics_written', 0)}")
     typer.echo(f"  Rules promoted:     {result.get('rules_promoted', 0)}")
+    hits = result.get("events_cache_hit", 0)
+    miss = result.get("events_cache_miss", 0)
+    if hits or miss:
+        typer.echo(
+            f"  Idempotency cache:  {hits} hit / {miss} miss "
+            f"({result.get('atoms_from_cache', 0)} atoms from cache, "
+            f"{result.get('atoms_fresh', 0)} fresh)"
+        )
     cr = result.get("cache_read_tokens", 0)
     cw = result.get("cache_write_tokens", 0)
     if cr or cw:
@@ -233,6 +241,14 @@ def scan(
     typer.echo(f"  Opus structured:    {result['atoms_written']} canonical atoms ({result.get('stage3_status', '?')})")
     typer.echo(f"  Topics:             {result.get('topics_written', 0)}")
     typer.echo(f"  Rules promoted:     {result.get('rules_promoted', 0)}")
+    hits = result.get("events_cache_hit", 0)
+    miss = result.get("events_cache_miss", 0)
+    if hits or miss:
+        typer.echo(
+            f"  Idempotency cache:  {hits} hit / {miss} miss "
+            f"({result.get('atoms_from_cache', 0)} atoms from cache, "
+            f"{result.get('atoms_fresh', 0)} fresh)"
+        )
     cr = result.get("cache_read_tokens", 0)
     cw = result.get("cache_write_tokens", 0)
     if cr or cw:

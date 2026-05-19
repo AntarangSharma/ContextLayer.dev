@@ -148,6 +148,83 @@ def clear_pipeline_atoms(conn: sqlite3.Connection) -> None:
     conn.execute("DELETE FROM topics")
 
 
+# ---------------- Idempotency cache (T+26:30 Phase 2B) ----------------------
+#
+# ingest_cache columns:
+#   source_id     PK, e.g. "pr:42:adopt-result-t" or "scan:file:routes/users.py"
+#   source_type   "pr" | "git" | "code_scan" | ...
+#   stage1_result JSON: {"keep": bool, "category": str}
+#   stage2_result JSON: list of Atom dicts (only if stage1.keep == True)
+#   processed_at  ISO timestamp
+#
+# Lookup contract: an event is a "full cache hit" iff there is a row AND
+#   - stage1_result is non-null AND
+#   - (stage1.keep == False) OR (stage1.keep == True AND stage2_result is non-null)
+# Anything else is treated as a miss and re-run end-to-end.
+
+
+def get_cached_event(
+    conn: sqlite3.Connection, source_id: str
+) -> tuple[dict | None, list[dict] | None]:
+    """Return (stage1_dict, stage2_atoms_list) for a source_id, or (None, None) on miss."""
+    row = conn.execute(
+        "SELECT stage1_result, stage2_result FROM ingest_cache WHERE source_id = ?",
+        (source_id,),
+    ).fetchone()
+    if not row:
+        return None, None
+    s1 = json.loads(row[0]) if row[0] else None
+    s2 = json.loads(row[1]) if row[1] else None
+    return s1, s2
+
+
+def cache_stage1(
+    conn: sqlite3.Connection,
+    source_id: str,
+    source_type: str,
+    result: dict,
+) -> None:
+    """Persist a Stage 1 classification (keep + category) for one event."""
+    from datetime import datetime, timezone
+    now = datetime.now(timezone.utc).isoformat()
+    conn.execute(
+        "INSERT INTO ingest_cache (source_id, source_type, stage1_result, processed_at) "
+        "VALUES (?, ?, ?, ?) "
+        "ON CONFLICT(source_id) DO UPDATE SET "
+        "  source_type=excluded.source_type, "
+        "  stage1_result=excluded.stage1_result, "
+        "  processed_at=excluded.processed_at",
+        (source_id, source_type, json.dumps(result), now),
+    )
+
+
+def cache_stage2(
+    conn: sqlite3.Connection,
+    source_id: str,
+    atoms: list[dict],
+) -> None:
+    """Persist Stage 2 atom-extraction output for one event.
+
+    Atoms are passed as plain dicts (Atom.model_dump()); we'll rebuild Atom objects
+    on the next run from this JSON.
+    """
+    from datetime import datetime, timezone
+    now = datetime.now(timezone.utc).isoformat()
+    conn.execute(
+        "UPDATE ingest_cache SET stage2_result = ?, processed_at = ? WHERE source_id = ?",
+        (json.dumps(atoms), now, source_id),
+    )
+
+
+def cache_stats(conn: sqlite3.Connection) -> dict:
+    """Quick counts for status / debugging."""
+    total = conn.execute("SELECT count(*) FROM ingest_cache").fetchone()[0]
+    with_s2 = conn.execute(
+        "SELECT count(*) FROM ingest_cache WHERE stage2_result IS NOT NULL"
+    ).fetchone()[0]
+    return {"total_cached": total, "with_stage2": with_s2}
+
+
 def set_meta(conn: sqlite3.Connection, key: str, value: str) -> None:
     conn.execute(
         "INSERT OR REPLACE INTO meta (key, value) VALUES (?, ?)",
