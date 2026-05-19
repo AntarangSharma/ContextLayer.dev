@@ -10,7 +10,7 @@
 
 ## 1. Executive summary
 
-ContextLayer.dev is the missing context layer for AI coding agents. Every codebase has implicit context — why-this-not-that decisions, team conventions, deprecated paths, anti-patterns — that lives in PR comments, commit messages, and senior engineers' heads. Every AI agent (Claude Code, Cursor, Copilot, custom) rediscovers it badly every session. We index a repo's git + PR history with a multi-agent pipeline, extract structured "knowledge atoms," and serve them to any AI agent via MCP. Result: your Claude Code answers like a senior engineer who joined yesterday and read everything.
+ContextLayer.dev is the missing context layer for AI coding agents. Every codebase has implicit context — why-this-not-that decisions, team conventions, deprecated paths, anti-patterns — that lives in PR comments, commit messages, code structure, and senior engineers' heads. Every AI agent (Claude Code, Cursor, Copilot, custom) rediscovers it badly every session. We index a repo from **three sources** — git + PR history, the live code structure, and user-authored "decision journal" notes — with a multi-agent pipeline, extract structured "knowledge atoms," and serve them to any AI agent via MCP. Solo devs without rich PR history get value on day one because code-aware extraction and the decision-journal CLI work on any repo. Result: your Claude Code answers like a senior engineer who joined yesterday and read everything — including the unwritten parts.
 
 **Hackathon entry:** a working Python CLI + MCP server that demonstrates a dramatic before/after on a deterministic 15-PR demo repo (`acme-billing-api/`) authored during prep — synthetic but bulletproof, with guaranteed dramatic atoms. A `tiangolo/fastapi` showcase is staged as an optional "wow if time" stretch, not a critical-path dependency. Plus a static landing page and a slide deck with a credible 18-month startup trajectory.
 
@@ -38,15 +38,30 @@ ContextLayer.dev is the missing context layer for AI coding agents. Every codeba
 
 ### In scope for hackathon (48h)
 
+**Core (Phase 1 — COMPLETE):**
 - CLI `contextlayer index <repo>` that ingests git log + PR data and produces an indexed knowledge store
 - Multi-agent extraction pipeline (Haiku → Sonnet → Opus) with prompt caching, tool use, idempotency
 - Local MCP server (stdio) exposing two tools to Claude Code: `context_query`, `context_list_topics`
+
+**Solo-dev features (Phase 2 — adds "works on any repo, day one"):**
+- `contextlayer scan <repo>` — code-aware ingestion adapter (thin slice: manifests, README, top-N source files via Haiku heuristics) so the pipeline produces atoms even when PR history is sparse
+- `contextlayer note "<decision>"` — Decision Journal CLI; writes user-authored atoms directly to the DB without invoking the multi-agent pipeline
+- `contextlayer explain` — Onboarding Doc generator; produces a polished markdown brief from indexed atoms (stack, top conventions, decisions, anti-patterns)
+
+**Demo + distribution (Phase 3):**
 - Pre-indexed demo on synthetic `acme-billing-api/` repo (15 PRs, hand-authored conventions; deterministic and bulletproof) — **primary demo path**
 - Optional pre-indexed demo on `tiangolo/fastapi` as a "wow if time" stretch goal — **not on the critical path**
 - Static landing page on Vercel (`contextlayer.vercel.app`) with waitlist
 - 5-minute demo video + 8–10 slide pitch deck
 
-### Explicitly out of scope (defer to post-hackathon)
+### Stretch (v1.1, post-hackathon — designed but not built for the demo)
+
+These two features are designed below in §5.7.4–5.7.5 because they're load-bearing for the OSS launch narrative and judges WILL ask about them. They are not on the 48h critical path.
+
+- **Real-time anti-pattern detection** — new MCP tool `context_validate(code, file_path)` that AI agents call before finalizing a response; returns matching anti-pattern atoms. Designed; ships in v1.1.
+- **Repo Health Score** — `contextlayer health` CLI; consistency score, knowledge gaps, drift detection. Designed; ships in v1.1.
+
+### Explicitly out of scope (defer to v1.2+)
 
 - Slack ingestion (OAuth pain)
 - Linear ingestion (OAuth pain)
@@ -98,12 +113,17 @@ Two Python processes, one local SQLite store, two judge-visible artifacts (CLI +
 
 **CLI shape:** single entrypoint `contextlayer` with subcommands:
 
-| Subcommand | Purpose |
-|---|---|
-| `contextlayer index <repo>` | Run ingestion + extraction pipeline; write to `~/.contextlayer/<repo-hash>/index.db` |
-| `contextlayer mcp [--repo <path>]` | Start the stdio MCP server against the indexed DB |
-| `contextlayer status [--repo <path>]` | Show atom count, topic count, last index time (judge-friendly inspect) |
-| `contextlayer claude-md` | Print the recommended CLAUDE.md snippet for users to append |
+| Subcommand | Phase | Purpose |
+|---|---|---|
+| `contextlayer index <repo>` | 1 (done) | Run git + PR ingestion + extraction pipeline; write atoms to `~/.contextlayer/<repo-hash>/index.db` |
+| `contextlayer mcp [--repo <path>]` | 1 (done) | Start the stdio MCP server against the indexed DB |
+| `contextlayer status [--repo <path>]` | 1 (done) | Show atom count, topic count, last index time (judge-friendly inspect) |
+| `contextlayer claude-md` | 1 (done) | Print the recommended CLAUDE.md snippet for users to append |
+| `contextlayer scan <repo>` | **2** | Code-aware ingestion: scan manifests + README + top source files; feed events into the same pipeline. Unlocks day-one value for repos with sparse/zero PR history |
+| `contextlayer note "<decision>" [--rationale "<why>"] [--scope "<glob>"]` | **2** | Decision Journal: write a user-authored atom directly to the DB. Bypasses the multi-agent pipeline. Costs $0, takes milliseconds |
+| `contextlayer explain [--out FILE]` | **2** | Onboarding Doc generator: render the indexed atoms as a polished markdown brief (stack, conventions, decisions, anti-patterns). Designed to replace the "let me explain my project" tax every session |
+| `contextlayer validate <file>` | v1.1 | Real-time anti-pattern check on a code snippet/file (also exposed as MCP tool `context_validate`) |
+| `contextlayer health` | v1.1 | Repo Health Score: consistency, knowledge gaps, drift detection — standalone value-add even before MCP integration |
 
 Dev invocation (during local development): `python -m contextlayer <subcommand>`. User invocation (production): `uvx contextlayer <subcommand>`. Both resolve to the same entrypoint.
 
@@ -292,6 +312,169 @@ async def context_list_topics() -> list[Topic]:
 - No support for `.env` files in v1 — users export the var in their shell (standard pattern, zero failure modes)
 - If the env var is missing at index time, the CLI exits with a clear message; MCP server runs fine without it (no Anthropic calls happen during serving)
 
+### 5.7 Solo-dev features (any repo, day one)
+
+The original design assumes a repo with rich PR history. That's enterprise-flavoured — most solo devs and small teams don't have that data. The five features below extend ContextLayer to deliver value on *any* repo, even one created an hour ago, even one with zero PRs.
+
+**Why this matters strategically:** without these features, the addressable market is "engineering teams with mature PR cultures" — maybe 10% of GitHub. With them, it's "anyone with a Git repo and Claude Code installed" — 10× larger TAM and a 10× simpler GTM ("works on YOUR repo, today, free").
+
+**Phase markers:** §5.7.1, §5.7.2, §5.7.3 are Phase 2 (hackathon scope). §5.7.4 and §5.7.5 are designed below but ship in v1.1 to protect the demo timeline.
+
+#### 5.7.1 Code-aware ingestion (`contextlayer scan`) — Phase 2
+
+**Problem solved:** new repos, solo OSS projects, and small teams often have zero useful PR history. The multi-agent pipeline starves. Solution: read the *code itself* as a source of conventions.
+
+**What it scans (thin slice for v1):**
+
+| Source | What we extract |
+|---|---|
+| `pyproject.toml` / `package.json` / `Cargo.toml` / `go.mod` | Stack identification, dependency choices, version pinning style |
+| `README.md` / `CONTRIBUTING.md` / top-level `*.md` | Project intent, stated conventions, getting-started steps |
+| File-extension distribution (counts per `.ts`/`.py`/`.rs`/etc.) | Inferred primary language(s), build system signals |
+| Top-N largest source files (by line count, capped at 20 files) | Sonnet reads each and extracts: error-handling style, naming conventions, module boundaries, observed patterns |
+
+**How it feeds the pipeline:** the scanner emits `RawEvent` records with `source_type="code_scan"`. They flow into the *same* Haiku → Sonnet → Opus pipeline as git/PR events. No new pipeline, no new storage. Atoms produced have `source_refs` like `["file:pyproject.toml"]` or `["file:src/api/users.py"]`.
+
+**What v1.1 adds:** AST-based extraction for higher-fidelity conventions (function naming patterns, decorator usage, exception-vs-Result style detection). Out of scope for hackathon.
+
+**Cost impact:** scanning adds ~$0.10–0.30 per repo (10–30 small Sonnet calls on individual source files). Total per-repo cost rises from ~$1.50 to ~$1.80.
+
+**Usage:**
+
+```bash
+# Standalone — produce atoms purely from code:
+$ contextlayer scan .
+
+# Or combined with git/PR (recommended):
+$ contextlayer index .          # adds code_scan events to the pipeline run
+```
+
+`index` invokes `scan` as one of its ingestion adapters when run with no flags. `scan` alone exists as a fast path for "I just want atoms from code, skip the gh CLI dance."
+
+#### 5.7.2 Decision Journal (`contextlayer note`) — Phase 2
+
+**Problem solved:** solo devs don't write PR descriptions. They make decisions in their head, in chat with themselves, while coding. Those decisions evaporate. By the next session, even *they* forget the why.
+
+**Design:** a one-line CLI that captures a decision as a knowledge atom directly — no multi-agent pipeline, no Anthropic call, no cost. It's a structured commit message for thoughts that don't warrant a commit.
+
+```bash
+$ contextlayer note "switched from axios to fetch — bundle size win, no other deps needed"
+$ contextlayer note "all timestamps are UTC; never localize at the storage layer" --scope "src/**"
+$ contextlayer note "auth tokens expire in 7d; do not make this per-route" \
+    --rationale "PR review with security team 2026-05-15"
+```
+
+**Atom shape:** identical to a pipeline-extracted atom but with `category="user_decision"`, `source_refs=["note:<timestamp>"]`, `confidence=1.0` (user-stated, no inference). The note is added to the atoms table immediately; the next `context_query` from any MCP client surfaces it.
+
+**Implementation cost:** ~1–2 hours. Atoms table already exists. New `note` subcommand inserts a row with `source_type="note"` and the current `cwd` as scope hint. Embeddings computed locally via the same fastembed pipeline.
+
+**Demo angle:** drop one beat into the rehearsal — *"now I'm coding, I make a decision, I capture it in one line. The next AI session knows it forever."* Optional, doesn't require restructuring the locked 3-min demo.
+
+#### 5.7.3 Onboarding Doc Generator (`contextlayer explain`) — Phase 2
+
+**Problem solved:** every Claude Code session, every new collaborator, every future-self starts with the "let me explain my project from scratch" tax. This is the single most repeated piece of friction in AI-assisted development.
+
+**Design:** a CLI that reads the indexed atoms and renders a polished, single-file markdown brief. Designed to be the artifact a user drops into a new chat (or appends to `CLAUDE.md`) and gets instant context.
+
+```bash
+$ contextlayer explain
+# Writes to stdout (default) — pipe to a file or clipboard
+
+$ contextlayer explain --out PROJECT_BRIEF.md
+# Writes to file
+```
+
+**Output structure (template lives in `contextlayer/templates/explain.md.j2`):**
+
+```markdown
+# Project: <repo-name>
+
+## Stack (inferred)
+- Language: Python 3.11+
+- Web framework: FastAPI
+- Database: SQLite + Postgres (per pyproject.toml)
+- Tests: pytest
+
+## Top conventions
+1. Use Result<T> for domain errors, not exceptions (PR #421)
+2. All timestamps stored as UTC at the data layer
+3. Async endpoints by default; sync only for CPU-bound work
+...
+
+## Active decisions (recent)
+- 2026-05-15 · Auth tokens 7d expiry, not per-route configurable
+- 2026-05-10 · Switched from axios to fetch (note)
+...
+
+## Anti-patterns to avoid
+- Don't import from `legacy_billing.py` — deprecated PR #487
+...
+
+## Topic index
+- API design (12 atoms) · Auth (7) · Testing (9) · ...
+```
+
+**How it works:** queries the indexed atom store, groups by `category` and `topic`, sorts by `confidence` desc and `created_at` desc, renders via a Jinja2 template. ~2–3 hours of implementation.
+
+**Demo angle:** an artifact judges can hold in their hands ("here's a complete project brief, generated from your repo in seconds"). Strong companion to the MCP before/after demo. Mention briefly in the closing 15 seconds of the demo if it's ready.
+
+#### 5.7.4 Real-time anti-pattern detection (`context_validate`) — v1.1
+
+**Problem solved:** `context_query` is pull-based — the agent has to remember to ask. Anti-patterns matter most when the agent is about to ship code that violates them, and a passive retrieval pattern misses these moments.
+
+**Design:** a third MCP tool that the agent calls *after* drafting code but *before* finalizing the response. Returns matching anti-pattern atoms with a severity score so the agent can self-correct.
+
+```python
+@server.tool()
+async def context_validate(code: str, file_path: str | None = None) -> ValidationResult:
+    """Check a code snippet against known anti-patterns and conventions.
+    Call this AFTER drafting code, BEFORE finalizing your response."""
+```
+
+**Implementation sketch:**
+
+1. Embed the snippet with the same fastembed model
+2. Cosine over atoms where `category in ("anti-pattern", "deprecation")` → top-20
+3. For each candidate, run a small Sonnet "does this code actually violate this rule?" call (batched, 5 candidates per call) → returns yes/no + severity
+4. Return matched violations with the source atom and a suggested fix
+
+**Why v1.1 not v1:** the design is clean but the validation prompt needs tuning to avoid false positives (which destroy trust). That tuning takes a day of careful work — not worth risking the hackathon demo for it. Ships at OSS launch (3 weeks post-hackathon) with public tuning data.
+
+**Bundled CLAUDE.md update (v1.1):** the recommended snippet grows from one line to two — *"call `context_query` before drafting, and `context_validate` after."*
+
+#### 5.7.5 Repo Health Score (`contextlayer health`) — v1.1
+
+**Problem solved:** users want a reason to run ContextLayer *before* they trust it enough to wire it into Claude Code. A standalone score gives instant, shareable value — and is a perfect blog-post / Show HN hook.
+
+**Design:** a CLI that runs over the indexed atoms + raw file scan results and emits three numbers plus a one-page report.
+
+```bash
+$ contextlayer health
+✓ Indexed 234 atoms · 18 topics · last scan 2 minutes ago
+
+Repo Health Score:  73 / 100
+
+  Consistency:    82 / 100   (error handling, naming, module structure)
+  Coverage:       64 / 100   (% of modules with documented rationale)
+  Drift:          71 / 100   (files contradicting established patterns)
+
+Top knowledge gaps:
+  • src/billing/ has 12 modules, 0 documented decisions
+  • Recent commit a3f1c2 contradicts the Result<T> convention (PR #421)
+```
+
+**Scoring (v1.1 sketch):**
+
+| Sub-score | Computation |
+|---|---|
+| Consistency | For each detected convention, % of relevant files that follow it. Aggregate weighted by file size. |
+| Coverage | % of source files that have at least one atom whose `scope` matches their path. |
+| Drift | Run anti-pattern detection (§5.7.4) over recent commits; count violations weighted by file recency. |
+
+**Why standalone-valuable:** people will run it just for the score. Then they stay for the MCP integration. Same playbook as Lighthouse for web perf — the score is the wedge.
+
+**Distribution surface:** also produces a shareable badge SVG (`![Repo Health: 73](contextlayer.dev/badge/...)`) and a public scorecard page (post-hosted-tier). For v1.1: just the CLI output and a JSON dump.
+
 ---
 
 ## 6. Distribution & deployment
@@ -398,9 +581,17 @@ Ordered by likelihood × impact, with mitigations baked into the design.
 
 Binary self-assessment for Wednesday morning:
 
-- [ ] Pre-indexed synthetic `acme-billing-api/` repo, ≥40 atoms across ≥5 topics, browsable via MCP from Claude Code — **primary demo path**
-- [ ] Three demo questions tested; strongest one locked
-- [ ] Before/after demo runs end-to-end in <3 minutes with no restart
+**Phase 1 (core MVP — DONE):**
+- [x] Pre-indexed synthetic `acme-billing-api/` repo, ≥40 atoms across ≥5 topics, browsable via MCP from Claude Code — **primary demo path**
+- [x] Three demo questions tested; strongest one locked (Q1)
+- [x] Before/after demo runs end-to-end in <3 minutes with no restart
+
+**Phase 2 (solo-dev features — adds day-one TAM):**
+- [ ] `contextlayer note "<decision>"` writes user atoms; they surface in `context_query` results within milliseconds
+- [ ] `contextlayer explain` renders the indexed atoms as a usable markdown brief (stack, conventions, decisions, anti-patterns)
+- [ ] `contextlayer scan` produces useful atoms on a repo with zero PRs (test against a freshly-created small repo with only `pyproject.toml` + a `README.md` + 3–5 source files)
+
+**Phase 3 (polish + distribution):**
 - [ ] (Stretch) Pre-indexed `tiangolo/fastapi` repo, ≥100 atoms across ≥10 topics — **optional credibility upgrade, not required**
 - [ ] Landing page live at `contextlayer.vercel.app`, waitlist form functional
 - [ ] 5-minute demo video recorded, edited, captioned
@@ -408,6 +599,10 @@ Binary self-assessment for Wednesday morning:
 - [ ] Public GitHub repo with clean README, architecture diagram, install one-liner, MIT license
 - [ ] BYOK config documented in README — users add their own `ANTHROPIC_API_KEY`
 - [ ] `uvx contextlayer` install path tested end-to-end on a clean machine
+
+**v1.1 design completeness (for the deck, not the build):**
+- [x] `context_validate` MCP tool fully designed (§5.7.4)
+- [x] `contextlayer health` Repo Health Score fully designed (§5.7.5)
 
 ### 10.5 Testing strategy
 
@@ -427,7 +622,7 @@ None. All design decisions are locked. Implementation can proceed.
 
 ---
 
-## Appendix A — Design decisions log (18 hardenings applied)
+## Appendix A — Design decisions log (23 hardenings applied)
 
 For traceability between sections and stress-test improvements:
 
@@ -451,26 +646,49 @@ For traceability between sections and stress-test improvements:
 | 16 | 1, 3, 8, 9, 10 | **Swap primary ↔ backup demo repos.** Synthetic `acme-billing-api/` becomes PRIMARY; `tiangolo/fastapi` becomes optional "wow if time" stretch | The synthetic repo is deterministic, fast to re-index live on stage, and has dramatic atoms by construction. Pinning the critical path to a real OSS repo introduced timeline risk (PR ingestion variance, weak/diffuse atoms, gh-CLI rate limits) for marginal credibility upside. FastAPI is better staged as a post-MVP credibility upgrade |
 | 17 | 5.5 | Build the MCP server on the official [MCP Python SDK](https://github.com/modelcontextprotocol/python-sdk) | Don't roll stdio framing / JSON-RPC / capability negotiation from scratch. Battle-tested SDK collapses ~1 day of plumbing into hours; lets us focus on retrieval and tool logic; gives judges a clean "built on Anthropic's MCP SDK" signal |
 | 18 | implementation plan | **Sequence: end-to-end MVP demo by ~hour 20, polish from hour 20 → 48.** Not pipeline-then-MCP-then-demo linearly | The linear approach risks having no shippable demo until hour 47. MVP-first guarantees a working before/after artifact early; remaining time goes to quality (atom richness, prompt caching, batching, extended thinking, demo polish, landing page) with an always-shippable fallback. Logged here for traceability; lives in the hour-by-hour plan |
+| 19 | 5.7.1 | **Add `contextlayer scan` — thin code-aware ingestion adapter for Phase 2.** Scans manifests, README, and top-N source files via the existing pipeline | Expands TAM from "teams with mature PR cultures" to "anyone with a Git repo." Without this, ContextLayer is unusable for the majority of solo devs and small OSS projects on day one. Thin slice (manifests + README + top files) ships in v1; AST extraction defers to v1.1 |
+| 20 | 5.7.2 | **Add `contextlayer note` Decision Journal CLI for Phase 2.** User-authored atoms, $0 cost, milliseconds to write | Solo devs don't write PR descriptions but they do make decisions. This is the structured-commit-message equivalent for those decisions. Trivial to implement (no pipeline call), high adoption value, demoable as a one-beat extension of the rehearsal |
+| 21 | 5.7.3 | **Add `contextlayer explain` Onboarding Doc generator for Phase 2.** Renders atoms as a polished markdown brief | Solves the "let me re-explain my project every session" tax that every solo dev pays daily. Composition of existing pieces (no new pipeline, no new storage). Becomes the artifact judges hold in their hands |
+| 22 | 5.7.4 | **Design (not build) `context_validate` MCP tool for v1.1.** Anti-pattern detection at code-finalization time | The retrieval-only design is pull-based; the agent has to remember to ask. Push-based validation catches the moments that matter most. Designed now so judges can see the v1.1 roadmap; ships at OSS launch with prompt-tuning time the hackathon doesn't have |
+| 23 | 5.7.5 | **Design (not build) `contextlayer health` Repo Health Score for v1.1.** Standalone CLI with consistency, coverage, drift sub-scores | A wedge that delivers standalone value before MCP wiring — same playbook as Lighthouse for web perf. Strong Show HN hook. Designed now so the OSS launch arc is concrete in the deck; ships at v1.1 |
 
 ---
 
-## Appendix B — Out-of-scope work (post-hackathon roadmap)
+## Appendix B — Roadmap (v1.1 and beyond)
 
-Ordered by likely sequencing:
+Ordered by likely sequencing. v1.1 items are designed in §5.7.4–5.7.5 and Appendix A entries 22–23.
 
-1. **Polish the OSS release** — better install UX, error messages, docs
-2. **Anthropic Batches API for Haiku stage** — 50% additional cost reduction on bulk indexing (24h latency acceptable in batch mode)
-3. **Optional anonymous telemetry** — privacy-respecting, opt-in; counts of indexes/queries to understand adoption
-4. **Slack ingestion adapter** — OAuth + Slack export parsing
-5. **Linear ingestion adapter** — OAuth + Linear API
-6. **ADR file ingestion** — markdown walker for `**/{ADR,decisions,architecture}*.md`
-7. **Cursor / Cody / Aider MCP testing** — verify cross-agent compatibility
-8. **Hosted SaaS tier** — managed indexing, multi-tenant SQLite or Turso
-9. **Team-wide knowledge sharing** — shared index across team members
-10. **Auth + multi-user** — Clerk or Supabase Auth
-11. **Enterprise SSO** — Workos
-12. **On-prem deployment** — Docker image, install docs
-13. **Documentation site** — Docusaurus or GitBook (free), once tool has >100 users
-14. **Custom ingestion adapters** — SDK for enterprises with bespoke sources
-15. **Real-time updates** — auto-reindex on git push (GitHub Action or local hook)
-16. **Automated test suite + CI** — pytest + GitHub Actions, with fixtures for the synthetic backup repo
+**v1.1 — OSS launch (target: 2–3 weeks post-hackathon)**
+
+1. **`context_validate` MCP tool + `contextlayer validate` CLI** — real-time anti-pattern detection (design in §5.7.4)
+2. **`contextlayer health` CLI** — Repo Health Score with consistency, coverage, drift sub-scores (design in §5.7.5)
+3. **AST-based pattern extraction** in `contextlayer scan` — higher-fidelity convention detection beyond the thin v1 slice
+4. **Polish the OSS release** — better install UX, error messages, docs
+5. **Anthropic Batches API for Haiku stage** — 50% additional cost reduction on bulk indexing (24h latency acceptable in batch mode)
+
+**v1.2 — adoption + integrations**
+
+6. **Optional anonymous telemetry** — privacy-respecting, opt-in; counts of indexes/queries to understand adoption
+7. **Slack ingestion adapter** — OAuth + Slack export parsing
+8. **Linear ingestion adapter** — OAuth + Linear API
+9. **ADR file ingestion** — markdown walker for `**/{ADR,decisions,architecture}*.md`
+10. **Cursor / Cody / Aider MCP testing** — verify cross-agent compatibility
+
+**v2 — hosted tier + teams**
+
+11. **Hosted SaaS tier** — managed indexing, multi-tenant SQLite or Turso
+12. **Team-wide knowledge sharing** — shared index across team members
+13. **Auth + multi-user** — Clerk or Supabase Auth
+14. **Repo Health Score shareable badges + public scorecards**
+
+**v3 — enterprise**
+
+15. **Enterprise SSO** — Workos
+16. **On-prem deployment** — Docker image, install docs
+17. **Custom ingestion adapters** — SDK for enterprises with bespoke sources
+
+**Cross-cutting (any version)**
+
+18. **Documentation site** — Docusaurus or GitBook (free), once tool has >100 users
+19. **Real-time updates** — auto-reindex on git push (GitHub Action or local hook)
+20. **Automated test suite + CI** — pytest + GitHub Actions, with fixtures for the synthetic backup repo
