@@ -12,6 +12,8 @@
 
 ContextLayer.dev is the missing context layer for AI coding agents. Every codebase has implicit context — why-this-not-that decisions, team conventions, deprecated paths, anti-patterns — that lives in PR comments, commit messages, code structure, and senior engineers' heads. Every AI agent (Claude Code, Cursor, Copilot, custom) rediscovers it badly every session. We index a repo from **three sources** — git + PR history, the live code structure, and user-authored "decision journal" notes — with a multi-agent pipeline, extract structured "knowledge atoms," and serve them to any AI agent via MCP. Solo devs without rich PR history get value on day one because code-aware extraction and the decision-journal CLI work on any repo. Result: your Claude Code answers like a senior engineer who joined yesterday and read everything — including the unwritten parts.
 
+**The moat (v2 + v3, designed in §5.8).** The features above are productivity wins. The defensible business is the *immune system*: continuous Convention Drift Detection (alert when 34% of new code quietly violates a convention), the Failure Loop (incident → automatically extracted "never do this again" atom → all future AI sessions warned), and Cross-Repo Intelligence (anonymized network effects: *"78% of teams at your scale regret not adding connection pooling before 50k DAU — you don't have it"*). These are not productivity arguments. They are business-continuity arguments. That is what unlocks enterprise budget and what no CLAUDE.md, no Cursor rule, and no manual process can replicate.
+
 **Hackathon entry:** a working Python CLI + MCP server that demonstrates a dramatic before/after on a deterministic 15-PR demo repo (`acme-billing-api/`) authored during prep — synthetic but bulletproof, with guaranteed dramatic atoms. A `tiangolo/fastapi` showcase is staged as an optional "wow if time" stretch, not a critical-path dependency. Plus a static landing page and a slide deck with a credible 18-month startup trajectory.
 
 **Cost discipline:** $0 infra through deployment. Users bring their own Anthropic API key (BYOK). No paid services until investor funding.
@@ -442,7 +444,7 @@ async def context_validate(code: str, file_path: str | None = None) -> Validatio
 
 **Bundled CLAUDE.md update (v1.1):** the recommended snippet grows from one line to two — *"call `context_query` before drafting, and `context_validate` after."*
 
-#### 5.7.5 Repo Health Score (`contextlayer health`) — v1.1
+#### 5.7.5 Repo Health Score (`contextlayer health`) — v1.1 (designed below; ships at OSS launch)
 
 **Problem solved:** users want a reason to run ContextLayer *before* they trust it enough to wire it into Claude Code. A standalone score gives instant, shareable value — and is a perfect blog-post / Show HN hook.
 
