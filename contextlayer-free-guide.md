@@ -1,172 +1,87 @@
-# ContextLayer.dev — Free Usage Guide
-**Post-Hackathon Personal Setup | Zero Cost**
+# ContextLayer.dev — Personal Usage Guide
+**Post-Hackathon Setup | What it actually costs, what's actually free**
 
 ---
 
-## What You Are Setting Up
+## What you're setting up
 
 ContextLayer has two pieces:
-- **Indexer** — runs once, reads your repo, calls an AI model, writes to SQLite
-- **MCP Server** — runs while you code, serves context to Claude Code / Cursor
+- **Indexer** — runs occasionally, reads your repo, calls the Anthropic API, writes to local SQLite. **Costs money** (token usage).
+- **MCP server** — runs while you code, serves context to Claude Code via stdio. **Always free** (pure local lookup, zero API calls).
 
-Only the indexer costs money (AI API calls). The MCP server is always free.
-Goal: make the indexer free too.
-
----
-
-## Cost Reality Check
-
-| Step | Model Used | Cost (Anthropic) | Free Alternative |
-|---|---|---|---|
-| Filter | Haiku | ~$0.01 per repo | Gemini Flash / Llama |
-| Extract | Sonnet | ~$0.30 per repo | Gemini Flash / Qwen |
-| Structure | Opus | ~$0.50 per repo | Gemini Pro / Llama |
-| MCP Server | None | $0 forever | $0 forever |
-| **Total** | | **~$0.80 per repo** | **$0** |
-
-You can index most repos for under $1 even with Anthropic.
-But if you want $0 forever, follow the options below.
+So the only thing you ever pay for is `contextlayer index`.
 
 ---
 
-## Option 1: Gemini Free Tier (Recommended)
+## Honest cost breakdown
 
-Best free option. Cloud quality, no credit card, generous limits.
+Per-repo indexing cost using the current pipeline (Haiku → Sonnet → Opus, all Anthropic):
 
-### Step 1: Get Free Gemini API Key
-1. Go to [aistudio.google.com](https://aistudio.google.com)
-2. Sign in with Google
-3. Click **Get API Key** → **Create API key**
-4. Copy it somewhere safe
+| Stage | Model | Typical cost |
+|---|---|---|
+| Filter | Haiku | $0.05–0.15 |
+| Extract | Sonnet | $0.20–0.40 |
+| Structure | Opus | $0.80–1.00 |
+| **Per index run** | | **~$1.05–$1.55** |
 
-**Free tier limits (as of 2026):**
-- Gemini 1.5 Flash: 15 requests/minute, 1 million tokens/day
-- Gemini 1.5 Pro: 2 requests/minute, 50k tokens/day
-- No credit card required, limits reset daily
+Re-runs are near-free — the idempotency cache skips events that were already processed, so only new commits/PRs hit the API. A typical "I made 5 commits since last index" rerun costs cents.
 
-### Step 2: Install ContextLayer
+---
+
+## How to keep this cheap
+
+### 1. Use hackathon credits if you have them
+
+If you got $500 in Anthropic credits at the hackathon, you can index ~300–500 repos before paying anything. At one index per repo + cheap re-runs after, that's a year of personal use.
+
 ```bash
-# Requires Python 3.11+
-uvx contextlayer-dev --version
-
-# Or install permanently
-pip install contextlayer-dev
-```
-
-> The PyPI package is **`contextlayer-dev`** because the bare `contextlayer`
-> name was taken on PyPI by an unrelated project before we shipped. The CLI
-> binary stays `contextlayer` (it's a separate console-script entry point),
-> so all `contextlayer …` commands below work after install.
-
-### Step 3: Configure for Gemini
-```bash
-# Set environment variable
-export CONTEXTLAYER_PROVIDER=gemini
-export GEMINI_API_KEY=your_key_here
-
-# Add to ~/.bashrc or ~/.zshrc to persist
-echo 'export CONTEXTLAYER_PROVIDER=gemini' >> ~/.zshrc
-echo 'export GEMINI_API_KEY=your_key_here' >> ~/.zshrc
-source ~/.zshrc
-```
-
-### Step 4: Index Your Repo
-```bash
-cd /path/to/your/repo
+export ANTHROPIC_API_KEY=sk-ant-...
 contextlayer index .
 ```
 
-Done. Index file lives at `~/.contextlayer/<repo-name>/index.db`
+### 2. Use the decision-journal path (zero API calls, ever)
+
+`contextlayer note` writes an atom directly to the local SQLite store. No model runs. No tokens. **Free.** This is the fastest way to make a repo "ContextLayer-aware" without paying anything — works on day one, including on repos where you skip `index` entirely.
+
+```bash
+contextlayer note "all timestamps are UTC; never localize at storage layer" --scope "src/**"
+contextlayer note "switched from axios to fetch — bundle size was 40kb over budget"
+contextlayer note "auth tokens expire in 7d" --rationale "agreed with security team 2026-05-15"
+```
+
+Then start the MCP server normally — Claude Code can query these notes via `context_query` immediately.
+
+### 3. Use `scan` instead of `index` on repos with no PR history
+
+`contextlayer scan` skips git+PR ingestion and only reads code (manifests, README, top source files). Fewer events → cheaper indexing.
+
+```bash
+contextlayer scan /path/to/repo
+```
+
+### 4. Re-index sparingly
+
+The cache means subsequent runs are cheap, but the first run on a large repo can be a few dollars. Index after meaningful merges, not after every commit.
 
 ---
 
-## Option 2: Ollama (Fully Local, Air-Gapped, Zero Data Leaves Machine)
+## Multi-provider support (not yet — roadmap)
 
-Use this if you do not want any data sent to any cloud service.
+The current pipeline is Anthropic-only. There is no `CONTEXTLAYER_PROVIDER` env var, no Gemini/Ollama/Groq adapter. Earlier versions of this guide promised these — they don't exist yet.
 
-### Step 1: Install Ollama
-```bash
-# macOS / Linux
-curl -fsSL https://ollama.com/install.sh | sh
-
-# Windows: download installer from ollama.com
-```
-
-### Step 2: Pull Models
-```bash
-# Filter step replacement (fast, small)
-ollama pull llama3.2
-
-# Extract + Structure replacement (better quality)
-ollama pull qwen2.5-coder:7b
-
-# If you have 16GB+ RAM, use this for best quality
-ollama pull qwen2.5-coder:14b
-```
-
-### Step 3: Start Ollama Server
-```bash
-# Ollama runs as a background service automatically after install
-# Verify it is running:
-curl http://localhost:11434/api/tags
-```
-
-### Step 4: Configure ContextLayer for Ollama
-```bash
-export CONTEXTLAYER_PROVIDER=ollama
-export OLLAMA_BASE_URL=http://localhost:11434
-export CONTEXTLAYER_FILTER_MODEL=llama3.2
-export CONTEXTLAYER_EXTRACT_MODEL=qwen2.5-coder:7b
-export CONTEXTLAYER_STRUCTURE_MODEL=qwen2.5-coder:7b
-```
-
-### Step 5: Index
-```bash
-cd /path/to/your/repo
-contextlayer index .
-```
-
-**Honest quality warning:** Ollama models are 70-80% as good as Claude at extraction.
-For personal repos this is fine. For complex enterprise codebases, use Gemini.
+If you need a non-Anthropic path today, your options are:
+- **Use credits.** Hackathon credits cover hundreds of indexes.
+- **Use `note` only.** Skip `index` entirely, populate the store manually with `contextlayer note`. Zero API cost, zero provider lock-in.
+- **Wait.** Multi-provider support is on the roadmap; track the repo if you need it.
 
 ---
 
-## Option 3: Groq Free Tier (Fastest Free Option)
+## Daily usage
 
-Groq runs open source models at very high speed. Free tier, no card needed.
-
-```bash
-# Get key at console.groq.com
-export CONTEXTLAYER_PROVIDER=groq
-export GROQ_API_KEY=your_key_here
-export CONTEXTLAYER_FILTER_MODEL=llama-3.1-8b-instant
-export CONTEXTLAYER_EXTRACT_MODEL=llama-3.3-70b-versatile
-export CONTEXTLAYER_STRUCTURE_MODEL=llama-3.3-70b-versatile
-```
-
----
-
-## Option 4: Use Anthropic Credits From Hackathon
-
-If you participated in the hackathon, you received $500 in Claude API credits.
-At ~$0.80 per repo, that is **625 repos** before you pay anything.
+### Start a coding session
 
 ```bash
-export ANTHROPIC_API_KEY=your_hackathon_key
-contextlayer index .
-# Uses Haiku → Sonnet → Opus pipeline (best quality)
-```
-
-Do not overthink free alternatives if you have credits sitting unused.
-
----
-
-## Daily Usage Guide
-
-### Starting a Coding Session
-
-```bash
-# Terminal 1: start MCP server (keep this running)
+# Terminal 1: start the MCP server (stdio — keep this running)
 cd /path/to/your/repo
 contextlayer mcp --repo .
 
@@ -174,81 +89,72 @@ contextlayer mcp --repo .
 claude
 ```
 
-Claude Code now automatically queries ContextLayer before answering.
-You do not need to do anything else.
+The MCP server is stdio-only — there is no `--port` flag, no HTTP server. Each Claude Code session connects over stdin/stdout via the `.mcp.json` config below.
 
-### Updating the Index
-
-Run this after every sprint or major feature merge:
+### Update the index after meaningful changes
 
 ```bash
 cd /path/to/your/repo
 contextlayer index .
-# Idempotent — only processes new commits since last run
-# Fast and cheap on re-runs
 ```
 
-### Querying Manually
+Idempotent. Only new events hit the API.
 
-Test what ContextLayer knows about your repo:
+### Inspect what's been extracted
 
 ```bash
-# See all topics extracted
-contextlayer topics
-
-# Search for a specific topic
-contextlayer query "error handling"
-contextlayer query "deprecated modules"
-contextlayer query "authentication"
-
-# See all extracted atoms
-contextlayer list
+contextlayer status --repo .         # atom count, topic count, rule count, last index time
+contextlayer explain --out BRIEF.md  # generate a markdown project brief from atoms
 ```
 
-### Adding Manual Decisions (Decision Journal)
+There is no `contextlayer query`, `contextlayer topics`, or `contextlayer list` CLI command — those were aspirational in an earlier draft of this guide and don't exist. To query atoms, use the `context_query` MCP tool from inside Claude Code, or read the SQLite file directly at `~/.contextlayer/<repo-hash>/index.db`.
 
-For decisions you make that are not in PRs:
+### Add a decision
 
 ```bash
-contextlayer note "switched from axios to fetch — bundle size was 40kb over budget"
-contextlayer note "do not use threading in workers — caused race condition in issue #88"
-contextlayer note "all new endpoints must use Result type not exceptions"
+contextlayer note "your decision here"
+contextlayer note "your decision" --scope "src/api/**" --rationale "why"
 ```
-
-These become queryable knowledge atoms immediately.
 
 ---
 
 ## Connecting to Claude Code
 
-Add to your Claude Code MCP config (`~/.claude/config.json`):
+Add a `.mcp.json` to your repo root (Claude Code reads this automatically):
+
+```json
+{
+  "mcpServers": {
+    "contextlayer": {
+      "command": "uvx",
+      "args": ["contextlayer-dev", "mcp", "--repo", "."]
+    }
+  }
+}
+```
+
+Or use the brand command if you've `pip install`-ed:
 
 ```json
 {
   "mcpServers": {
     "contextlayer": {
       "command": "contextlayer",
-      "args": ["mcp", "--repo", "/path/to/your/repo"],
-      "env": {
-        "GEMINI_API_KEY": "your_key_here"
-      }
+      "args": ["mcp", "--repo", "."]
     }
   }
 }
 ```
 
-Verify it is connected:
-```bash
-# Inside Claude Code session
-/mcp
-# Should show contextlayer as connected
-```
+Verify inside a Claude Code session with `/mcp` — `contextlayer` should appear as connected.
+
+> The PyPI distribution is **`contextlayer-dev`** because the bare `contextlayer` name on PyPI was taken before we shipped. The installed CLI binary is still `contextlayer`. Both `contextlayer …` and `contextlayer-dev …` work after install.
 
 ---
 
 ## Connecting to Cursor
 
-Add to Cursor MCP settings (`~/.cursor/mcp.json`):
+`~/.cursor/mcp.json`:
 
 ```json
 {
@@ -263,127 +169,74 @@ Add to Cursor MCP settings (`~/.cursor/mcp.json`):
 
 ---
 
-## Multiple Repos
+## Multiple repos
 
-Each repo gets its own index. Run in each repo separately.
+Each repo gets its own index keyed by repo path hash (see `index_db_path()` in [src/contextlayer/store/repo_hash.py](src/contextlayer/store/repo_hash.py)). Just run `contextlayer index .` in each repo. Each Claude Code session loads the MCP server with `--repo <that-repo>` via its own `.mcp.json`.
 
-```bash
-# Work repo
-cd ~/work/my-startup
-contextlayer index .
-contextlayer mcp --repo . --port 3001
-
-# Personal project
-cd ~/projects/side-project
-contextlayer index .
-contextlayer mcp --repo . --port 3002
-```
-
-Point each MCP client at the right port.
+There is no "multiple servers on different ports" setup — the server is stdio per Claude Code instance.
 
 ---
 
 ## Troubleshooting
 
-**Index is slow on first run**
-Normal. Processing thousands of commits takes 3-7 minutes.
-Re-runs are fast (only new commits processed).
+**`No index found at <path>`**
+You haven't run `contextlayer index .` (or `contextlayer scan .`, or `contextlayer note "..."`) yet for this repo. Any of the three creates the DB.
 
-**MCP server not connecting**
-```bash
-# Check it is running
-contextlayer mcp --repo . --debug
+**`ANTHROPIC_API_KEY is not set`**
+`export ANTHROPIC_API_KEY=sk-ant-...` before running `index` or `scan`. Not needed for `mcp`, `note`, `explain`, `status`, or `claude-md` — those are pure-local.
 
-# Check Claude Code sees it
-# Inside Claude: /mcp status
-```
-
-**Gemini rate limit hit**
-```bash
-# Add delay between calls
-contextlayer index . --delay 2000
-# Or switch to Groq for faster free limits
-```
-
-**Ollama model not found**
-```bash
-ollama list  # check what you have
-ollama pull qwen2.5-coder:7b  # re-pull if missing
-```
-
-**Low quality atoms extracted**
-Happens with small repos or minimal PR descriptions.
-Fix: use `contextlayer note` to manually add decisions.
-Or switch from Ollama to Gemini for better extraction.
+**Rate-limit errors during indexing**
+The pipeline rate-limits globally (default 50 RPM). Override with `CONTEXTLAYER_RPM_LIMIT=30` (or lower) if your account's per-minute cap is tighter.
 
 **Want to start fresh**
 ```bash
-rm -rf ~/.contextlayer/<repo-name>/
+# Index DB lives under ~/.contextlayer keyed by repo hash; see store/repo_hash.py
+rm -rf ~/.contextlayer
 contextlayer index .
 ```
 
----
-
-## What ContextLayer Knows vs Does Not Know
-
-**It learns from:**
-- Commit messages
-- PR titles and descriptions
-- PR review comments
-- Code patterns in files (if code analysis enabled)
-- Manual notes you add via `contextlayer note`
-
-**It does not read:**
-- Slack messages (unless you add Slack adapter)
-- Private emails
-- Verbal decisions never written down
-- Code comments (planned feature)
-- Issues/tickets (planned feature)
-
-**Practical implication:** if your team makes decisions in Slack and never writes them in PRs, ContextLayer will miss them. Use `contextlayer note` to fill these gaps manually.
+**Indexed atoms look thin / low quality**
+Happens on small repos or repos with minimal PR descriptions. Use `contextlayer note` to fill the gaps with decisions you remember.
 
 ---
 
-## Staying Free Forever
+## What ContextLayer reads vs doesn't
 
-| Scenario | Best Free Option |
-|---|---|
-| Solo dev, personal projects | Gemini Flash free tier |
-| Privacy sensitive / no cloud | Ollama local |
-| Speed matters | Groq free tier |
-| Have hackathon credits | Use Anthropic, they last long |
-| Team of 2-5, startup | Gemini Pro free tier |
-| Enterprise | Pay for Anthropic, the quality difference matters |
+**It reads:**
+- `git log` (commit messages)
+- `gh` CLI output (PR titles, descriptions, review comments) — requires `gh auth login`
+- Code scan (manifests, README, top source files)
+- `contextlayer note` entries
+
+**It doesn't read (today):**
+- Slack, email, chat — anywhere decisions live outside the repo
+- Code comments — planned
+- Issues/tickets — planned
+
+**Practical implication:** if your team decides in Slack and never writes it in PRs, ContextLayer won't see it. `contextlayer note` is the bridge — use it.
 
 ---
 
-## Quick Reference
+## Quick reference
 
 ```bash
-# One-time setup
-pip install contextlayer
-export GEMINI_API_KEY=your_key
+# Install
+pip install contextlayer-dev          # or: uvx contextlayer-dev <command>
 
-# Index a repo
-cd your-repo && contextlayer index .
+# Index (costs money — needs ANTHROPIC_API_KEY)
+export ANTHROPIC_API_KEY=sk-ant-...
+contextlayer index .                  # full pipeline
+contextlayer scan .                   # code-only, cheaper
 
-# Start MCP server
-contextlayer mcp --repo .
-
-# Update after new PRs
-contextlayer index .
-
-# Add a manual decision
-contextlayer note "your decision here"
-
-# Query what it knows
-contextlayer query "topic here"
-
-# See all topics
-contextlayer topics
+# Free, local-only
+contextlayer note "decision text"     # capture a decision atom (no API call)
+contextlayer status --repo .          # show counts + last index time
+contextlayer explain --out BRIEF.md   # render a project brief from atoms
+contextlayer claude-md                # print the CLAUDE.md snippet
+contextlayer mcp --repo .             # start the stdio MCP server
 ```
 
 ---
 
-*ContextLayer.dev — built at State of Oregon Claude Code Hackathon, May 2026*
-*Repo: github.com/AntarangSharma/ContextLayer.dev*
+*ContextLayer.dev — built at the State of Oregon Claude Code Hackathon, May 2026*
+*Repo: https://github.com/AntarangSharma/ContextLayer.dev*

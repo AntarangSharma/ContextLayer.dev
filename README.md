@@ -86,6 +86,8 @@ The result: a local SQLite knowledge store served to Claude Code via MCP.
 │                                                                  │
 │   Tools exposed to Claude Code:                                  │
 │   • context_query(question, k=5) → relevant atoms + citations    │
+│   • context_validate(proposed_change) → rules this change would  │
+│       violate, with severity + citations (Haiku judge)           │
 │   • context_list_topics() → discovered topic clusters            │
 │                                                                  │
 │   Retrieval: hybrid (cosine similarity + keyword overlap         │
@@ -126,6 +128,38 @@ contextlayer note "auth tokens expire in 7d" --rationale "agreed with security t
 # Generate a project brief from indexed atoms
 contextlayer explain --out PROJECT_BRIEF.md
 ```
+
+---
+
+## 🛡️ context_validate — convention enforcement, not just retrieval
+
+`context_query` is *pull*: the agent has to know to ask. `context_validate` is *push*:
+the agent shows its proposed change and gets back a verdict.
+
+```jsonc
+// Claude Code calls: context_validate(proposed_change="Add an endpoint that
+//                                     uses threading for concurrent DB calls")
+{
+  "passes": false,
+  "violations": [
+    {
+      "rule_id": "a_8f1c…",
+      "rule_summary": "Do not use threading in workers — caused race condition in issue #88",
+      "why_violated": "The proposal introduces threading for concurrency in a worker path.",
+      "severity": "high",
+      "source_refs": ["issue:88", "pr:142"],
+      "scope": "src/workers/**"
+    }
+  ],
+  "rules_considered": 5,
+  "guidance": "If any violations are listed, revise the proposed change to comply
+               with the rule, or cite the source_refs and explicitly justify the exception."
+}
+```
+
+Costs ~$0.001 per call (Haiku, one structured tool-use call). Without `ANTHROPIC_API_KEY`
+the tool falls back to returning the matched rules for the agent to self-evaluate — so it
+still works on the no-key path.
 
 ---
 
@@ -185,15 +219,23 @@ export ANTHROPIC_API_KEY=sk-ant-api03-...
 }
 ```
 
-**CLAUDE.md nudge** (recommended — makes Claude Code proactively query):
+**CLAUDE.md nudge** (recommended — makes Claude Code proactively query AND validate):
 
 ```markdown
 ## ContextLayer
 
-This repo has a ContextLayer knowledge index. Before proposing code changes,
-call the `context_query` MCP tool with what you intend to do — the repo has
-codified team conventions and prior decisions; respect them.
+This repo has a ContextLayer knowledge index. Before proposing code changes:
+
+1. Call the `context_query` MCP tool with what you intend to do — the repo has
+   codified team conventions and prior decisions; surface the relevant ones.
+2. Call the `context_validate` MCP tool with your proposed change (a short
+   plan, snippet, or diff) before applying it. The tool returns any rules
+   your change would violate, with citations to the original PR/commit.
+   If violations are reported, revise the change or explicitly justify the
+   exception.
 ```
+
+`contextlayer claude-md` prints this snippet ready to append.
 
 ---
 

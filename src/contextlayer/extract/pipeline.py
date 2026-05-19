@@ -10,8 +10,8 @@
 Phase 2 polish (T+14 onwards) adds: Stage 3 Opus extended thinking,
 prompt caching, Sonnet batching, idempotency cache, hybrid retrieval.
 
-Rate limits: the proxy in use (api.vibetoken.lol) caps at 60 RPM. We rate-limit
-globally to 50 RPM via a token-bucket. Override with CONTEXTLAYER_RPM_LIMIT.
+Rate limits: we rate-limit globally to 50 RPM via a token-bucket so we stay
+under conservative per-account caps. Override with CONTEXTLAYER_RPM_LIMIT.
 """
 from __future__ import annotations
 
@@ -36,7 +36,7 @@ from contextlayer.store.repo_hash import index_db_path
 
 log = logging.getLogger(__name__)
 
-# Configurable via env (defaults conservative for the api.vibetoken.lol proxy).
+# Configurable via env (conservative defaults that stay under typical per-account caps).
 RPM_LIMIT = int(os.environ.get("CONTEXTLAYER_RPM_LIMIT", "50"))
 STAGE1_CONCURRENCY = int(os.environ.get("CONTEXTLAYER_STAGE1_CONCURRENCY", "2"))
 STAGE2_CONCURRENCY = int(os.environ.get("CONTEXTLAYER_STAGE2_CONCURRENCY", "2"))

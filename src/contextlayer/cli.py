@@ -14,7 +14,6 @@ from __future__ import annotations
 import asyncio
 import logging
 import os
-import sys
 from pathlib import Path
 
 import typer
@@ -289,9 +288,15 @@ def claude_md() -> None:
     typer.echo("""\
 ## ContextLayer
 
-This repo has a ContextLayer knowledge index. Before proposing code changes,
-call the `context_query` MCP tool with what you intend to do — the repo has
-codified team conventions and prior decisions; respect them.""")
+This repo has a ContextLayer knowledge index. Before proposing code changes:
+
+1. Call the `context_query` MCP tool with what you intend to do — the repo has
+   codified team conventions and prior decisions; surface the relevant ones.
+2. Call the `context_validate` MCP tool with your proposed change (a short
+   plan, snippet, or diff) before applying it. The tool returns any rules
+   your change would violate, with citations to the original PR/commit.
+   If violations are reported, revise the change or explicitly justify the
+   exception.""")
 
 
 if __name__ == "__main__":
