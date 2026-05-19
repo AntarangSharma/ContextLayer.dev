@@ -12,7 +12,7 @@
 
 ContextLayer.dev is the missing context layer for AI coding agents. Every codebase has implicit context — why-this-not-that decisions, team conventions, deprecated paths, anti-patterns — that lives in PR comments, commit messages, and senior engineers' heads. Every AI agent (Claude Code, Cursor, Copilot, custom) rediscovers it badly every session. We index a repo's git + PR history with a multi-agent pipeline, extract structured "knowledge atoms," and serve them to any AI agent via MCP. Result: your Claude Code answers like a senior engineer who joined yesterday and read everything.
 
-**Hackathon entry:** a working Python CLI + MCP server that demonstrates a dramatic before/after on a real OSS repo (FastAPI), plus a static landing page and a slide deck with a credible 18-month startup trajectory.
+**Hackathon entry:** a working Python CLI + MCP server that demonstrates a dramatic before/after on a deterministic 15-PR demo repo (`acme-billing-api/`) authored during prep — synthetic but bulletproof, with guaranteed dramatic atoms. A `tiangolo/fastapi` showcase is staged as an optional "wow if time" stretch, not a critical-path dependency. Plus a static landing page and a slide deck with a credible 18-month startup trajectory.
 
 **Cost discipline:** $0 infra through deployment. Users bring their own Anthropic API key (BYOK). No paid services until investor funding.
 
@@ -41,8 +41,8 @@ ContextLayer.dev is the missing context layer for AI coding agents. Every codeba
 - CLI `contextlayer index <repo>` that ingests git log + PR data and produces an indexed knowledge store
 - Multi-agent extraction pipeline (Haiku → Sonnet → Opus) with prompt caching, tool use, idempotency
 - Local MCP server (stdio) exposing two tools to Claude Code: `context_query`, `context_list_topics`
-- Pre-indexed demo on `tiangolo/fastapi` repository
-- Synthetic backup repo (`acme-billing-api/`) as Plan B for demo
+- Pre-indexed demo on synthetic `acme-billing-api/` repo (15 PRs, hand-authored conventions; deterministic and bulletproof) — **primary demo path**
+- Optional pre-indexed demo on `tiangolo/fastapi` as a "wow if time" stretch goal — **not on the critical path**
 - Static landing page on Vercel (`contextlayer.vercel.app`) with waitlist
 - 5-minute demo video + 8–10 slide pitch deck
 
@@ -245,6 +245,8 @@ CREATE TABLE ingest_cache (
 
 `contextlayer/mcp/server.py` — stdio transport, two tools.
 
+**Server scaffold.** Built on the official [MCP Python SDK](https://github.com/modelcontextprotocol/python-sdk) (`pip install mcp`). We do not roll stdio framing, JSON-RPC message handling, or capability negotiation from scratch — the SDK handles transport, message routing, and tool registration. Our code stays focused on the two tool implementations and the retrieval logic. This both reduces implementation risk in the 48h window and lets us point judges at "we're built on Anthropic's MCP SDK" as a credibility signal.
+
 ```python
 @server.tool()
 async def context_query(question: str, k: int = 5) -> list[Atom]:
@@ -347,11 +349,11 @@ Fallback: `pip install contextlayer` for users who don't have `uv` yet.
 
 ## 8. Demo plan
 
-**Primary demo repo:** `tiangolo/fastapi`. Reasons: rich PR discussion, audience knows it instantly, I can verify atom accuracy because I know FastAPI, strong debate-worthy conventions (async vs sync, dependency injection, exception handling) for clean before/after contrast.
+**Primary demo repo:** `acme-billing-api/` — a 15-PR synthetic repo authored during prep with deliberately embedded conventions (`Result<T>` type adopted in PR #3, legacy `db_helper` deprecated in PR #8, async-first decision in PR #11, etc.). Deterministic, bulletproof, guaranteed dramatic atoms. Yes, it's curated — and that's the point: every atom is verifiable against the source PR, the before/after contrast is engineered to be unambiguous on stage, and re-indexing during the demo finishes in under a minute on any laptop.
 
-**Backup repo:** `acme-billing-api/` — 15-PR synthetic repo I author during prep with deliberately embedded conventions (Result type adopted in PR #3, legacy helper deprecated in PR #8, async-first decision in PR #11). Bulletproof but obviously curated.
+**Optional stretch repo:** `tiangolo/fastapi`. If time permits inside the polish window (post-MVP), swap the demo to a real OSS repo for additional credibility ("works on production code, not just our toy"). Rich PR discussion, audience knows it instantly, strong debate-worthy conventions (async vs sync, dependency injection, exception handling). **Not on the critical path** — do not let this slip the demo.
 
-**Both pre-indexed.** Index DB committed to a `demo-data/` folder in the repo so judges can reproduce locally.
+**Pre-indexing.** The synthetic repo's index DB is committed to a `demo-data/` folder so judges can reproduce locally. FastAPI's index DB is added to `demo-data/` only if the stretch goal lands.
 
 **Three candidate demo questions** (A/B'd in prep, lock the strongest before submission):
 
@@ -383,7 +385,7 @@ Ordered by likelihood × impact, with mitigations baked into the design.
 |---|---|---|
 | 1 | MCP server fails to connect during live demo | Two pre-warmed Claude Code panes; never restart on stage |
 | 2 | Sonnet returns malformed atom JSON mid-run | Anthropic tool use with strict JSON schema; zero free-form JSON parsing |
-| 3 | Pre-indexed FastAPI atoms are weak / low contrast | Three demo questions A/B-tested in prep; synthetic backup repo as Plan B |
+| 3 | Synthetic primary repo atoms read as weak / low-contrast | Conventions engineered for contrast at authoring time; three demo questions A/B-tested before lock; FastAPI is an optional credibility upgrade, **not** a fallback (the synthetic repo IS the bulletproof path) |
 | 4 | Multi-agent pipeline overruns time budget | Sonnet batching is the only novel engineering; if it slips, fall back to one-event-per-call (works, just slower/pricier) |
 | 5 | Anthropic API outage during demo | Pre-indexed DB is local; the after-demo doesn't touch the API. Drop the live re-index theatre if network is down |
 | 6 | `gh CLI` not authenticated on a fresh judge clone | README documents `gh auth login`; pre-indexed DB ships with the demo so judges don't need to re-index to see results |
@@ -396,10 +398,10 @@ Ordered by likelihood × impact, with mitigations baked into the design.
 
 Binary self-assessment for Wednesday morning:
 
-- [ ] Pre-indexed FastAPI repo, ≥100 atoms across ≥10 topics, browsable via MCP from Claude Code
+- [ ] Pre-indexed synthetic `acme-billing-api/` repo, ≥40 atoms across ≥5 topics, browsable via MCP from Claude Code — **primary demo path**
 - [ ] Three demo questions tested; strongest one locked
 - [ ] Before/after demo runs end-to-end in <3 minutes with no restart
-- [ ] Synthetic backup repo (`acme-billing-api/`) ready as Plan B
+- [ ] (Stretch) Pre-indexed `tiangolo/fastapi` repo, ≥100 atoms across ≥10 topics — **optional credibility upgrade, not required**
 - [ ] Landing page live at `contextlayer.vercel.app`, waitlist form functional
 - [ ] 5-minute demo video recorded, edited, captioned
 - [ ] Slide deck (8–10 slides): problem → demo → market → model → roadmap → team → ask
@@ -425,7 +427,7 @@ None. All design decisions are locked. Implementation can proceed.
 
 ---
 
-## Appendix A — Design decisions log (12 hardenings applied)
+## Appendix A — Design decisions log (18 hardenings applied)
 
 For traceability between sections and stress-test improvements:
 
@@ -446,6 +448,9 @@ For traceability between sections and stress-test improvements:
 | 13 | 5.2 | Extended thinking on Opus global structurer | Reasoning-heavy task; meaningfully better dedup/topic grouping for ~+$0.50/run |
 | 14 | 5.6 | Explicit `ANTHROPIC_API_KEY` env var; never disk/logs | Standard secrets pattern, judge-defensible |
 | 15 | 10.5 | Manual e2e + 3 pipeline smoke assertions, no full test suite | Right scope discipline for 48h hackathon |
+| 16 | 1, 3, 8, 9, 10 | **Swap primary ↔ backup demo repos.** Synthetic `acme-billing-api/` becomes PRIMARY; `tiangolo/fastapi` becomes optional "wow if time" stretch | The synthetic repo is deterministic, fast to re-index live on stage, and has dramatic atoms by construction. Pinning the critical path to a real OSS repo introduced timeline risk (PR ingestion variance, weak/diffuse atoms, gh-CLI rate limits) for marginal credibility upside. FastAPI is better staged as a post-MVP credibility upgrade |
+| 17 | 5.5 | Build the MCP server on the official [MCP Python SDK](https://github.com/modelcontextprotocol/python-sdk) | Don't roll stdio framing / JSON-RPC / capability negotiation from scratch. Battle-tested SDK collapses ~1 day of plumbing into hours; lets us focus on retrieval and tool logic; gives judges a clean "built on Anthropic's MCP SDK" signal |
+| 18 | implementation plan | **Sequence: end-to-end MVP demo by ~hour 20, polish from hour 20 → 48.** Not pipeline-then-MCP-then-demo linearly | The linear approach risks having no shippable demo until hour 47. MVP-first guarantees a working before/after artifact early; remaining time goes to quality (atom richness, prompt caching, batching, extended thinking, demo polish, landing page) with an always-shippable fallback. Logged here for traceability; lives in the hour-by-hour plan |
 
 ---
 
