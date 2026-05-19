@@ -58,3 +58,4 @@ demo-data/*.db-shm
 .pytest_cache/
 .coverage
 htmlcov/
+

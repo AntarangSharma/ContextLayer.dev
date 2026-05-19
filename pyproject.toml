@@ -1,0 +1,33 @@
+[project]
+name = "contextlayer"
+version = "0.1.0"
+description = "The missing context layer for AI coding agents — index a repo's git+PR history with a multi-agent pipeline, serve atoms to any agent via MCP."
+readme = "README.md"
+license = { text = "MIT" }
+authors = [
+    { name = "Antarang Sharma", email = "antarang2001@gmail.com" }
+]
+requires-python = ">=3.11"
+dependencies = [
+    "anthropic>=0.40.0",
+    "mcp>=1.0.0",
+    "fastembed>=0.4.0",
+    "numpy>=1.26",
+    "typer>=0.12",
+    "pydantic>=2.7",
+    "python-dotenv>=1.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/AntarangSharma/ContextLayer.dev"
+Repository = "https://github.com/AntarangSharma/ContextLayer.dev"
+
+[project.scripts]
+contextlayer = "contextlayer.cli:app"
+
+[build-system]
+requires = ["uv_build>=0.11.9,<0.12.0"]
+build-backend = "uv_build"
+
+[tool.uv]
+package = true
