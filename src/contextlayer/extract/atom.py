@@ -7,7 +7,10 @@ from typing import Literal
 
 from pydantic import BaseModel, Field
 
-Category = Literal["convention", "decision", "deprecation", "anti-pattern"]
+Category = Literal["convention", "decision", "deprecation", "anti-pattern", "user_decision"]
+# user_decision: atoms authored directly by the user via `contextlayer note` (spec §5.7.2).
+# Pipeline never emits user_decision — Sonnet's tool schema (STAGE2_TOOL) restricts to the
+# first four categories. The user_decision category exists only for CLI-authored atoms.
 
 
 class Atom(BaseModel):
