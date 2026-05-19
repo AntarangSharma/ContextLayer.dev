@@ -477,6 +477,168 @@ Top knowledge gaps:
 
 **Distribution surface:** also produces a shareable badge SVG (`![Repo Health: 73](contextlayer.dev/badge/...)`) and a public scorecard page (post-hosted-tier). For v1.1: just the CLI output and a JSON dump.
 
+### 5.8 The immune system (v2 + v3 — the moat)
+
+Everything in §5.7 is a productivity feature. The features in this section are a different category — they're what makes ContextLayer the *infrastructure layer that prevents production incidents*, and they're what makes the company defensible against any incumbent (Cursor, GitHub Copilot, Anthropic's own tools) that might try to absorb the productivity layer.
+
+| | §5.7 features | §5.8 features |
+|---|---|---|
+| Time orientation | Describe the past | Act on the present, predict the future |
+| Cadence | Static snapshot | Continuously updating |
+| Replicable manually? | Yes, with effort | No, requires scale + automation |
+| Buying argument | Productivity | Business continuity, incident prevention |
+| Budget unlock | Per-seat | Enterprise / risk / security |
+
+**These do not ship for the hackathon.** They are fully designed below so the deck has a credible v2/v3 story, judges can probe the moat, and the implementation work is bounded when the time comes.
+
+#### 5.8.1 Convention Drift Detection — v2
+
+**The thesis.** Most codebases don't die from bad decisions. They die from slow divergence. A convention gets established in month 2. By month 8, 40% of new code quietly violates it. No single PR is obviously wrong, so no review catches it. Then production breaks and nobody remembers why the convention existed in the first place.
+
+`CLAUDE.md` cannot detect this. Static rules cannot detect this. No manual process scales to detect this across a real codebase. ContextLayer can, because it already has the conventions extracted as atoms and it already knows how to validate code against them (§5.7.4).
+
+**Design.**
+
+```
+For each new commit (since last drift scan):
+  1. Walk the diff hunks
+  2. For each touched file, retrieve atoms with scope matching the path
+  3. Run context_validate (§5.7.4) on the new code against those atoms
+  4. Record per-convention violation count + total opportunity count
+     in a drift_events table
+
+Aggregated nightly (or on-demand):
+  drift_rate(convention, window) =
+      violations_in_window / opportunities_in_window
+
+Alert when:
+  - drift_rate(c, last_30d) > threshold (default 25%)
+  - AND drift_rate(c, last_30d) > 2 × drift_rate(c, prior_30d)
+  - i.e. "this convention used to be followed, now it isn't"
+```
+
+**Output.** Three surfaces:
+
+1. **CLI:** `contextlayer drift` shows a ranked list of conventions with rising violation rates plus the offending commits.
+2. **MCP tool:** `context_drift_report(window_days: int = 30)` — agents can ask "what's drifting in this codebase right now?" before proposing architectural changes.
+3. **Optional hook:** post-merge git hook or GitHub Action that runs drift check on every merge to main and posts to Slack/Discord webhook when a convention crosses threshold.
+
+**Storage additions:**
+
+```sql
+CREATE TABLE drift_events (
+  id            TEXT PRIMARY KEY,
+  atom_id       TEXT REFERENCES atoms(id),
+  commit_sha    TEXT NOT NULL,
+  file_path     TEXT NOT NULL,
+  verdict       TEXT NOT NULL,         -- 'violation' | 'compliance' | 'na'
+  severity      REAL,
+  detected_at   TEXT NOT NULL
+);
+
+CREATE INDEX idx_drift_atom_time ON drift_events(atom_id, detected_at);
+```
+
+**Effort estimate.** ~3 weeks of focused work for a polished v2 release: incremental diff scanning, drift-rate computation, the CLI surface, the MCP tool, and the optional GitHub Action.
+
+**Why this is the buying argument that wins enterprise.** A CTO doesn't approve $50K/year for "our developers will be more productive." A CTO approves $50K/year for "this prevents the kind of slow-drift architectural decay that caused our last three production incidents." Drift detection is what gets the budget.
+
+#### 5.8.2 The Failure Loop — v2
+
+**The thesis.** Every team learns the same lessons repeatedly. Senior engineer warns about something, gets ignored, incident happens, postmortem written, postmortem forgotten in Confluence, next engineer makes the same mistake. The cycle is universal and expensive.
+
+ContextLayer can break it. The codebase can learn from its own failures *automatically* — once, permanently, surfaced to every future AI session.
+
+**Design.**
+
+```
+Incident reported (any of:)
+  - User runs:  contextlayer incident "billing webhook retries stormed prod"
+                                       --files src/billing/webhooks.py
+                                       --commits a3f1c2,b4e9d8
+                                       --postmortem postmortem.md
+  - Sentry/Datadog webhook posts an incident event
+  - Git commit message contains "[incident]" or "[postmortem]" trailer
+        ↓
+ContextLayer traces back:
+  - Which atoms applied to those files at incident time?
+  - Which atoms were silently violated by the offending commits?
+  - What code patterns are common across the implicated files?
+        ↓
+Sonnet drafts a candidate anti-pattern atom:
+  { category: "anti-pattern",
+    summary: "Don't retry webhook delivery without exponential backoff
+              + jitter for billing endpoints",
+    rationale: "Caused incident INC-2026-019 (billing storm 2026-08-04)",
+    scope: "src/billing/webhooks/**",
+    source_refs: ["incident:INC-2026-019", "postmortem:pm-019.md",
+                  "commit:a3f1c2"],
+    confidence: 0.9 }
+        ↓
+User reviews and confirms (one keystroke in the CLI).
+        ↓
+Atom is promoted to is_rule=1 (always-on context) and surfaces in
+context_query + context_validate for every future agent session.
+```
+
+**The killer outcome.** Six months later, a new engineer (or a fresh Claude Code session) writes a webhook handler. Claude Code calls `context_validate` before finalizing. ContextLayer returns: *"This handler retries without backoff. Caused incident INC-2026-019 in this exact module. See postmortem pm-019.md."* The mistake doesn't repeat.
+
+**Required adjacent build:** the optional Sentry/Datadog webhook integration is a thin v2.1 add-on. The CLI-driven path (`contextlayer incident`) is the v2 deliverable.
+
+**Effort estimate.** ~1 week on top of drift detection. Most of the machinery (atom storage, validation, retrieval) already exists. New work: the incident ingestion command, the tracing logic, and the candidate-atom review flow.
+
+**Storage additions:**
+
+```sql
+CREATE TABLE incidents (
+  id            TEXT PRIMARY KEY,     -- e.g. INC-2026-019 or auto-generated
+  title         TEXT NOT NULL,
+  summary       TEXT,
+  postmortem_md TEXT,
+  source_refs   TEXT NOT NULL,        -- JSON: commits, files, dates
+  resolved      INTEGER DEFAULT 0,
+  created_at    TEXT NOT NULL
+);
+
+-- atom.source_refs already supports "incident:..." prefix, no schema change there
+```
+
+#### 5.8.3 Cross-Repo Intelligence — v3 (the network effect moat)
+
+**The thesis.** Drift detection and the failure loop are powerful per repo. They get *more* powerful with scale, because patterns repeat across teams. Most production incidents have been suffered before, by someone, somewhere. ContextLayer is the only system positioned to *see across repos*, anonymize the patterns, and surface the lessons.
+
+**What it looks like for the user (illustrative outputs):**
+
+> *"Teams using FastAPI + async at your scale: 78% regret not adding connection pooling before 50k DAU. You don't have it."*
+
+> *"The auth pattern you are implementing matches a pattern that caused security incidents in 23 other repos. Here's what the 23 teams did to remediate."*
+
+> *"Your error handling approach is consistent with 12% of Python repos in our network. Here's what the other 88% switched to and why."*
+
+**Why this is the moat.** Manually unreplicable. Requires aggregate data only ContextLayer has. The more users, the smarter it gets for every user — classic network-effect economics. A new competitor at year 3 cannot bootstrap this without our user base.
+
+**Design.**
+
+Three components, all hosted-tier features:
+
+1. **Anonymized telemetry (opt-in).** Per indexed repo, ContextLayer can optionally upload: atom shapes (no rationale text by default — just category, scope glob, embedding), incident metadata (no postmortem content), and tech-stack signals (manifest entries). Privacy-respecting by construction — no source code, no commit messages, no PII. Single toggle: `contextlayer telemetry on`.
+
+2. **Pattern matching service (cloud).** When a user runs `contextlayer scan` or queries via MCP, the local client can ask the cloud: *"For repos matching this stack signature, what atoms are most common, what incidents are most common, what conventions correlate with low-drift outcomes?"* Returns anonymized aggregate results.
+
+3. **Insight surfacing (cloud + MCP).** New MCP tool `context_compare(scope)` returns peer-cohort insights. CLI `contextlayer insights` shows them as a report.
+
+**Privacy posture.** This is the make-or-break of the v3 design. Defaults:
+
+- Telemetry is **opt-in**, not opt-out
+- No source code, no PR text, no commit messages, no postmortem prose ever leaves the user's machine
+- Atom summaries are optionally redacted (user can mark atoms `private: true`)
+- Aggregate insights only surface when cohort size ≥ 50 repos (k-anonymity)
+- Open-source the anonymization pipeline so users can audit what's sent
+
+**Effort estimate.** ~2–3 months for v3 launch. Substantial because it requires real cloud infrastructure: anonymization pipeline, multi-tenant aggregate store, opt-in flow with clear privacy UX, k-anonymity enforcement, and the MCP tool + CLI surface.
+
+**Why this is the acquisition-defining feature.** Anthropic, GitHub, or Cursor could build the productivity layer themselves. They cannot easily build a cross-repo intelligence layer because they don't have repo coverage — and even if they tried, the privacy posture would be a wall for enterprise adoption from any of them. ContextLayer, as a neutral open-source project with a clear privacy story, is uniquely positioned to be the trusted network. That's the leverage that turns this from a feature into an acquisition target.
+
 ---
 
 ## 6. Distribution & deployment
@@ -624,7 +786,7 @@ None. All design decisions are locked. Implementation can proceed.
 
 ---
 
-## Appendix A — Design decisions log (23 hardenings applied)
+## Appendix A — Design decisions log (26 hardenings applied)
 
 For traceability between sections and stress-test improvements:
 
@@ -653,6 +815,9 @@ For traceability between sections and stress-test improvements:
 | 21 | 5.7.3 | **Add `contextlayer explain` Onboarding Doc generator for Phase 2.** Renders atoms as a polished markdown brief | Solves the "let me re-explain my project every session" tax that every solo dev pays daily. Composition of existing pieces (no new pipeline, no new storage). Becomes the artifact judges hold in their hands |
 | 22 | 5.7.4 | **Design (not build) `context_validate` MCP tool for v1.1.** Anti-pattern detection at code-finalization time | The retrieval-only design is pull-based; the agent has to remember to ask. Push-based validation catches the moments that matter most. Designed now so judges can see the v1.1 roadmap; ships at OSS launch with prompt-tuning time the hackathon doesn't have |
 | 23 | 5.7.5 | **Design (not build) `contextlayer health` Repo Health Score for v1.1.** Standalone CLI with consistency, coverage, drift sub-scores | A wedge that delivers standalone value before MCP wiring — same playbook as Lighthouse for web perf. Strong Show HN hook. Designed now so the OSS launch arc is concrete in the deck; ships at v1.1 |
+| 24 | 5.8.1 | **Design (not build) Convention Drift Detection for v2.** Continuous monitoring + per-convention drift-rate alerts | The buying argument that unlocks enterprise budget. Productivity features don't get $50K/yr approval; "prevents the slow architectural drift that caused our last three incidents" does. Designed now so the deck's enterprise tier is credible |
+| 25 | 5.8.2 | **Design (not build) The Failure Loop for v2.** Incident → traced atoms → auto-extracted anti-pattern → permanent warning for future sessions | Breaks the "every team learns the same lessons repeatedly" cycle. The codebase becomes its own postmortem archive — queryable, scoped, surfaced to every AI agent that touches relevant code |
+| 26 | 5.8.3 | **Design (not build) Cross-Repo Intelligence for v3.** Anonymized aggregate insights across the user network | The network-effect moat. Impossible to replicate without ContextLayer's user base. Privacy-first design (opt-in, k-anonymity, no source code transmitted) keeps enterprise trust intact. This is the acquisition-defining feature |
 
 ---
 
@@ -676,21 +841,24 @@ Ordered by likely sequencing. v1.1 items are designed in §5.7.4–5.7.5 and App
 9. **ADR file ingestion** — markdown walker for `**/{ADR,decisions,architecture}*.md`
 10. **Cursor / Cody / Aider MCP testing** — verify cross-agent compatibility
 
-**v2 — hosted tier + teams**
+**v2 — the immune system (the buying argument for enterprise)**
 
-11. **Hosted SaaS tier** — managed indexing, multi-tenant SQLite or Turso
-12. **Team-wide knowledge sharing** — shared index across team members
-13. **Auth + multi-user** — Clerk or Supabase Auth
-14. **Repo Health Score shareable badges + public scorecards**
+11. **Convention Drift Detection** (design in §5.8.1) — `contextlayer drift` CLI + `context_drift_report` MCP tool + optional GitHub Action
+12. **The Failure Loop** (design in §5.8.2) — `contextlayer incident` CLI + traced anti-pattern auto-extraction + Sentry/Datadog webhook integration (v2.1)
+13. **Hosted SaaS tier** — managed indexing, multi-tenant SQLite or Turso
+14. **Team-wide knowledge sharing** — shared index across team members
+15. **Auth + multi-user** — Clerk or Supabase Auth
+16. **Repo Health Score shareable badges + public scorecards**
 
-**v3 — enterprise**
+**v3 — network effects + enterprise (the moat)**
 
-15. **Enterprise SSO** — Workos
-16. **On-prem deployment** — Docker image, install docs
-17. **Custom ingestion adapters** — SDK for enterprises with bespoke sources
+17. **Cross-Repo Intelligence** (design in §5.8.3) — anonymized telemetry, peer-cohort insights, `context_compare` MCP tool, k-anonymity privacy guarantees
+18. **Enterprise SSO** — Workos
+19. **On-prem deployment** — Docker image, install docs
+20. **Custom ingestion adapters** — SDK for enterprises with bespoke sources
 
 **Cross-cutting (any version)**
 
-18. **Documentation site** — Docusaurus or GitBook (free), once tool has >100 users
-19. **Real-time updates** — auto-reindex on git push (GitHub Action or local hook)
-20. **Automated test suite + CI** — pytest + GitHub Actions, with fixtures for the synthetic backup repo
+21. **Documentation site** — Docusaurus or GitBook (free), once tool has >100 users
+22. **Real-time updates** — auto-reindex on git push (GitHub Action or local hook)
+23. **Automated test suite + CI** — pytest + GitHub Actions, with fixtures for the synthetic backup repo
