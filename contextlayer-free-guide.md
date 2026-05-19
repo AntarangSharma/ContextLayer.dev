@@ -47,11 +47,16 @@ Best free option. Cloud quality, no credit card, generous limits.
 ### Step 2: Install ContextLayer
 ```bash
 # Requires Python 3.11+
-uvx contextlayer --version
+uvx contextlayer-dev --version
 
 # Or install permanently
-pip install contextlayer
+pip install contextlayer-dev
 ```
+
+> The PyPI package is **`contextlayer-dev`** because the bare `contextlayer`
+> name was taken on PyPI by an unrelated project before we shipped. The CLI
+> binary stays `contextlayer` (it's a separate console-script entry point),
+> so all `contextlayer …` commands below work after install.
 
 ### Step 3: Configure for Gemini
 ```bash
@@ -250,7 +255,7 @@ Add to Cursor MCP settings (`~/.cursor/mcp.json`):
   "mcpServers": {
     "contextlayer": {
       "command": "uvx",
-      "args": ["contextlayer", "mcp", "--repo", "."]
+      "args": ["contextlayer-dev", "mcp", "--repo", "."]
     }
   }
 }

@@ -1,5 +1,5 @@
 [project]
-name = "contextlayer"
+name = "contextlayer-dev"
 version = "0.1.0"
 description = "The missing context layer for AI coding agents — index a repo's git+PR history with a multi-agent pipeline, serve atoms to any agent via MCP."
 readme = "README.md"
@@ -24,7 +24,11 @@ Homepage = "https://github.com/AntarangSharma/ContextLayer.dev"
 Repository = "https://github.com/AntarangSharma/ContextLayer.dev"
 
 [project.scripts]
+# Two console-script entry points so:
+#   - `uvx contextlayer-dev …` works (uvx auto-resolves package→executable name match)
+#   - After install, `contextlayer …` keeps the original brand command working
 contextlayer = "contextlayer.cli:app"
+contextlayer-dev = "contextlayer.cli:app"
 
 [dependency-groups]
 dev = [
@@ -37,6 +41,12 @@ build-backend = "uv_build"
 
 [tool.uv]
 package = true
+
+# Distribution name on PyPI is "contextlayer-dev" (the bare "contextlayer"
+# name is taken). The importable Python module is still "contextlayer", so
+# `import contextlayer` and `python -m contextlayer` work as before.
+[tool.uv.build-backend]
+module-name = "contextlayer"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

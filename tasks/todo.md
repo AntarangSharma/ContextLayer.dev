@@ -306,9 +306,9 @@ If demo materials aren't done, FastAPI is cut without discussion. Submitting a p
 - [ ] If a run fails, restart the counter — need 3 consecutive cleans
 
 ### T+44 → T+45 · README + success criteria + clean-machine test
-- [ ] Final README pass: 60s value prop, install one-liner (`uvx contextlayer index .`), demo GIF (3s of the video), architecture diagram (ASCII from spec §4), MIT license, BYOK note pointing at `console.anthropic.com`
+- [ ] Final README pass: 60s value prop, install one-liner (`uvx contextlayer-dev index .`), demo GIF (3s of the video), architecture diagram (ASCII from spec §4), MIT license, BYOK note pointing at `console.anthropic.com`
 - [ ] Walk every checkbox in spec §10 success criteria; tick them
-- [ ] If a second machine is available: `uvx contextlayer index demo-data/acme-billing-api` on a clean clone, verify install path works (per spec checkbox)
+- [ ] If a second machine is available: `uvx contextlayer-dev index demo-data/acme-billing-api` on a clean clone, verify install path works (per spec checkbox)
 - [ ] **Final commit:** `README + final polish for submission`
 
 ### T+45 → T+46 · Submit + 1h buffer

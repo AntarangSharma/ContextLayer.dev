@@ -14,7 +14,7 @@ Same Claude Code. Same question. Watch the answer change.
 
 ```bash
 # 1. Install & index your repo
-pip install contextlayer
+pip install contextlayer-dev
 export ANTHROPIC_API_KEY=sk-ant-...   # BYOK — bring your own key
 contextlayer index .
 
@@ -24,7 +24,7 @@ cat >> .mcp.json << 'EOF'
   "mcpServers": {
     "contextlayer": {
       "command": "uvx",
-      "args": ["contextlayer", "mcp", "--repo", "."]
+      "args": ["contextlayer-dev", "mcp", "--repo", "."]
     }
   }
 }
@@ -33,11 +33,13 @@ EOF
 # 3. Open Claude Code — it now knows your team's conventions
 ```
 
-Or use `uv` (recommended):
+Or use `uv` (recommended — no venv needed):
 
 ```bash
-uvx contextlayer index .
+uvx contextlayer-dev index .
 ```
+
+> **Why `contextlayer-dev` on PyPI?** The bare `contextlayer` name on PyPI was already taken by an unrelated project before we shipped. The package is `contextlayer-dev`; the installed CLI binary is `contextlayer` (the brand command). Both `contextlayer …` and `contextlayer-dev …` work after install.
 
 ---
 
@@ -177,7 +179,7 @@ export ANTHROPIC_API_KEY=sk-ant-api03-...
   "mcpServers": {
     "contextlayer": {
       "command": "uvx",
-      "args": ["contextlayer", "mcp", "--repo", "."]
+      "args": ["contextlayer-dev", "mcp", "--repo", "."]
     }
   }
 }

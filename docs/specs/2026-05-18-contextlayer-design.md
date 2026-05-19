@@ -86,7 +86,7 @@ Two Python processes, one local SQLite store, two judge-visible artifacts (CLI +
 
 ```
 ┌──────────────────────────────────────────────────────────────────┐
-│  CLI process (one-shot):  $ uvx contextlayer index <repo>        │
+│  CLI process (one-shot):  $ uvx contextlayer-dev index <repo>    │
 │                                                                  │
 │   Ingestion adapters  →  Multi-agent extraction  →  SQLite (WAL) │
 │   • git log (subprocess)    • Haiku  (relevance, batched ~100)   │
@@ -98,7 +98,7 @@ Two Python processes, one local SQLite store, two judge-visible artifacts (CLI +
                                                           │ same DB file
                                                           ▼
 ┌──────────────────────────────────────────────────────────────────┐
-│  MCP server (long-running stdio):  $ uvx contextlayer mcp        │
+│  MCP server (long-running stdio):  $ uvx contextlayer-dev mcp    │
 │                                                                  │
 │   Tools exposed to Claude Code (and any other MCP client):       │
 │   • context_query(question: str, k: int = 5) → list[Atom]        │
@@ -127,7 +127,7 @@ Two Python processes, one local SQLite store, two judge-visible artifacts (CLI +
 | `contextlayer validate <file>` | v1.1 | Real-time anti-pattern check on a code snippet/file (also exposed as MCP tool `context_validate`) |
 | `contextlayer health` | v1.1 | Repo Health Score: consistency, knowledge gaps, drift detection — standalone value-add even before MCP integration |
 
-Dev invocation (during local development): `python -m contextlayer <subcommand>`. User invocation (production): `uvx contextlayer <subcommand>`. Both resolve to the same entrypoint.
+Dev invocation (during local development): `python -m contextlayer <subcommand>`. User invocation (production): `uvx contextlayer-dev <subcommand>` (or `contextlayer <subcommand>` after `pip install contextlayer-dev`). All three resolve to the same entrypoint.
 
 ### Why this shape
 
@@ -294,7 +294,7 @@ async def context_list_topics() -> list[Topic]:
   "mcpServers": {
     "contextlayer": {
       "command": "uvx",
-      "args": ["contextlayer", "mcp", "--repo", "."]
+      "args": ["contextlayer-dev", "mcp", "--repo", "."]
     }
   }
 }

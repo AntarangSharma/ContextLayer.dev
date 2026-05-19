@@ -72,7 +72,7 @@ uv run pytest tests/smoke -q                             # 3 local smoke tests, 
 |---|---|
 | Demo video record + edit | Operator presence; Claude Code (and the Anthropic API) is exercised |
 | Deploy `landing/` to Vercel | Vercel auth + custom domain |
-| Publish to PyPI for `uvx contextlayer` | Operator's PyPI token; gates the spec §10 clean-machine criterion |
+| Publish to PyPI for `uvx contextlayer-dev` | Operator's PyPI token; gates the spec §10 clean-machine criterion. Package is named `contextlayer-dev` (`contextlayer` is taken on PyPI by Autoblocks); CLI binary keeps the `contextlayer` brand command via dual entry-points |
 | Submit to hackathon portal | Operator's account |
 
 Everything else that doesn't require an API call (retrieval tuning, smoke tests, status polish, README pass, success-criteria walk, slide-deck commit, atom audit) was completed this session.
