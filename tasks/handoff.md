@@ -68,12 +68,12 @@ uv run pytest tests/smoke -q                             # 3 local smoke tests, 
 
 ## What still requires user action (not codeable)
 
-| Item | Why it's user-only |
-|---|---|
-| Demo video record + edit | Operator presence; Claude Code (and the Anthropic API) is exercised |
-| Deploy `landing/` to Vercel | Vercel auth + custom domain |
-| Publish to PyPI for `uvx contextlayer-dev` | Operator's PyPI token; gates the spec §10 clean-machine criterion. Package is named `contextlayer-dev` (`contextlayer` is taken on PyPI by Autoblocks); CLI binary keeps the `contextlayer` brand command via dual entry-points |
-| Submit to hackathon portal | Operator's account |
+| Item | Status | Notes |
+|---|---|---|
+| Demo video record + edit | open | Operator presence; Claude Code (and the Anthropic API) is exercised |
+| Deploy `landing/` to Vercel | ✅ live | Public at **https://contextlayer-dev.vercel.app** (HTTP 200). Project name in dashboard: `contextlayer-dev`. SSO/Deployment Protection disabled via API patch so judges and visitors don't hit a 401. The original target `contextlayer.vercel.app` was squatted by an unrelated user; `contextlayer-dev.vercel.app` matches the PyPI distribution name |
+| Publish to PyPI for `uvx contextlayer-dev` | open | Operator's PyPI token; gates the spec §10 clean-machine criterion. Package is named `contextlayer-dev` (`contextlayer` is taken on PyPI by Autoblocks); CLI binary keeps the `contextlayer` brand command via dual entry-points. Wheel + sdist already built and audited at `dist/contextlayer_dev-0.1.0.{whl,tar.gz}` |
+| Submit to hackathon portal | open | Operator's account |
 
 Everything else that doesn't require an API call (retrieval tuning, smoke tests, status polish, README pass, success-criteria walk, slide-deck commit, atom audit) was completed this session.
 

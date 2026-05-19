@@ -59,6 +59,10 @@ demo-data/*.db-shm
 .coverage
 htmlcov/
 
+# Vercel CLI project linkage (contains your account/project IDs;
+# regenerated on each fresh `vercel deploy`)
+.vercel/
+
 
 # Generated synthetic demo repo (run demo-data/build_acme.py to materialize)
 demo-data/acme-billing-api/

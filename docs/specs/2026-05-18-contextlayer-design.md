@@ -766,7 +766,7 @@ Binary self-assessment for Wednesday morning:
 
 **Phase 3 (polish + distribution):**
 - [ ] (Stretch) Pre-indexed `tiangolo/fastapi` repo, ≥100 atoms across ≥10 topics — **optional credibility upgrade, not required**
-- [x] Landing page at `landing/index.html` (Tailwind CDN, Inter font, hero/demo/features/waitlist sections) — *deploy to Vercel pending*
+- [x] Landing page at `landing/index.html` (Tailwind CDN, Inter font, hero/demo/features/waitlist sections) — **live at https://contextlayer-dev.vercel.app** (`contextlayer.vercel.app` was unfortunately squatted; `-dev` matches the PyPI distribution name)
 - [ ] 5-minute demo video recorded, edited, captioned — **largest remaining item**
 - [x] Slide deck (8 slides): problem → solution → demo → architecture → solo-dev → market → business+moat → roadmap+ask. Lives at `docs/slide-deck.md`; PDF export pending
 - [x] Public GitHub repo with clean README, architecture diagram, install one-liner, MIT license
