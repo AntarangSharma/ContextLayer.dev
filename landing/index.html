@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ContextLayer.dev — The Missing Context Layer for AI Coding Agents</title>
-    <meta name="description" content="ContextLayer extracts conventions, decisions, and anti-patterns from your repo and serves them to Claude Code via MCP. Push verdicts with context_validate. Local-first, BYOK, MIT.">
+    <meta name="description" content="ContextLayer extracts conventions, decisions, and anti-patterns from your repo and serves them to Claude Code via MCP. Push verdicts with context_validate. Local-first, no-API-key query path, BYOK indexing, MIT.">
     <meta property="og:title" content="ContextLayer.dev — The Missing Context Layer for AI Coding Agents">
     <meta property="og:description" content="Your AI answers like a senior engineer who read everything — including the unwritten parts.">
     <meta property="og:type" content="website">
@@ -400,7 +400,7 @@
             <div class="fade-in">
                 <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full glass-card text-xs font-medium text-brand-300 mb-8">
                     <span class="pulse-dot w-2 h-2 rounded-full bg-accent-green inline-block"></span>
-                    Open Source · MIT · Local-First · BYOK
+                    Open Source · MIT · Local-First · No API Key Required to Query
                 </div>
             </div>
 
@@ -427,10 +427,10 @@
             <!-- Trust row -->
             <div class="trust-row fade-in fade-in-delay-4 text-xs font-mono text-gray-500 mt-8">
                 <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-accent-green"></span>Local SQLite</span>
-                <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-brand-400"></span>BYOK · ANTHROPIC_API_KEY</span>
+                <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-brand-400"></span>Free / Hybrid / Premium tiers</span>
                 <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-accent-pink"></span>No telemetry</span>
                 <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-accent-cyan"></span>MCP-native</span>
-                <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-accent-violet"></span>~$1.50 / repo (one-time)</span>
+                <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-accent-violet"></span>~$1.50 / repo to index (one-time)</span>
             </div>
         </section>
 
@@ -682,8 +682,8 @@
                 <!-- Local-first -->
                 <div class="glass-card rounded-2xl p-6">
                     <span class="tag tag-green mb-3">PRIVATE</span>
-                    <h3 class="font-bold text-white text-lg mt-3 mb-2">Local-first · BYOK</h3>
-                    <p class="text-sm text-gray-400 leading-relaxed">SQLite (WAL) on your machine. Your <code class="font-mono text-brand-300">ANTHROPIC_API_KEY</code>, never stored on disk. No SaaS dashboard. No telemetry.</p>
+                    <h3 class="font-bold text-white text-lg mt-3 mb-2">Local-first · keyless query path</h3>
+                    <p class="text-sm text-gray-400 leading-relaxed">SQLite (WAL) on your machine. Querying and the <code class="font-mono text-brand-300">free</code> / <code class="font-mono text-brand-300">hybrid</code> validation tiers run with <strong class="text-white">zero API key</strong>. <code class="font-mono text-brand-300">ANTHROPIC_API_KEY</code> is only needed to build a new index or opt into the premium tier — never stored on disk. No SaaS dashboard. No telemetry.</p>
                 </div>
             </div>
         </section>
@@ -815,13 +815,14 @@
 <pre><span class="text-gray-600"># 1. Install</span>
 pip install <span class="text-brand-300">contextlayer-dev</span>
 
-<span class="text-gray-600"># 2. Set your key (BYOK, never stored on disk)</span>
+<span class="text-gray-600"># 2. Set your key — only needed to BUILD an index (skip for keyless query)</span>
 export <span class="text-brand-300">ANTHROPIC_API_KEY</span>=sk-ant-...
 
-<span class="text-gray-600"># 3. Index your repo (~$1.50, one-time)</span>
+<span class="text-gray-600"># 3. Index your repo (~$1.50, one-time) — or use the bundled demo, no key needed</span>
 contextlayer index .
 
-<span class="text-gray-600"># 4. Add the MCP block above to .mcp.json — open Claude Code. Done.</span></pre>
+<span class="text-gray-600"># 4. Add the MCP block above to .mcp.json — open Claude Code. Done.</span>
+<span class="text-gray-600"># Querying and free/hybrid validation never need a key.</span></pre>
                 </div>
                 <div class="mt-6 flex flex-wrap items-center justify-center gap-3">
                     <a href="https://github.com/AntarangSharma/ContextLayer.dev" target="_blank"
@@ -870,6 +871,7 @@ contextlayer index .
                 </div>
                 <div class="flex items-center gap-6 text-sm text-gray-500">
                     <a href="https://github.com/AntarangSharma/ContextLayer.dev" target="_blank" class="hover:text-white transition-colors">GitHub</a>
+                    <a href="https://github.com/AntarangSharma/ContextLayer.dev/blob/main/USER-MANUAL.md" target="_blank" class="hover:text-white transition-colors">User Manual</a>
                     <a href="https://github.com/AntarangSharma/ContextLayer.dev#-quick-start-30-seconds" target="_blank" class="hover:text-white transition-colors">Docs</a>
                     <a href="https://pypi.org/project/contextlayer-dev/" target="_blank" class="hover:text-white transition-colors">PyPI</a>
                 </div>

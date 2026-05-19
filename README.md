@@ -12,10 +12,15 @@ Same Claude Code. Same question. Watch the answer change.
 
 ## ⚡ Quick Start (30 seconds)
 
+> **New:** ContextLayer's request path is fully **keyless**. Query, list topics, and
+> validate against any pre-built index without an API key. A key is only needed to
+> *build* a new index, or to opt into the premium accuracy tier. See
+> [USER-MANUAL.md](./USER-MANUAL.md) for the plain-English walkthrough.
+
 ```bash
 # 1. Install & index your repo
 pip install contextlayer-dev
-export ANTHROPIC_API_KEY=sk-ant-...   # BYOK — bring your own key
+export ANTHROPIC_API_KEY=sk-ant-...   # only needed to BUILD an index
 contextlayer index .
 
 # 2. Add MCP to your repo
@@ -157,9 +162,22 @@ the agent shows its proposed change and gets back a verdict.
 }
 ```
 
-Costs ~$0.001 per call (Haiku, one structured tool-use call). Without `ANTHROPIC_API_KEY`
-the tool falls back to returning the matched rules for the agent to self-evaluate — so it
-still works on the no-key path.
+### Tiered routing (free / hybrid / premium)
+
+`context_validate` reads `CONTEXTLAYER_TIER` to decide how to run:
+
+| `CONTEXTLAYER_TIER` | API key | Behaviour |
+|---|---|---|
+| `free` | any | Deterministic rules engine only — no network. Fastest, $0. |
+| `hybrid` *(default)* | unset | Deterministic only — same result as `free`. |
+| `hybrid` | set | Deterministic first; escalates to Haiku iff `confidence < 0.6`. |
+| `premium` | set | Haiku-first; degrades to deterministic on failure. ~$0.001/call. |
+| `premium` | unset | Auto-degrades to deterministic + warning. |
+
+The deterministic engine catches the common violations (threading vs async-first,
+`time.sleep` in handlers, raw-SQL f-strings, `eval/exec`, shared SQLAlchemy
+sessions, scope mismatches) without ever leaving your machine. The Haiku judge
+exists purely for the long tail of ambiguous cases.
 
 ---
 
@@ -185,7 +203,10 @@ Categories: `convention` · `decision` · `deprecation` · `anti-pattern` · `us
 
 ## 💰 Cost
 
-ContextLayer uses a BYOK (Bring Your Own Key) model. You provide your Anthropic API key.
+**Querying** an indexed repo: **$0** — fully local. **Validating** changes on the
+`free` or `hybrid` (no-key) tier: **$0**.
+
+**Indexing** a new repo (one-time build, BYOK Anthropic):
 
 | Component | Cost per repo indexed |
 |---|---|
@@ -194,7 +215,8 @@ ContextLayer uses a BYOK (Bring Your Own Key) model. You provide your Anthropic 
 | Opus (structure) | ~$0.80–1.00 |
 | **Total** | **~$1.05–$1.55** |
 
-Re-runs are near-free thanks to per-event idempotency caching.
+Re-runs are near-free thanks to per-event idempotency caching. The optional
+premium-tier `context_validate` call is ~$0.001 (one Haiku tool-use call).
 
 ---
 
