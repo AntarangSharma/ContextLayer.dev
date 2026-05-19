@@ -1,13 +1,28 @@
-"""Retrieval: hybrid search (cosine + keyword + recency).
+"""Retrieval: hybrid search (cosine + keyword + recency + rule boost).
 
-Phase 1 MVP used plain cosine. Phase 2B (T+28) adds hybrid reranking:
+Phase 1 MVP used plain cosine. Phase 2B (T+28) added hybrid reranking.
+A T+34 polish pass tuned the formula so a single-batch indexing run (where
+every atom's `created_at` is within seconds of every other) doesn't drown
+real signal in meaningless recency noise:
 
-    score = 0.4 * cosine + 0.4 * keyword_overlap + 0.2 * recency_boost
+    score = 0.45 * cosine
+          + 0.30 * keyword_overlap
+          + 0.15 * is_rule           (Opus-promoted canonical atoms)
+          + 0.10 * recency_boost     (uniform 0.5 if spread < 7 days)
 
 - cosine:          embedding similarity (fastembed BGE-small-en-v1.5)
 - keyword_overlap: token-set Jaccard on lowercase non-stopword tokens
-- recency_boost:   normalized created_at against the repo's date range
-                   (newest=1.0, oldest=0.0)
+- is_rule:         a small bonus for atoms Opus promoted to rules — these
+                   are by construction the high-signal canonical atoms,
+                   so when cosine is near-tied between a rule and a
+                   surface-level lexical match (e.g. the question says
+                   "endpoint" and an unrelated atom mentions "endpoints"),
+                   the rule should win
+- recency_boost:   normalized created_at over the repo's date range, but
+                   only when atoms span > 7 days. Inside a single indexing
+                   batch every atom is created within seconds of every
+                   other; normalizing those gaps amplifies millisecond
+                   noise, so we collapse to uniform 0.5
 
 The function signature is a drop-in replacement for the old cosine_search.
 """
@@ -73,12 +88,15 @@ def _parse_timestamp(ts: str | None) -> float:
 def _recency_scores(timestamps: list[float]) -> np.ndarray:
     """Normalize timestamps to [0, 1] where newest=1.0, oldest=0.0.
 
-    If all timestamps are identical (or all zero), returns uniform 0.5.
+    Only applies the spread when atoms span at least 7 days. Inside a
+    single-batch index run every atom's `created_at` is within seconds of
+    every other, so normalizing those tiny gaps just amplifies noise — we
+    return uniform 0.5 instead, which makes recency a no-op.
     """
     arr = np.array(timestamps, dtype=np.float64)
     lo, hi = arr.min(), arr.max()
-    if hi - lo < 1.0:
-        # All same timestamp (or all zero) — uniform middle score
+    SEVEN_DAYS = 7 * 24 * 3600
+    if hi - lo < SEVEN_DAYS:
         return np.full(len(arr), 0.5)
     return (arr - lo) / (hi - lo)
 
@@ -88,9 +106,12 @@ def cosine_search(
     question: str,
     k: int = 5,
 ) -> list[dict[str, Any]]:
-    """Hybrid retrieval: cosine + keyword Jaccard + recency boost.
+    """Hybrid retrieval: cosine + keyword Jaccard + rule + recency.
 
-    score = 0.4 * cosine + 0.4 * keyword_overlap + 0.2 * recency_boost
+    score = 0.45 * cosine
+          + 0.30 * keyword_overlap
+          + 0.15 * is_rule
+          + 0.10 * recency_boost
 
     Drop-in replacement for the old plain-cosine cosine_search. The function
     name is kept as cosine_search so callers (MCP server, etc.) don't need
@@ -137,11 +158,18 @@ def cosine_search(
             timestamps.append(ts)
         recency = _recency_scores(timestamps)
 
-        # --- Composite score ---
+        # --- 4. is_rule flag ---
+        rule_flags = np.array(
+            [1.0 if (atoms_by_id.get(aid) or {}).get("is_rule") else 0.0 for aid in ids],
+            dtype=float,
+        )
+
+        # --- Composite score (weights sum to 1.0) ---
         final_scores = (
-            0.4 * cosine_scores
-            + 0.4 * keyword_scores
-            + 0.2 * recency
+            0.45 * cosine_scores
+            + 0.30 * keyword_scores
+            + 0.15 * rule_flags
+            + 0.10 * recency
         )
 
         # Top-k by composite score (widen the candidate pool to 20, then take top-k)
@@ -158,6 +186,7 @@ def cosine_search(
             atom["_cosine"] = round(float(cosine_scores[i]), 4)
             atom["_keyword"] = round(float(keyword_scores[i]), 4)
             atom["_recency"] = round(float(recency[i]), 4)
+            atom["_rule_bonus"] = round(float(rule_flags[i]), 4)
             results.append(atom)
             if len(results) >= k:
                 break

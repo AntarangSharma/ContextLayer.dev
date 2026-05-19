@@ -87,7 +87,7 @@ The result: a local SQLite knowledge store served to Claude Code via MCP.
 │   • context_list_topics() → discovered topic clusters            │
 │                                                                  │
 │   Retrieval: hybrid (cosine similarity + keyword overlap         │
-│              + recency boost)                                    │
+│              + rule boost + recency)                             │
 └──────────────────────────────────────────────────────────────────┘
                                   ▲
                                   │ stdio
@@ -219,6 +219,26 @@ codified team conventions and prior decisions; respect them.
 ## 📄 License
 
 MIT — [LICENSE](LICENSE)
+
+---
+
+## 🧪 Development
+
+```bash
+git clone https://github.com/AntarangSharma/ContextLayer.dev
+cd ContextLayer.dev
+uv sync --group dev          # installs runtime + pytest
+export ANTHROPIC_API_KEY=sk-ant-...
+uv run python demo-data/build_acme.py     # generates the synthetic demo repo
+uv run contextlayer index demo-data/acme-billing-api
+uv run pytest tests/smoke -q              # 2 local smoke tests, no API
+```
+
+Smoke tests cover the two no-API critical paths:
+- Hybrid retrieval surfaces the four canonical conventions for the locked demo question
+- MCP server boots over stdio, completes the `initialize` handshake, and advertises both `context_query` and `context_list_topics`
+
+A third Sonnet-tool-use smoke is documented in spec §10.5 but deferred — every `contextlayer index` run exercises that path against a live atom schema.
 
 ---
 

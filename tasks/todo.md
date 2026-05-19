@@ -14,6 +14,14 @@
 
 **Phase 1 status (2026-05-18): ✅ COMPLETE — G1 passed.** 67 atoms in DB; MCP server speaks protocol; locked demo Q1 returns 5 cited atoms. Resume from Phase 2A.
 
+**Phase 2A status (2026-05-18): ✅ COMPLETE.** `contextlayer note`, `contextlayer explain`, and `contextlayer scan` all shipped per spec §5.7.
+
+**Phase 2B status (2026-05-18): ✅ COMPLETE.** Stage 3 Opus with extended thinking, prompt caching, Sonnet batching, idempotency cache, hybrid retrieval — all shipped. Post-Opus DB: 15 canonical atoms / 7 topics / 8 rules. All four demo-critical atoms surface in Q1 top-5 after a T+34 retrieval rebalance (`0.45*cos + 0.30*kw + 0.15*rule + 0.10*rec`).
+
+**Phase 3 status (2026-05-18): ✅ MOSTLY COMPLETE.** Landing page, README, MIT license, slide deck, demo script, BYOK docs all done. Open: deploy to Vercel, record demo video, PyPI publish for `uvx` clean-machine test. All three are user actions, not code work.
+
+**Phase 4 status (2026-05-18): pending.** 3 dry runs, success-criteria walk, submission. Spec §10 walked and ticked this session. Two of three §10.5 smoke tests landed (retrieval + MCP server, both no-API); Sonnet smoke deferred.
+
 **Phase 2 scope expansion (2026-05-18):** Per spec §5.7, three new solo-dev features added to Phase 2A (T+14 → T+21): `contextlayer note`, `contextlayer explain`, `contextlayer scan`. Existing pipeline-polish work becomes Phase 2B (T+21 → T+35). `context_validate` and `contextlayer health` are designed in §5.7.4-5 but ship in v1.1 — do **not** build them this hackathon.
 
 ---

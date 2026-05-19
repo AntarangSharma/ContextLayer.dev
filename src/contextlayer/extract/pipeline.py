@@ -19,6 +19,7 @@ import asyncio
 import logging
 import os
 import time
+from datetime import datetime, timezone
 from pathlib import Path
 
 import anthropic
@@ -339,7 +340,11 @@ async def _run_extraction(
                 summary=t.get("summary", ""),
                 atom_ids=t.get("atom_ids", []),
             )
-        sqlite_store.set_meta(conn, "last_indexed_at", str(time.time()))
+        sqlite_store.set_meta(
+            conn,
+            "last_indexed_at",
+            datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        )
         sqlite_store.set_meta(conn, "repo_path", str(repo_path))
         sqlite_store.set_meta(conn, "stage3_status", "opus" if stage3_ok else "python_dedup_fallback")
         conn.commit()

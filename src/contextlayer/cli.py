@@ -39,6 +39,31 @@ def _check_api_key() -> None:
         raise typer.Exit(code=2)
 
 
+def _format_timestamp(raw: str) -> str:
+    """Render a stored timestamp as a human-readable UTC ISO string.
+
+    Supports two writer formats:
+      - ISO 8601 (current writer)              → returned as-is, normalized to "YYYY-MM-DD HH:MM UTC"
+      - float seconds since epoch (older runs) → converted to "YYYY-MM-DD HH:MM UTC"
+
+    Falls back to the raw string if parsing fails.
+    """
+    from datetime import datetime, timezone
+
+    try:
+        # Try ISO 8601 first
+        if "T" in raw or "-" in raw:
+            iso = raw.replace("Z", "+00:00")
+            dt = datetime.fromisoformat(iso)
+        else:
+            dt = datetime.fromtimestamp(float(raw), tz=timezone.utc)
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=timezone.utc)
+        return dt.astimezone(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+    except (ValueError, TypeError):
+        return raw
+
+
 @app.command()
 def index(
     repo: str = typer.Argument(".", help="Path to the repository to index."),
@@ -121,7 +146,8 @@ def status(
     n_atoms = conn.execute("SELECT count(*) FROM atoms").fetchone()[0]
     n_topics = conn.execute("SELECT count(*) FROM topics").fetchone()[0]
     n_rules = conn.execute("SELECT count(*) FROM atoms WHERE is_rule = 1").fetchone()[0]
-    last_indexed = sqlite_store.get_meta(conn, "last_indexed_at") or "—"
+    raw_last = sqlite_store.get_meta(conn, "last_indexed_at")
+    last_indexed = _format_timestamp(raw_last) if raw_last else "—"
 
     typer.echo(f"Repo:           {repo}")
     typer.echo(f"DB:             {db_path}")
