@@ -1,6 +1,8 @@
 # Session Handoff — 2026-05-18
 
-**Phase 1 (T+0 → T+14) is complete. G1 gate PASSED.** Resume from Phase 2 (T+14 → T+28) per `tasks/todo.md`.
+**Phase 1 ✅ done (T+0 → T+14).** **Phase 2A in progress (T+14 → T+21): solo-dev features per spec §5.7.** **Phase 2B (T+21 → T+35): pipeline polish.** See `tasks/todo.md` for the live plan.
+
+**Spec updated 2026-05-18:** commit `4becdd5` added §5.7 with five new features (3 build in Phase 2A, 2 designed for v1.1). The `note` → `explain` → `scan` build order is locked.
 
 ---
 
