@@ -15,7 +15,7 @@ def main(argv: list[str]) -> int:
     events = ingest_repo(Path(argv[1]))
     by_type = Counter(e.source_type for e in events)
     print(f"Ingested {len(events)} events from {argv[1]}:")
-    for kind in ("git_commit", "pr_description", "pr_review_comment"):
+    for kind in ("git_commit", "pr_description", "pr_review_comment", "code_scan"):
         print(f"  {kind:24s} {by_type.get(kind, 0):4d}")
     print()
     print("Sample (first 3):")

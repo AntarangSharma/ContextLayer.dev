@@ -4,6 +4,8 @@
 
 **Spec updated 2026-05-18:** commit `4becdd5` added §5.7 with five new features (3 build in Phase 2A, 2 designed for v1.1). The `note` → `explain` → `scan` build order is locked.
 
+**Spec extended again 2026-05-18:** commit `38382a1` added §5.8 — the moat (drift detection, failure loop, cross-repo intelligence). **Designed-only, no build impact in this hackathon.** Surface in deck + landing + README + Q&A defense during Phase 3. Roadmap is now a 4-tier story: v1 (Wed demo) / v1.1 (3 wks: §5.7.4–5) / v2 (3 mo: §5.8.1–2) / v3 (6 mo: §5.8.3).
+
 ---
 
 ## Where the project stands

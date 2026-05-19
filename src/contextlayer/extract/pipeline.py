@@ -27,7 +27,7 @@ from contextlayer.embed import embed_one
 from contextlayer.extract.atom import Atom
 from contextlayer.extract.stage1_haiku import Stage1Result, classify_one
 from contextlayer.extract.stage2_sonnet import extract_one
-from contextlayer.ingest import RawEvent, ingest_repo
+from contextlayer.ingest import RawEvent, ingest_repo, ingest_repo_scan_only
 from contextlayer.store import sqlite as sqlite_store
 from contextlayer.store.repo_hash import index_db_path
 
@@ -134,15 +134,12 @@ def _index_atoms(conn, atoms: list[Atom]) -> int:
     return written
 
 
-async def run_pipeline(repo_path: str | Path) -> dict:
-    """End-to-end MVP pipeline. Returns a summary dict for the CLI to print."""
-    t0 = time.time()
-    repo_path = Path(repo_path).resolve()
-    log.info("Pipeline starting on %s", repo_path)
-
-    events = ingest_repo(repo_path)
-    log.info("Ingested %d events", len(events))
-
+async def _run_extraction(
+    events: list[RawEvent],
+    repo_path: Path,
+    t0: float,
+) -> dict:
+    """Shared core: events → Haiku → Sonnet → dedup → embed → SQLite."""
     client = anthropic.AsyncAnthropic()
     limiter = GlobalRateLimiter(rpm=RPM_LIMIT)
 
@@ -159,11 +156,13 @@ async def run_pipeline(repo_path: str | Path) -> dict:
 
     db_path = index_db_path(repo_path)
     conn = sqlite_store.open_db(db_path)
-    written = _index_atoms(conn, unique)
-    sqlite_store.set_meta(conn, "last_indexed_at", str(time.time()))
-    sqlite_store.set_meta(conn, "repo_path", str(repo_path))
-    conn.commit()
-    conn.close()
+    try:
+        written = _index_atoms(conn, unique)
+        sqlite_store.set_meta(conn, "last_indexed_at", str(time.time()))
+        sqlite_store.set_meta(conn, "repo_path", str(repo_path))
+        conn.commit()
+    finally:
+        conn.close()
 
     return {
         "repo_path": str(repo_path),
@@ -174,3 +173,26 @@ async def run_pipeline(repo_path: str | Path) -> dict:
         "atoms_written": written,
         "elapsed_seconds": round(time.time() - t0, 1),
     }
+
+
+async def run_pipeline(repo_path: str | Path) -> dict:
+    """End-to-end full pipeline: git + PR + code_scan → atoms → SQLite."""
+    t0 = time.time()
+    repo_path = Path(repo_path).resolve()
+    log.info("Pipeline starting on %s (full: git + PR + code_scan)", repo_path)
+
+    events = ingest_repo(repo_path)
+    log.info("Ingested %d events from all adapters", len(events))
+    return await _run_extraction(events, repo_path, t0)
+
+
+async def run_pipeline_scan_only(repo_path: str | Path) -> dict:
+    """Scan-only pipeline (spec §5.7.1): code_scan only, no git/PR. For repos
+    without rich history or where the user just wants atoms from the code."""
+    t0 = time.time()
+    repo_path = Path(repo_path).resolve()
+    log.info("Pipeline starting on %s (scan-only: code_scan)", repo_path)
+
+    events = ingest_repo_scan_only(repo_path)
+    log.info("Ingested %d events from code_scan", len(events))
+    return await _run_extraction(events, repo_path, t0)
