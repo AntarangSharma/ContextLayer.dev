@@ -9,6 +9,84 @@
     <meta property="og:description" content="Your AI answers like a senior engineer who read everything — including the unwritten parts.">
     <meta property="og:type" content="website">
     <meta name="theme-color" content="#0a0b12">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Organization",
+          "@id": "https://contextlayer-dev.vercel.app#organization",
+          "name": "ContextLayer.dev",
+          "url": "https://contextlayer-dev.vercel.app",
+          "sameAs": ["https://github.com/AntarangSharma/ContextLayer.dev"],
+          "description": "The missing context layer for AI coding agents. Extract conventions from git history and serve them to Claude Code via MCP."
+        },
+        {
+          "@type": "SoftwareApplication",
+          "@id": "https://contextlayer-dev.vercel.app#software",
+          "name": "ContextLayer",
+          "description": "Extract conventions, decisions, and anti-patterns from your repo and serve them to AI coding agents via MCP. Local-first, no-API-key query path, BYOK indexing.",
+          "applicationCategory": "DeveloperApplication",
+          "operatingSystem": "macOS, Linux, Windows",
+          "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+          "provider": { "@id": "https://contextlayer-dev.vercel.app#organization" }
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://contextlayer-dev.vercel.app#website",
+          "url": "https://contextlayer-dev.vercel.app",
+          "name": "ContextLayer.dev",
+          "publisher": { "@id": "https://contextlayer-dev.vercel.app#organization" }
+        },
+        {
+          "@type": "WebPage",
+          "@id": "https://contextlayer-dev.vercel.app/",
+          "name": "ContextLayer.dev — The Missing Context Layer for AI Coding Agents",
+          "url": "https://contextlayer-dev.vercel.app/",
+          "description": "Extract conventions, decisions, and anti-patterns from your repo's git history and serve them to Claude Code via MCP — with PR citations.",
+          "isPartOf": { "@id": "https://contextlayer-dev.vercel.app#website" },
+          "inLanguage": "en",
+          "breadcrumb": { "@id": "https://contextlayer-dev.vercel.app/#breadcrumb" }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "@id": "https://contextlayer-dev.vercel.app/#breadcrumb",
+          "itemListElement": [{ "@type": "ListItem", "position": 1, "name": "Home" }]
+        },
+        {
+          "@type": "FAQPage",
+          "@id": "https://contextlayer-dev.vercel.app/#faq",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "Does my code leave my machine?",
+              "acceptedAnswer": { "@type": "Answer", "text": "Never. ContextLayer runs entirely locally. Your code, atoms, and embeddings stay in a SQLite file on your disk. The only network call is to the Anthropic API during the one-time indexing step (using your own key). Queries, validation, and the MCP server are 100% offline." }
+            },
+            {
+              "@type": "Question",
+              "name": "Do I need to pay?",
+              "acceptedAnswer": { "@type": "Answer", "text": "Querying is free forever — no API key needed. Building an index costs roughly $1.50 in Anthropic API credits (your own key). The free validation tier is fully deterministic with zero API calls. Re-indexing is near-free thanks to per-event caching." }
+            },
+            {
+              "@type": "Question",
+              "name": "Does it work on repos with no PRs?",
+              "acceptedAnswer": { "@type": "Answer", "text": "Yes. Use contextlayer scan to extract conventions from code structure alone — manifests, README, top source files. Or use contextlayer note to capture decisions manually. Both work on any repo, day one." }
+            },
+            {
+              "@type": "Question",
+              "name": "Which AI tools does it work with?",
+              "acceptedAnswer": { "@type": "Answer", "text": "Any MCP-compatible client: Claude Code, Claude Desktop, Cursor, and others. ContextLayer uses the standard MCP stdio protocol — one .mcp.json block and you're connected." }
+            },
+            {
+              "@type": "Question",
+              "name": "Does ContextLayer modify my codebase?",
+              "acceptedAnswer": { "@type": "Answer", "text": "No. ContextLayer is read-only. It reads your git history and code files to extract knowledge atoms, but never writes to your repository. The only file it creates is a SQLite database in ~/.contextlayer/." }
+            }
+          ]
+        }
+      ]
+    }
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -376,6 +454,7 @@
             <a href="#proof" class="hover:text-white transition-colors">Proof</a>
             <a href="#how" class="hover:text-white transition-colors">How it works</a>
             <a href="#validate" class="hover:text-white transition-colors">Validate</a>
+            <a href="#faq" class="hover:text-white transition-colors">FAQ</a>
         </div>
         <div class="flex items-center gap-3">
             <a href="https://github.com/AntarangSharma/ContextLayer.dev" target="_blank"
@@ -673,7 +752,105 @@ contextlayer mcp --repo .</pre>
             </div>
         </section>
 
+        <!-- ============================================================ -->
+        <!-- FAQ — address objections directly                              -->
+        <!-- ============================================================ -->
+        <section id="faq" class="max-w-3xl mx-auto px-6 pb-24 reveal">
+            <div class="text-center mb-10">
+                <span class="eyebrow">Common questions</span>
+                <h2 class="text-3xl md:text-4xl font-bold text-white mb-3 tracking-tight">You're wondering. We'll answer.</h2>
+            </div>
+
+            <div class="space-y-3" id="faq-accordion">
+                <details class="glass-card rounded-xl group" open>
+                    <summary class="flex items-center justify-between px-6 py-5 cursor-pointer text-sm font-semibold text-white hover:text-brand-300 transition-colors">
+                        Does my code leave my machine?
+                        <svg class="w-4 h-4 text-gray-500 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                    </summary>
+                    <div class="px-6 pb-5 text-sm text-gray-400 leading-relaxed border-t border-white/5 pt-4">
+                        <strong class="text-white">Never.</strong> ContextLayer runs entirely locally. Your code, atoms, and embeddings stay in a SQLite file on your disk. The only network call is to the Anthropic API during the one-time indexing step (using <em>your own key</em>). Queries, validation, and the MCP server are <strong class="text-accent-green">100% offline</strong>.
+                    </div>
+                </details>
+
+                <details class="glass-card rounded-xl group">
+                    <summary class="flex items-center justify-between px-6 py-5 cursor-pointer text-sm font-semibold text-white hover:text-brand-300 transition-colors">
+                        Do I need to pay?
+                        <svg class="w-4 h-4 text-gray-500 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                    </summary>
+                    <div class="px-6 pb-5 text-sm text-gray-400 leading-relaxed border-t border-white/5 pt-4">
+                        <strong class="text-white">Querying is free forever</strong> — no API key needed. Building an index costs roughly <strong class="text-white">~$1.50</strong> in Anthropic API credits (your own key). The free validation tier is fully deterministic with zero API calls. Re-indexing is near-free thanks to per-event caching.
+                    </div>
+                </details>
+
+                <details class="glass-card rounded-xl group">
+                    <summary class="flex items-center justify-between px-6 py-5 cursor-pointer text-sm font-semibold text-white hover:text-brand-300 transition-colors">
+                        Does it work on repos with no PRs?
+                        <svg class="w-4 h-4 text-gray-500 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                    </summary>
+                    <div class="px-6 pb-5 text-sm text-gray-400 leading-relaxed border-t border-white/5 pt-4">
+                        <strong class="text-white">Yes.</strong> Use <code class="text-brand-300 font-mono text-xs">contextlayer scan</code> to extract conventions from code structure alone — manifests, README, top source files. Or use <code class="text-brand-300 font-mono text-xs">contextlayer note</code> to capture decisions manually. Both work on any repo, day one.
+                    </div>
+                </details>
+
+                <details class="glass-card rounded-xl group">
+                    <summary class="flex items-center justify-between px-6 py-5 cursor-pointer text-sm font-semibold text-white hover:text-brand-300 transition-colors">
+                        Which AI tools does it work with?
+                        <svg class="w-4 h-4 text-gray-500 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                    </summary>
+                    <div class="px-6 pb-5 text-sm text-gray-400 leading-relaxed border-t border-white/5 pt-4">
+                        Any <strong class="text-white">MCP-compatible client</strong>: Claude Code, Claude Desktop, Cursor, and others. ContextLayer uses the standard MCP stdio protocol — one <code class="text-brand-300 font-mono text-xs">.mcp.json</code> block and you're connected.
+                    </div>
+                </details>
+
+                <details class="glass-card rounded-xl group">
+                    <summary class="flex items-center justify-between px-6 py-5 cursor-pointer text-sm font-semibold text-white hover:text-brand-300 transition-colors">
+                        Does ContextLayer modify my codebase?
+                        <svg class="w-4 h-4 text-gray-500 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                    </summary>
+                    <div class="px-6 pb-5 text-sm text-gray-400 leading-relaxed border-t border-white/5 pt-4">
+                        <strong class="text-white">No.</strong> ContextLayer is <strong class="text-white">read-only</strong>. It reads your git history and code files to extract knowledge atoms, but never writes to your repository. The only file it creates is a SQLite database in <code class="text-brand-300 font-mono text-xs">~/.contextlayer/</code>.
+                    </div>
+                </details>
+            </div>
+        </section>
+
     </main>
+
+    <!-- ============================================================ -->
+    <!-- FOOTER                                                        -->
+    <!-- ============================================================ -->
+    <footer class="relative z-10 border-t border-white/5">
+        <div class="max-w-5xl mx-auto px-6 py-12">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-brand-500 to-accent-violet flex items-center justify-center">
+                        <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+                    </div>
+                    <span class="text-sm font-bold text-white">ContextLayer<span class="text-brand-400">.dev</span></span>
+                </div>
+
+                <div class="flex items-center gap-6 text-xs text-gray-500">
+                    <a href="https://github.com/AntarangSharma/ContextLayer.dev" target="_blank" class="hover:text-white transition-colors flex items-center gap-1.5">
+                        <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                        GitHub
+                    </a>
+                    <a href="https://github.com/AntarangSharma/ContextLayer.dev/blob/main/USER-MANUAL.md" target="_blank" class="hover:text-white transition-colors">Docs</a>
+                    <a href="https://pypi.org/project/contextlayer-dev/" target="_blank" class="hover:text-white transition-colors">PyPI</a>
+                    <a href="#faq" class="hover:text-white transition-colors">FAQ</a>
+                </div>
+
+                <div class="flex items-center gap-4 text-[11px] font-mono text-gray-600">
+                    <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-accent-green"></span>MIT License</span>
+                    <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-brand-400"></span>Read-only</span>
+                    <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-accent-pink"></span>Zero telemetry</span>
+                </div>
+            </div>
+
+            <div class="text-center text-[11px] text-gray-700 mt-8 pt-6 border-t border-white/5">
+                Built with Anthropic Claude (Haiku · Sonnet · Opus) · MCP Python SDK · fastembed · SQLite WAL
+            </div>
+        </div>
+    </footer>
 
     <!-- ============================================================ -->
     <!-- INTERACTIVITY SCRIPT                                            -->
