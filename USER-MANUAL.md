@@ -27,14 +27,19 @@ You can try ContextLayer **with zero setup** using the bundled demo (see Section
 ## 3. Install
 
 ```bash
-pip install contextlayer
+pip install contextlayer-dev
 ```
 
-Or, with uv:
+Or, with uv (recommended — no venv needed):
 
 ```bash
-uv pip install contextlayer
+uvx contextlayer-dev --help
 ```
+
+> The package is named **`contextlayer-dev`** on PyPI (the bare `contextlayer` name
+> was taken before we shipped). The installed CLI binary is the brand command,
+> **`contextlayer`** — so `contextlayer …` and `contextlayer-dev …` both work after
+> install.
 
 Check it worked:
 
@@ -106,10 +111,12 @@ ContextLayer talks to AI tools using **MCP** (Model Context Protocol). Setup tak
 
 ### For Claude Code
 
-Add a one-time line to your `CLAUDE.md` file in any project root:
+Generate a topic-grouped, citation-inlined `CLAUDE.md` from your indexed atoms
+(or append to an existing one):
 
 ```bash
-contextlayer claude-md >> CLAUDE.md
+contextlayer claude-md --output CLAUDE.md            # write fresh
+contextlayer claude-md --output CLAUDE.md --append   # extend existing
 ```
 
 Then start the ContextLayer server from your repo:
@@ -179,21 +186,105 @@ That note becomes a rule the next time Claude asks. No re-index needed.
 
 ## 10. Check what ContextLayer knows
 
-See the topics it discovered:
+See atom / rule / topic counts and the last index time:
 
 ```bash
 contextlayer status --repo .
 ```
 
-Get a plain-English explanation of any topic or rule:
+Generate a plain-English **project brief** from the indexed atoms — perfect
+for pasting into a fresh Claude session:
 
 ```bash
-contextlayer explain "session handling"
+contextlayer explain --out PROJECT_BRIEF.md
 ```
 
 ---
 
-## 11. Common questions
+## 11. 🆕 v1.1 — score your index, catch drift, publish CLAUDE.md
+
+Three new commands turn your indexed conventions into CI-grade signals. All
+three are **keyless** (no `ANTHROPIC_API_KEY` needed) and **deterministic** —
+no LLM calls, no surprises.
+
+### `contextlayer health` — how good is my index?
+
+Scores your index **0–100 (A–F)** across six dimensions: atom count, rule
+count, topic breadth, citation coverage, freshness (last 90 days), and
+conflict-freedom.
+
+```bash
+contextlayer health --repo .
+```
+
+You'll see something like:
+
+```
+┌─────────────────────────────────────────┐
+│  Convention Health: A+ (98/100)         │
+│                                         │
+│  ✓ 15 atoms extracted                   │
+│  ✓ 8 rules promoted                     │
+│  ✓ 7 topics discovered                  │
+│  ✓ 24 PR/commit citations               │
+│  ✓ No stale rules, no conflicts         │
+└─────────────────────────────────────────┘
+```
+
+For dashboards or CI: `contextlayer health --json` returns the same numbers
+as machine-readable JSON.
+
+### `contextlayer drift` — did anyone break the rules?
+
+Checks recent commits against your indexed `do not …` / `never …` / `avoid …`
+rules. Exit code **1** when violations are found, so it slots straight into
+CI as a pre-merge gate.
+
+```bash
+contextlayer drift --last 10               # check the last 10 commits
+contextlayer drift --since "7 days ago"    # or by date window
+```
+
+Sample output:
+
+```
+⚠ 1 potential violation found:
+
+  commit def5678 (5 days ago) "Quick fix: use db_helper for migration"
+  ┗━ Violates rule a_2598: "Do not use utils/db_helper"
+     Source: PR #8
+     Matched: utils/db_helper
+```
+
+It only flags negative-obligation rules with **concrete identifiers**
+(snake_case, slashed, dotted, hyphenated, or camelCase). Bare English words
+are skipped to keep false positives near zero.
+
+**Drop it into GitHub Actions:**
+
+```yaml
+- name: ContextLayer drift check
+  run: |
+    pip install contextlayer-dev
+    contextlayer drift --last 20 --repo .
+```
+
+### `contextlayer claude-md` — publish a real `CLAUDE.md`
+
+Renders a production-quality `CLAUDE.md` from your indexed atoms — topic-
+grouped, rules first, citations inlined, scopes labeled. Drop it into your
+repo root and every Claude session in that directory benefits, even without
+the MCP server running.
+
+```bash
+contextlayer claude-md --output CLAUDE.md           # write fresh
+contextlayer claude-md --output CLAUDE.md --append  # extend an existing one
+contextlayer claude-md > /tmp/brief.md              # or pipe to stdout
+```
+
+---
+
+## 12. Common questions
 
 **Q: Will it slow Claude down?**
 No. A warm query runs in under 15 milliseconds. The first query after starting the server takes ~400 ms while the model loads.
@@ -210,20 +301,25 @@ ContextLayer still works for querying and validating — you just can't build a 
 **Q: How do I update?**
 
 ```bash
-pip install -U contextlayer
+pip install -U contextlayer-dev
 ```
+
+**Q: Can I run ContextLayer in CI?**
+Yes — that's what the v1.1 commands (`health`, `drift`, `claude-md`) are
+built for. They're keyless, deterministic, and `drift` exits 1 on
+violations. See Section 11 for a GitHub Actions snippet.
 
 **Q: Something broke. Where do I report it?**
 GitHub Issues: https://github.com/AntarangSharma/ContextLayer.dev/issues
 
 ---
 
-## 12. The whole thing in 5 lines
+## 13. The whole thing in 5 lines
 
-1. `pip install contextlayer`
+1. `pip install contextlayer-dev`
 2. `contextlayer index .` (or just use the demo — no key needed)
 3. Add ContextLayer to your AI tool's MCP config
 4. Chat with your AI normally — it now follows your team's rules
-5. Add new rules with `contextlayer note "..."`
+5. Add new rules with `contextlayer note "..."`, gate CI with `contextlayer drift`
 
 That's it. Welcome to ContextLayer.
