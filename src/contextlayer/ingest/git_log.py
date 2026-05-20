@@ -1,8 +1,8 @@
 """git log adapter — one RawEvent per commit on the default branch.
 
-Phase 1 simplification: we don't capture files-changed metadata. Stage 2 Sonnet
-extracts atoms from commit message text; files are useful for atom `scope`
-(spec §5.3) but that's a Phase 2 polish concern.
+Current implementation does not capture files-changed metadata. Stage 2 Sonnet
+extracts atoms from commit message text; files would be useful for atom `scope`
+(spec §5.3) but that's a planned follow-up.
 """
 from __future__ import annotations
 

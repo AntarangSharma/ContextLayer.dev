@@ -1,4 +1,4 @@
-"""Stage 2 — Sonnet atom extractor (single-event per call for MVP).
+"""Stage 2 — Sonnet atom extractor (one Sonnet call per event by default; batched in production).
 
 Each kept event → one Sonnet call → 0-3 Atoms via tool use.
 

@@ -288,12 +288,12 @@ This repo has a ContextLayer knowledge index. Before proposing code changes:
 
 ## 🗺️ Roadmap
 
-| Version | Timeline | Features |
+| Version | Status | Features |
 |---|---|---|
-| **v1** | Hackathon | CLI + MCP server, multi-agent pipeline, solo-dev features |
+| **v1** | Shipped | CLI + MCP server, multi-agent pipeline (Haiku → Sonnet → Opus), solo-dev features (`note`, `explain`, `scan`) |
 | **v1.1** (current) | Shipped | `context_validate` (push-mode enforcement), `health`, `drift`, polished `claude-md` |
-| **v2** | +3 months | Failure Loop (incident → auto-extracted atoms), drift-detection escalation to LLM judge |
-| **v3** | +6 months | Cross-Repo Intelligence (anonymized network effects across repos) |
+| **v2** | Planned | Failure Loop (incident → auto-extracted atoms), drift-detection escalation to an LLM judge for ambiguous matches |
+| **v3** | Planned | Cross-Repo Intelligence (anonymized network effects across repos) |
 
 ---
 

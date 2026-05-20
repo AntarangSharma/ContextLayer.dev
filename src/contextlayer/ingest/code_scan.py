@@ -4,8 +4,8 @@ Reads manifests, top-level docs, file-extension distribution, and the top-N
 largest source files. Emits RawEvent records with source_type="code_scan" that
 flow into the same Haiku → Sonnet → Opus pipeline as git/PR events.
 
-Phase 1 design: thin slice — read files as text, let Sonnet extract conventions
-from them. v1.1 adds AST-based extraction for higher fidelity.
+Design: thin slice — read files as text and let Sonnet extract conventions
+from them. AST-based extraction for higher fidelity is a planned follow-up.
 """
 from __future__ import annotations
 

@@ -8,7 +8,7 @@
     → fastembed for each atom
     → SQLite store with WAL
 
-Production polish on top of the MVP shape: Stage 3 Opus extended thinking,
+Production polish on top of the base shape: Stage 3 Opus extended thinking,
 prompt caching on cacheable prefixes, Sonnet/Haiku batching, an idempotency
 cache so re-runs are near-free, and the hybrid retrieval index.
 
@@ -42,7 +42,7 @@ log = logging.getLogger(__name__)
 RPM_LIMIT = int(os.environ.get("CONTEXTLAYER_RPM_LIMIT", "50"))
 STAGE1_CONCURRENCY = int(os.environ.get("CONTEXTLAYER_STAGE1_CONCURRENCY", "2"))
 STAGE2_CONCURRENCY = int(os.environ.get("CONTEXTLAYER_STAGE2_CONCURRENCY", "2"))
-# Sonnet batching (Phase 2B): one Sonnet call extracts atoms from up to N events.
+# Sonnet batching: one Sonnet call extracts atoms from up to N events.
 # 15 is the spec default; set to 1 via env to disable and use per-event calls
 # (useful if a batched run shows a quality regression vs single-event extraction).
 STAGE2_BATCH_SIZE = int(os.environ.get("CONTEXTLAYER_STAGE2_BATCH_SIZE", "15"))
@@ -160,7 +160,7 @@ async def _stage2(
 
 
 def _dedupe(atoms: list[Atom]) -> list[Atom]:
-    """MVP dedup: by lowercase summary. Phase 2 Stage 3 Opus does smarter conflict resolution."""
+    """Fast dedup by lowercase summary. Stage 3 Opus does smarter conflict resolution downstream."""
     seen: set[str] = set()
     unique: list[Atom] = []
     for a in atoms:

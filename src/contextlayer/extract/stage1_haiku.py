@@ -1,4 +1,4 @@
-"""Stage 1 — Haiku relevance filter (single-event per call for MVP).
+"""Stage 1 — Haiku relevance filter (one Haiku call per event).
 
 Each event → one Haiku call → {keep: bool, category: str}.
 

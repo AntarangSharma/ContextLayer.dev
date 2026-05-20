@@ -22,8 +22,8 @@ runs.
 Usage:
     uv run python demo-data/build_acme.py
 
-See docs/specs/2026-05-18-contextlayer-design.md §8 + Appendix A #16 for
-why this synthetic repo is the PRIMARY demo path.
+This synthetic repo is the primary, deterministic demo path — re-running this
+script produces identical commits, SHAs, and review threads on any machine.
 """
 from __future__ import annotations
 
