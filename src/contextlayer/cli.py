@@ -9,7 +9,7 @@ Subcommands:
     health     — compute a 0-100 letter-graded convention health score
     drift      — check recent commits against indexed rules (CI-friendly exit code)
     status     — show atom/topic counts and last index time
-    claude-md  — print the CLAUDE.md snippet to append to your repo
+    claude-md  — emit a production-quality CLAUDE.md derived from the index
 """
 from __future__ import annotations
 
@@ -368,20 +368,46 @@ def drift(
 
 
 @app.command("claude-md")
-def claude_md() -> None:
-    """Print the CLAUDE.md snippet to append to your repo."""
-    typer.echo("""\
-## ContextLayer
+def claude_md(
+    repo: str = typer.Option(".", "--repo", help="Repo whose atoms to render."),
+    output: str = typer.Option(None, "--output", "-o", help="Write to this file instead of stdout."),
+    append: bool = typer.Option(False, "--append", help="Append to --output instead of overwriting (no-op without --output)."),
+) -> None:
+    """Emit a topic-grouped, citation-inlined CLAUDE.md derived from the indexed atoms.
 
-This repo has a ContextLayer knowledge index. Before proposing code changes:
+    The output is production-quality: header with repo + atom counts, sections
+    grouped by topic, rules listed before supporting conventions, source
+    citations rendered inline. Pipe to a file or use `--output` to write
+    directly (atomic write; pair with `--append` to extend an existing file).
+    """
+    from contextlayer.claude_md import render
+    from contextlayer.store.repo_hash import index_db_path
 
-1. Call the `context_query` MCP tool with what you intend to do — the repo has
-   codified team conventions and prior decisions; surface the relevant ones.
-2. Call the `context_validate` MCP tool with your proposed change (a short
-   plan, snippet, or diff) before applying it. The tool returns any rules
-   your change would violate, with citations to the original PR/commit.
-   If violations are reported, revise the change or explicitly justify the
-   exception.""")
+    repo_path = Path(repo).resolve()
+    db_path = index_db_path(repo_path)
+    if not db_path.exists():
+        typer.secho(
+            f"No index found for {repo}. Run `contextlayer index {repo}` first.",
+            fg=typer.colors.YELLOW, err=True,
+        )
+        raise typer.Exit(code=1)
+
+    repo_name = repo_path.name or "this repo"
+    text = render(db_path, repo_name)
+
+    if output:
+        out_path = Path(output).resolve()
+        mode = "a" if append else "w"
+        with out_path.open(mode) as f:
+            if append and out_path.stat().st_size > 0:
+                f.write("\n")
+            f.write(text)
+        typer.secho(
+            f"✓ {'Appended' if append else 'Wrote'} {len(text)} chars to {out_path}",
+            fg=typer.colors.GREEN,
+        )
+    else:
+        typer.echo(text, nl=False)
 
 
 if __name__ == "__main__":
