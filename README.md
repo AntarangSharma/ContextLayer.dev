@@ -116,7 +116,32 @@ The result: a local SQLite knowledge store served to Claude Code via MCP.
 | `contextlayer note "<decision>"` | Capture a decision directly — no API call, free, instant |
 | `contextlayer explain` | Generate a markdown project brief from indexed atoms |
 | `contextlayer status --repo <path>` | Show atom count, topics, rules, last index time |
-| `contextlayer claude-md` | Print the CLAUDE.md snippet to append to your repo |
+| `contextlayer claude-md` | Emit a topic-grouped, citation-inlined `CLAUDE.md` |
+| `contextlayer health` | 🆕 Score your index 0–100 (A–F) across 6 dimensions |
+| `contextlayer drift` | 🆕 Check recent commits against indexed rules — CI-ready |
+
+### 🆕 v1.1 — CI-grade signals (keyless, deterministic, exit-code aware)
+
+Three new subcommands turn your indexed conventions into automation primitives:
+
+```bash
+# Score how good your convention index is — A-F, 0-100, six weighted dimensions
+contextlayer health
+# Convention Health: A+ (98/100)
+#   ✓ 15 atoms · 8 rules · 7 topics · 24 citations · no conflicts
+
+# Catch convention violations in recent commits — exits 1 on hit, perfect for CI
+contextlayer drift --last 10
+# ⚠ 1 potential violation: commit def5678 violates rule a_2598
+#   "Do not use utils/db_helper" (Source: PR #8)
+
+# Generate a publishable CLAUDE.md from the index — topic-grouped, citation-inlined
+contextlayer claude-md --output CLAUDE.md
+```
+
+All three are **keyless** (no `ANTHROPIC_API_KEY` needed) and run in milliseconds. Drop
+`contextlayer drift` into a GitHub Action to gate PRs on convention compliance, and
+`contextlayer health --json` into a dashboard to track index quality over time.
 
 ### Decision Journal — works on any repo, day one
 
@@ -265,9 +290,9 @@ This repo has a ContextLayer knowledge index. Before proposing code changes:
 
 | Version | Timeline | Features |
 |---|---|---|
-| **v1** (current) | Hackathon | CLI + MCP server, multi-agent pipeline, solo-dev features |
-| **v1.1** | +3 weeks | `context_validate` (real-time anti-pattern detection), Repo Health Score |
-| **v2** | +3 months | Convention Drift Detection, Failure Loop (incident → auto-extracted atoms) |
+| **v1** | Hackathon | CLI + MCP server, multi-agent pipeline, solo-dev features |
+| **v1.1** (current) | Shipped | `context_validate` (push-mode enforcement), `health`, `drift`, polished `claude-md` |
+| **v2** | +3 months | Failure Loop (incident → auto-extracted atoms), drift-detection escalation to LLM judge |
 | **v3** | +6 months | Cross-Repo Intelligence (anonymized network effects across repos) |
 
 ---

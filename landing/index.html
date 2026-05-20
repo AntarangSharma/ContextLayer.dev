@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ContextLayer.dev — The Missing Context Layer for AI Coding Agents</title>
-    <meta name="description" content="ContextLayer extracts conventions, decisions, and anti-patterns from your repo and serves them to Claude Code via MCP. Push verdicts with context_validate. Local-first, no-API-key query path, BYOK indexing, MIT.">
+    <meta name="description" content="ContextLayer extracts conventions, decisions, and anti-patterns from your repo and serves them to Claude Code via MCP. v1.1 adds health scores, drift detection, and auto-generated CLAUDE.md for CI. Local-first, no-API-key query path, BYOK indexing, MIT.">
     <meta property="og:title" content="ContextLayer.dev — The Missing Context Layer for AI Coding Agents">
     <meta property="og:description" content="Your AI answers like a senior engineer who read everything — including the unwritten parts.">
     <meta property="og:type" content="website">
@@ -81,6 +81,11 @@
               "@type": "Question",
               "name": "Does ContextLayer modify my codebase?",
               "acceptedAnswer": { "@type": "Answer", "text": "No. ContextLayer is read-only. It reads your git history and code files to extract knowledge atoms, but never writes to your repository. The only file it creates is a SQLite database in ~/.contextlayer/." }
+            },
+            {
+              "@type": "Question",
+              "name": "Can I use ContextLayer in CI?",
+              "acceptedAnswer": { "@type": "Answer", "text": "Yes. The v1.1 commands — health, drift, and claude-md — are keyless, deterministic, and exit-code aware. Wire `contextlayer drift` into a pre-merge GitHub Action to catch convention violations before they ship, and `contextlayer health --json` to track index quality over time." }
             }
           ]
         }
@@ -453,6 +458,7 @@
             <a href="#try" class="hover:text-white transition-colors">Try it</a>
             <a href="#proof" class="hover:text-white transition-colors">Proof</a>
             <a href="#how" class="hover:text-white transition-colors">How it works</a>
+            <a href="#features" class="hover:text-white transition-colors">Features</a>
             <a href="#validate" class="hover:text-white transition-colors">Validate</a>
             <a href="#faq" class="hover:text-white transition-colors">FAQ</a>
         </div>
@@ -619,6 +625,170 @@
                     <h3 class="font-bold text-white text-lg mb-2">Your AI cites your team</h3>
                     <p class="text-sm text-gray-400 leading-relaxed mb-3">Claude calls <code class="text-brand-300 font-mono text-xs">context_query</code> before answering. Replies come back with <strong class="text-white">real PR numbers</strong> and commit SHAs.</p>
                     <div class="text-[11px] font-mono text-gray-600">No telemetry. No data leaves your box.</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================================ -->
+        <!-- FEATURES — every CLI command, the full surface area           -->
+        <!-- ============================================================ -->
+        <section id="features" class="max-w-5xl mx-auto px-6 pb-24 reveal">
+            <div class="text-center mb-10">
+                <span class="eyebrow">Everything in the box</span>
+                <h2 class="text-3xl md:text-4xl font-bold text-white mb-3 tracking-tight">
+                    Nine commands. <span class="gradient-text">One mental model.</span>
+                </h2>
+                <p class="text-gray-400 max-w-2xl mx-auto leading-relaxed">
+                    Each subcommand reads from — or writes to — the same local SQLite knowledge store.
+                    Combine them in CI, in your editor, or at the prompt. The three highlighted commands
+                    are brand-new in <strong class="text-white">v1.1</strong>.
+                </p>
+            </div>
+
+            <!-- Build / index commands -->
+            <div class="mb-8">
+                <div class="text-xs font-mono text-brand-300 mb-3 uppercase tracking-wider">📖 Build the index</div>
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div class="glass-card rounded-xl p-5 ring-gradient">
+                        <div class="flex items-baseline gap-2 mb-2">
+                            <code class="text-brand-300 font-mono text-sm font-semibold">contextlayer index</code>
+                            <span class="text-[10px] font-mono text-gray-600 uppercase tracking-wider">requires ANTHROPIC_API_KEY</span>
+                        </div>
+                        <p class="text-sm text-gray-400 leading-relaxed">
+                            Runs the full <strong class="text-white">Haiku → Sonnet → Opus</strong> extraction pipeline against your git log, GitHub PRs, and code. Writes canonical atoms + embeddings + topic clusters. Idempotent — re-runs are near-free.
+                        </p>
+                    </div>
+                    <div class="glass-card rounded-xl p-5 ring-gradient">
+                        <div class="flex items-baseline gap-2 mb-2">
+                            <code class="text-brand-300 font-mono text-sm font-semibold">contextlayer scan</code>
+                            <span class="text-[10px] font-mono text-gray-600 uppercase tracking-wider">requires ANTHROPIC_API_KEY</span>
+                        </div>
+                        <p class="text-sm text-gray-400 leading-relaxed">
+                            Code-only ingestion path. For greenfield repos with no PR history — reads manifests, READMEs, and top source files. Day-one conventions on any repo.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Serve / query commands -->
+            <div class="mb-8">
+                <div class="text-xs font-mono text-brand-300 mb-3 uppercase tracking-wider">🔌 Serve the index</div>
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div class="glass-card rounded-xl p-5 ring-gradient">
+                        <div class="flex items-baseline gap-2 mb-2">
+                            <code class="text-brand-300 font-mono text-sm font-semibold">contextlayer mcp</code>
+                            <span class="text-[10px] font-mono text-accent-green uppercase tracking-wider">keyless</span>
+                        </div>
+                        <p class="text-sm text-gray-400 leading-relaxed">
+                            Starts the stdio MCP server. Exposes <code class="text-brand-300 font-mono text-xs">context_query</code>, <code class="text-brand-300 font-mono text-xs">context_validate</code>, and <code class="text-brand-300 font-mono text-xs">context_list_topics</code> to Claude Code, Cursor, Claude Desktop, and any MCP-compatible client.
+                        </p>
+                    </div>
+                    <div class="glass-card rounded-xl p-5 ring-gradient">
+                        <div class="flex items-baseline gap-2 mb-2">
+                            <code class="text-brand-300 font-mono text-sm font-semibold">contextlayer status</code>
+                            <span class="text-[10px] font-mono text-accent-green uppercase tracking-wider">keyless</span>
+                        </div>
+                        <p class="text-sm text-gray-400 leading-relaxed">
+                            Print atom / rule / topic counts and last-indexed time. The fastest "is this thing built yet?" check.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Capture commands -->
+            <div class="mb-8">
+                <div class="text-xs font-mono text-brand-300 mb-3 uppercase tracking-wider">✍️ Capture &amp; export knowledge</div>
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div class="glass-card rounded-xl p-5 ring-gradient">
+                        <div class="flex items-baseline gap-2 mb-2">
+                            <code class="text-brand-300 font-mono text-sm font-semibold">contextlayer note</code>
+                            <span class="text-[10px] font-mono text-accent-green uppercase tracking-wider">keyless</span>
+                        </div>
+                        <p class="text-sm text-gray-400 leading-relaxed">
+                            Manually capture a decision atom: <code class="text-brand-300 font-mono text-xs">contextlayer note "Do not use threading" --scope src/workers/**</code>. No PR? No problem.
+                        </p>
+                    </div>
+                    <div class="glass-card rounded-xl p-5 ring-gradient">
+                        <div class="flex items-baseline gap-2 mb-2">
+                            <code class="text-brand-300 font-mono text-sm font-semibold">contextlayer explain</code>
+                            <span class="text-[10px] font-mono text-accent-green uppercase tracking-wider">keyless</span>
+                        </div>
+                        <p class="text-sm text-gray-400 leading-relaxed">
+                            Renders a Markdown project brief from indexed atoms. Pipe into a fresh Claude session and skip the "explain my project" tax.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- NEW v1.1 features -->
+            <div>
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="text-xs font-mono text-accent-violet uppercase tracking-wider">🚀 New in v1.1 · CI-grade signals</div>
+                    <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-accent-violet/20 text-accent-violet">NEW</span>
+                </div>
+                <div class="grid md:grid-cols-3 gap-4">
+                    <!-- HEALTH -->
+                    <div class="glass-card rounded-xl p-5 ring-gradient" style="border-color: rgba(151,71,255,0.35)">
+                        <div class="flex items-baseline gap-2 mb-2">
+                            <code class="text-accent-violet font-mono text-sm font-semibold">contextlayer health</code>
+                        </div>
+                        <p class="text-sm text-gray-400 leading-relaxed mb-3">
+                            Scores your convention index <strong class="text-white">0–100 (A–F)</strong> across 6 dimensions:
+                            atom count, rule count, topic breadth, citation coverage, freshness, and conflict-freedom.
+                            Pure read, no API calls.
+                        </p>
+                        <div class="code-block rounded-lg p-3 font-mono text-[11px] leading-relaxed text-gray-400 overflow-x-auto">
+<pre><span class="text-gray-600">┌──────────────────────────────┐</span>
+<span class="text-gray-600">│</span>  <span class="text-white">Convention Health: A+ (98)</span>  <span class="text-gray-600">│</span>
+<span class="text-gray-600">│</span>                              <span class="text-gray-600">│</span>
+<span class="text-gray-600">│</span>  <span class="text-accent-green">✓</span> 15 atoms · 8 rules        <span class="text-gray-600">│</span>
+<span class="text-gray-600">│</span>  <span class="text-accent-green">✓</span> 7 topics · 24 citations   <span class="text-gray-600">│</span>
+<span class="text-gray-600">│</span>  <span class="text-accent-green">✓</span> No conflicts · all fresh  <span class="text-gray-600">│</span>
+<span class="text-gray-600">└──────────────────────────────┘</span></pre>
+                        </div>
+                    </div>
+
+                    <!-- DRIFT -->
+                    <div class="glass-card rounded-xl p-5 ring-gradient" style="border-color: rgba(151,71,255,0.35)">
+                        <div class="flex items-baseline gap-2 mb-2">
+                            <code class="text-accent-violet font-mono text-sm font-semibold">contextlayer drift</code>
+                        </div>
+                        <p class="text-sm text-gray-400 leading-relaxed mb-3">
+                            Checks recent commits against indexed rules. Heuristic, deterministic,
+                            <strong class="text-white">zero LLM calls</strong> — safe to gate CI on.
+                            Exits 1 when violations are found. Use in pre-merge hooks.
+                        </p>
+                        <div class="code-block rounded-lg p-3 font-mono text-[11px] leading-relaxed text-gray-400 overflow-x-auto">
+<pre><span class="text-gray-600">$</span> contextlayer drift --last 10
+<span class="text-accent-pink">⚠ 1 potential violation:</span>
+
+  commit def5678 (5d ago)
+  ┗━ Violates <span class="text-brand-300">a_2598</span>: "Do not
+     use utils/db_helper"
+     <span class="text-gray-600">Source: PR #8</span></pre>
+                        </div>
+                    </div>
+
+                    <!-- CLAUDE-MD -->
+                    <div class="glass-card rounded-xl p-5 ring-gradient" style="border-color: rgba(151,71,255,0.35)">
+                        <div class="flex items-baseline gap-2 mb-2">
+                            <code class="text-accent-violet font-mono text-sm font-semibold">contextlayer claude-md</code>
+                        </div>
+                        <p class="text-sm text-gray-400 leading-relaxed mb-3">
+                            Emits a production-quality <code class="text-brand-300 font-mono text-xs">CLAUDE.md</code> derived from the index — topic-grouped, rules first, citations inlined. <code class="text-brand-300 font-mono text-xs">--append</code> works for existing files.
+                        </p>
+                        <div class="code-block rounded-lg p-3 font-mono text-[11px] leading-relaxed text-gray-400 overflow-x-auto">
+<pre><span class="text-gray-600">## Database Access</span>
+
+<span class="text-gray-600">### Rules</span>
+- <span class="text-white">NEVER share sessions.</span>
+  <span class="text-gray-600">[Scope: routes/**]</span>
+  <span class="text-gray-600">(Source: PR #14)</span></pre>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-center text-[11px] font-mono text-gray-600 mt-5">
+                    All three v1.1 commands are <strong class="text-accent-green">keyless</strong> and <strong class="text-accent-green">read-only</strong>. Wire them into <code class="text-brand-400">.github/workflows</code> or a <code class="text-brand-400">pre-commit</code> hook today.
                 </div>
             </div>
         </section>
@@ -809,6 +979,24 @@ contextlayer mcp --repo .</pre>
                     </summary>
                     <div class="px-6 pb-5 text-sm text-gray-400 leading-relaxed border-t border-white/5 pt-4">
                         <strong class="text-white">No.</strong> ContextLayer is <strong class="text-white">read-only</strong>. It reads your git history and code files to extract knowledge atoms, but never writes to your repository. The only file it creates is a SQLite database in <code class="text-brand-300 font-mono text-xs">~/.contextlayer/</code>.
+                    </div>
+                </details>
+
+                <details class="glass-card rounded-xl group">
+                    <summary class="flex items-center justify-between px-6 py-5 cursor-pointer text-sm font-semibold text-white hover:text-brand-300 transition-colors">
+                        Can I use ContextLayer in CI?
+                        <svg class="w-4 h-4 text-gray-500 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                    </summary>
+                    <div class="px-6 pb-5 text-sm text-gray-400 leading-relaxed border-t border-white/5 pt-4">
+                        <strong class="text-white">Yes.</strong> The v1.1 commands —
+                        <code class="text-brand-300 font-mono text-xs">health</code>,
+                        <code class="text-brand-300 font-mono text-xs">drift</code>, and
+                        <code class="text-brand-300 font-mono text-xs">claude-md</code> — are
+                        <strong class="text-accent-green">keyless, deterministic, and exit-code aware</strong>.
+                        Wire <code class="text-brand-300 font-mono text-xs">contextlayer drift</code>
+                        into a pre-merge GitHub Action to catch convention violations before they ship, and
+                        <code class="text-brand-300 font-mono text-xs">contextlayer health --json</code>
+                        to track index quality over time.
                     </div>
                 </details>
             </div>

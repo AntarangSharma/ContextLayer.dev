@@ -67,3 +67,11 @@ htmlcov/
 # Generated synthetic demo repo (run demo-data/build_acme.py to materialize)
 demo-data/acme-billing-api/
 demo-data/fastapi/
+
+# Internal planning + working docs (not for public consumption)
+tasks/
+WHY-CONTEXTLAYER.md
+
+# Generated decks / one-off artifacts
+ContextLayer-Overview.pdf
+ContextLayer-Overview.pptx
