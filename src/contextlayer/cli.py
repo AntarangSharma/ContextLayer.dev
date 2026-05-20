@@ -6,6 +6,7 @@ Subcommands:
     mcp        — start the stdio MCP server against the indexed DB
     note       — capture a one-line decision atom directly (spec §5.7.2)
     explain    — render a markdown project brief from indexed atoms (spec §5.7.3)
+    health     — compute a 0-100 letter-graded convention health score
     status     — show atom/topic counts and last index time
     claude-md  — print the CLAUDE.md snippet to append to your repo
 """
@@ -280,6 +281,37 @@ def scan(
         typer.echo(f"  Prompt cache:       {cr:,} read tokens / {cw:,} write tokens")
     typer.echo(f"  DB:                 {result['db_path']}")
     typer.echo(f"  Elapsed:            {result['elapsed_seconds']}s")
+
+
+@app.command()
+def health(
+    repo: str = typer.Option(".", "--repo", help="Path to the repository."),
+    json_out: bool = typer.Option(False, "--json", help="Emit machine-readable JSON instead of the rich panel."),
+) -> None:
+    """Score this repo's convention index 0-100 (letter grade A-F).
+
+    Pure read, no API calls. Scores 6 dimensions (atom count, rule count,
+    topic breadth, citation coverage, freshness, conflict-free) and renders a
+    summary panel. Use `--json` for CI consumption.
+    """
+    import json as _json
+
+    from contextlayer.health import compute_health, render_panel, report_to_json
+    from contextlayer.store.repo_hash import index_db_path
+
+    db_path = index_db_path(repo)
+    if not db_path.exists():
+        typer.secho(
+            f"No index found for {repo}. Run `contextlayer index {repo}` first.",
+            fg=typer.colors.YELLOW, err=True,
+        )
+        raise typer.Exit(code=1)
+
+    report = compute_health(db_path)
+    if json_out:
+        typer.echo(_json.dumps(report_to_json(report), indent=2))
+        return
+    typer.echo(render_panel(report), nl=False)
 
 
 @app.command("claude-md")
