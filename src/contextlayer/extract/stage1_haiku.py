@@ -2,12 +2,12 @@
 
 Each event → one Haiku call → {keep: bool, category: str}.
 
-T+23 Phase 2B polish: prompt caching on the (system + tools) prefix via
+Prompt caching is enabled on the (system + tools) prefix via
 `cache_control: ephemeral`. The system prompt is intentionally padded with
 6 concrete few-shot examples to cross Anthropic's 1024-token cacheable-prefix
 minimum so cache_read_input_tokens > 0 on the second call onwards.
 
-Phase 2B next: batch 100 events per call (T+24:30).
+Batching (100 events per call) is handled in `pipeline.py`.
 """
 from __future__ import annotations
 

@@ -1,8 +1,8 @@
 """Convention Health Score — compute a 0-100 letter-graded health snapshot for an indexed repo.
 
-Per the new spec §5.7.5 (and tasks/claude-code-prompt.md Feature 1). The score is the
-canonical "is my convention index actually useful?" signal: enough atoms, enough rules,
-enough topic breadth, citations, freshness, and no contradictory rules.
+Per spec §5.7.5. The score is the canonical "is my convention index actually
+useful?" signal: enough atoms, enough rules, enough topic breadth, citations,
+freshness, and no contradictory rules.
 
 The score is fully deterministic — no LLM calls — so it's safe to gate CI on.
 """
@@ -15,7 +15,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 
-# Weights sum to 100. Mirror tasks/claude-code-prompt.md Feature 1 verbatim.
+# Weights sum to 100 — see spec §5.7.5 for the rationale on each dimension.
 _WEIGHT_ATOMS = 20
 _WEIGHT_RULES = 20
 _WEIGHT_TOPICS = 15

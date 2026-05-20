@@ -1,13 +1,13 @@
 """Retrieval: hybrid search (cosine + keyword + rule + recency) with perf cache.
 
-Score model (kept identical to the T+34 tuned formula):
+Score model:
 
     score = 0.45 * cosine
           + 0.30 * keyword_jaccard
           + 0.15 * is_rule
           + 0.10 * recency_boost
 
-T+48 changes (keyless tier work):
+Performance optimizations:
 - In-process matrix cache (`contextlayer.cache`) — warm queries no longer
   reopen SQLite or recompute matrix norms.
 - LRU cache on query embeddings — repeated questions are near-instant.
@@ -193,7 +193,7 @@ def cosine_search(
     timestamps = [_parse_timestamp((atoms_by_id.get(aid) or {}).get("created_at")) for aid in ids]
     recency = _recency_scores(timestamps)
 
-    # --- 4. Composite score (T+34 tuned weights, preserved) ---
+    # --- 4. Composite score (tuned weights) ---
     final_scores = (
         0.45 * cosine_scores
         + 0.30 * keyword_scores

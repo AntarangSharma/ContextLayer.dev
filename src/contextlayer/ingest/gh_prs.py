@@ -128,25 +128,24 @@ def _synthetic_ingest(repo_path: Path) -> list[RawEvent]:
 
 
 def _real_ingest(repo_path: Path) -> list[RawEvent]:
-    """Real-repo path using gh CLI. Implemented in Phase 2 polish (T+24+).
+    """Real-repo ingestion path using gh CLI.
 
-    For T+4 → T+8, the primary demo path is the synthetic shim. Real-repo
-    ingestion stays a stub so judges can swap in FastAPI later via the
-    Phase 3 stretch (T+34 → T+36).
+    The synthetic shim handles the demo path; real-repo gh-CLI support is a
+    planned follow-up so the same pipeline can run against e.g. FastAPI or
+    your own GitHub org.
     """
     raise NotImplementedError(
-        "gh_prs._real_ingest: not implemented in Phase 1. The synthetic shim "
-        "handles the primary demo path. Real-repo support lands in the Phase 3 "
-        "FastAPI stretch (T+34) — see tasks/todo.md."
+        "gh_prs._real_ingest: not implemented yet. The synthetic shim handles "
+        "the demo path; real-repo gh-CLI support is a planned follow-up."
     )
 
 
 def ingest(repo_path: str | Path) -> list[RawEvent]:
     """Auto-select synthetic shim vs real gh-CLI path.
 
-    Selection rule: if every commit body contains `---REVIEW COMMENTS---`, treat as
-    synthetic. Otherwise treat as real GitHub repo (which currently raises
-    NotImplementedError; the stretch lands at T+34).
+    Selection rule: if every commit body contains `---REVIEW COMMENTS---`,
+    treat as synthetic. Otherwise treat as a real GitHub repo (which currently
+    raises NotImplementedError — real-repo support is a planned follow-up).
     """
     repo_path = Path(repo_path).resolve()
     if not (repo_path / ".git").exists():

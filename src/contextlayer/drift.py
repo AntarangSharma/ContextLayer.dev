@@ -1,7 +1,7 @@
 """Convention Drift Detection — check recent commits against indexed rules.
 
-Per tasks/claude-code-prompt.md Feature 2. Heuristic, deterministic, no LLM
-calls — designed to run in CI as a pre-merge gate.
+Heuristic, deterministic, no LLM calls — designed to run in CI as a
+pre-merge gate.
 
 Strategy:
   1. Pull all is_rule atoms from the SQLite store.

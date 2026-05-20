@@ -1,14 +1,16 @@
-"""End-to-end extraction pipeline orchestrator (Phase 1 MVP).
+"""End-to-end extraction pipeline orchestrator.
 
   ingest events
-    → Stage 1 Haiku (per-event, concurrency=2, rate-limited)   — drop irrelevant
-    → Stage 2 Sonnet (per-event, concurrency=2, rate-limited)  — extract atoms via tool use
+    → Stage 1 Haiku (batched, rate-limited)   — drop irrelevant
+    → Stage 2 Sonnet (batched, rate-limited)  — extract atoms via tool use
+    → Stage 3 Opus  (single call, extended thinking) — dedup + topics + rules
     → In-Python dedup by (summary lower, source_refs)
     → fastembed for each atom
     → SQLite store with WAL
 
-Phase 2 polish (T+14 onwards) adds: Stage 3 Opus extended thinking,
-prompt caching, Sonnet batching, idempotency cache, hybrid retrieval.
+Production polish on top of the MVP shape: Stage 3 Opus extended thinking,
+prompt caching on cacheable prefixes, Sonnet/Haiku batching, an idempotency
+cache so re-runs are near-free, and the hybrid retrieval index.
 
 Rate limits: we rate-limit globally to 50 RPM via a token-bucket so we stay
 under conservative per-account caps. Override with CONTEXTLAYER_RPM_LIMIT.
@@ -99,10 +101,10 @@ async def _stage2(
 ) -> list[Atom]:
     """Run Sonnet on every kept event with bounded concurrency + global RPM limit.
 
-    Batching (T+24:30 Phase 2B): when batch_size > 1, group `batch_size` events
-    per Sonnet call and use the STAGE2_BATCH_TOOL. On batch failure, fall back
-    to single-event extract_one calls for that batch so we don't lose all 15
-    events to one transient API blip.
+    Batching: when batch_size > 1, group `batch_size` events per Sonnet call
+    and use the STAGE2_BATCH_TOOL. On batch failure, fall back to single-event
+    extract_one calls for that batch so we don't lose all 15 events to one
+    transient API blip.
 
     Set CONTEXTLAYER_STAGE2_BATCH_SIZE=1 to revert to pure single-event extraction
     (useful for A/B'ing atom quality before/after batching).
@@ -229,10 +231,10 @@ async def _run_extraction(
 ) -> dict:
     """Shared core: events → Haiku → Sonnet → Opus (dedup + topics + rules) → embed → SQLite.
 
-    Idempotency cache (T+26:30): events already processed in a previous run are
-    skipped — their Stage 1 + Stage 2 results are loaded from ingest_cache so we
-    make zero API calls for them. Stage 3 Opus always re-runs on the full
-    (cached + fresh) atom set so dedup/topics/rules reflect the current state.
+    Idempotency cache: events already processed in a previous run are skipped
+    — their Stage 1 + Stage 2 results are loaded from ingest_cache so we make
+    zero API calls for them. Stage 3 Opus always re-runs on the full (cached
+    + fresh) atom set so dedup/topics/rules reflect the current state.
 
     If Stage 3 Opus fails (e.g., rate limit, API error), fall back to Python dedup
     so we never lose Stage 2 output.

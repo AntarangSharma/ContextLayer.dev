@@ -2,12 +2,12 @@
 
 Each kept event → one Sonnet call → 0-3 Atoms via tool use.
 
-T+23 Phase 2B polish: prompt caching on the (system + tools) prefix via
+Prompt caching is enabled on the (system + tools) prefix via
 `cache_control: ephemeral`. The system prompt is intentionally padded with
 five rich few-shot extractions so the prefix crosses Anthropic's 1024-token
 minimum-cacheable-prefix threshold for Sonnet.
 
-Phase 2B next: batch 15 events per call (T+24:30).
+Batching (15 events per call) is handled in `pipeline.py`.
 """
 from __future__ import annotations
 

@@ -1,8 +1,7 @@
 """Production-quality CLAUDE.md generator.
 
-Per tasks/claude-code-prompt.md Feature 3. Renders the indexed atoms as a
-topic-grouped, citation-inlined Markdown file that's optimized for both human
-review and AI-agent ingestion.
+Renders the indexed atoms as a topic-grouped, citation-inlined Markdown file
+that's optimized for both human review and AI-agent ingestion.
 
 Layout:
 

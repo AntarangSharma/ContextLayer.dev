@@ -32,14 +32,13 @@ pinned via fixed author/date.
 
 ## Optional stretch: `fastapi/` (real OSS)
 
-If the Phase 3 stretch goal lands (T+34 → T+36, per `tasks/todo.md`), this
-directory will also contain a clone of `tiangolo/fastapi` and its pre-indexed
-`.db`. Per Appendix A #16 of the spec, FastAPI is an optional credibility
-upgrade — **not** a fallback. The synthetic repo above IS the bulletproof path.
+A planned follow-up will mount a clone of `tiangolo/fastapi` and its pre-indexed
+`.db` here as a real-OSS credibility check. The synthetic repo above is the
+deterministic, bulletproof demo path; FastAPI is an upgrade — **not** a fallback.
 
 ## Pre-indexed SQLite
 
-After the indexer lands at T+12, running `contextlayer index demo-data/acme-billing-api`
-writes the index DB to `~/.contextlayer/<repo-hash>/index.db`. For demo
-reproducibility we also commit a copy here (`acme-billing-api.db`) at T+24
-once the pipeline is locked. `.db` files are otherwise gitignored.
+Running `contextlayer index demo-data/acme-billing-api` writes the index DB to
+`~/.contextlayer/<repo-hash>/index.db`. The `.db` files themselves are
+gitignored; the generator (`build_acme.py`) plus this README are the source of
+truth, and re-runs are deterministic.

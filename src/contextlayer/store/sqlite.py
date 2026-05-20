@@ -148,7 +148,7 @@ def clear_pipeline_atoms(conn: sqlite3.Connection) -> None:
     conn.execute("DELETE FROM topics")
 
 
-# ---------------- Idempotency cache (T+26:30 Phase 2B) ----------------------
+# ---------------- Idempotency cache ------------------------------------------
 #
 # ingest_cache columns:
 #   source_id     PK, e.g. "pr:42:adopt-result-t" or "scan:file:routes/users.py"

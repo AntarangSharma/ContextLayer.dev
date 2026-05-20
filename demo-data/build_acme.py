@@ -22,8 +22,7 @@ runs.
 Usage:
     uv run python demo-data/build_acme.py
 
-See tasks/todo.md T+2-T+4 for the build slot this script belongs to,
-and docs/specs/2026-05-18-contextlayer-design.md §8 + Appendix A #16 for
+See docs/specs/2026-05-18-contextlayer-design.md §8 + Appendix A #16 for
 why this synthetic repo is the PRIMARY demo path.
 """
 from __future__ import annotations
