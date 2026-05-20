@@ -7,6 +7,7 @@ Subcommands:
     note       — capture a one-line decision atom directly (spec §5.7.2)
     explain    — render a markdown project brief from indexed atoms (spec §5.7.3)
     health     — compute a 0-100 letter-graded convention health score
+    drift      — check recent commits against indexed rules (CI-friendly exit code)
     status     — show atom/topic counts and last index time
     claude-md  — print the CLAUDE.md snippet to append to your repo
 """
@@ -312,6 +313,58 @@ def health(
         typer.echo(_json.dumps(report_to_json(report), indent=2))
         return
     typer.echo(render_panel(report), nl=False)
+
+
+@app.command()
+def drift(
+    repo: str = typer.Option(".", "--repo", help="Path to the repository."),
+    since: str = typer.Option(None, "--since", help="git --since value, e.g. '7 days ago' or '2026-05-01'."),
+    last: int = typer.Option(10, "--last", help="Check the most recent N commits (ignored when --since is set)."),
+    json_out: bool = typer.Option(False, "--json", help="Emit machine-readable JSON instead of the rich report."),
+) -> None:
+    """Check recent commits against indexed rules. Exit 1 if violations found.
+
+    Heuristic, deterministic, no LLM calls — safe to run as a CI pre-merge
+    gate. Only flags violations of negative-obligation rules ('do not …',
+    'never …', 'avoid …'); positive-obligation rules can't be checked from a
+    diff alone without false-positive risk.
+    """
+    import json as _json
+
+    from contextlayer.drift import check_drift, render_violations, violations_to_json
+    from contextlayer.store.repo_hash import index_db_path
+
+    repo_path = Path(repo).resolve()
+    db_path = index_db_path(repo_path)
+    if not db_path.exists():
+        typer.secho(
+            f"No index found for {repo}. Run `contextlayer index {repo}` first.",
+            fg=typer.colors.YELLOW, err=True,
+        )
+        raise typer.Exit(code=1)
+    if not (repo_path / ".git").exists():
+        typer.secho(f"Not a git repository: {repo_path}", fg=typer.colors.RED, err=True)
+        raise typer.Exit(code=2)
+
+    last_param = None if since else last
+    violations, n_commits = check_drift(
+        db_path, repo_path, last=last_param, since=since,
+    )
+
+    import sqlite3
+    conn = sqlite3.connect(db_path)
+    try:
+        n_rules = conn.execute("SELECT count(*) FROM atoms WHERE is_rule = 1").fetchone()[0]
+    finally:
+        conn.close()
+
+    if json_out:
+        typer.echo(_json.dumps(violations_to_json(violations, n_commits, n_rules), indent=2))
+    else:
+        typer.echo(render_violations(violations, n_commits, n_rules), nl=False)
+
+    if violations:
+        raise typer.Exit(code=1)
 
 
 @app.command("claude-md")
