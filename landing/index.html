@@ -118,22 +118,18 @@
                             900: '#1864ab',
                         },
                         accent: {
-                            /* warm amber — single non-blue accent for CTAs, "missing signal", v1.1 */
-                            amber: '#fca86a',
-                            amberHot: '#f97316',
                             violet: '#4dabf7',
                             pink: '#22d3ee',
                             cyan: '#3bc9db',
-                            green: '#34d399',
-                            danger: '#f87171',
+                            green: '#51cf66',
                         },
                         surface: {
                             50: '#f8f9fa',
                             100: '#f1f3f5',
-                            800: '#1e2233',
-                            850: '#161825',
-                            900: '#0e1019',
-                            950: '#07080f',
+                            800: '#1a1b2e',
+                            850: '#141524',
+                            900: '#0f1019',
+                            950: '#0a0b12',
                         }
                     }
                 }
@@ -148,22 +144,9 @@
         html { scroll-behavior: smooth; }
 
         body {
-            background: #07080f;
-            color: #d4d4d8;
+            background: #06070d;
+            color: #e9ecef;
             overflow-x: hidden;
-        }
-
-        /* Soft amber vignette anchored top-right — gives the hero a sunrise warmth */
-        /* without abandoning the cool blue identity. Sits above bg-mesh, below content. */
-        .bg-aurora {
-            position: fixed;
-            inset: 0;
-            z-index: 0;
-            pointer-events: none;
-            background:
-                radial-gradient(ellipse 60% 50% at 88% 8%, rgba(252, 168, 106, 0.10) 0%, transparent 60%),
-                radial-gradient(ellipse 50% 40% at 6% 92%, rgba(252, 168, 106, 0.05) 0%, transparent 60%);
-            mix-blend-mode: screen;
         }
 
         /* Animated mesh-gradient background */
@@ -226,24 +209,16 @@
         }
 
         .glass-card {
-            background: linear-gradient(180deg, rgba(30, 34, 51, 0.62) 0%, rgba(22, 24, 37, 0.58) 100%);
+            background: linear-gradient(180deg, rgba(26, 27, 46, 0.65) 0%, rgba(20, 21, 36, 0.6) 100%);
             backdrop-filter: blur(20px) saturate(140%);
             -webkit-backdrop-filter: blur(20px) saturate(140%);
-            border: 1px solid rgba(116, 192, 252, 0.12);
+            border: 1px solid rgba(51, 154, 240, 0.14);
             transition: border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
         }
         .glass-card:hover {
-            border-color: rgba(116, 192, 252, 0.28);
+            border-color: rgba(51, 154, 240, 0.32);
             transform: translateY(-2px);
-            box-shadow: 0 18px 40px -20px rgba(77, 171, 247, 0.28);
-        }
-        /* Amber-accented glass — for v1.1 / "what's new" / "you're missing this" cards */
-        .glass-card.accent-amber {
-            border-color: rgba(252, 168, 106, 0.28);
-        }
-        .glass-card.accent-amber:hover {
-            border-color: rgba(252, 168, 106, 0.45);
-            box-shadow: 0 18px 40px -20px rgba(249, 115, 22, 0.30);
+            box-shadow: 0 18px 40px -20px rgba(51, 154, 240, 0.25);
         }
 
         .glow-border {
@@ -359,8 +334,8 @@
 
         /* Scrollbar */
         ::-webkit-scrollbar { width: 10px; height: 10px; }
-        ::-webkit-scrollbar-thumb { background: #1e2233; border-radius: 8px; }
-        ::-webkit-scrollbar-thumb:hover { background: #2a3148; }
+        ::-webkit-scrollbar-thumb { background: #1a1b2e; border-radius: 8px; }
+        ::-webkit-scrollbar-thumb:hover { background: #2a2b46; }
 
         /* Copy button */
         .copy-btn {
@@ -404,8 +379,8 @@
             background: rgba(51, 154, 240, 0.06);
         }
         table.compare tr:last-child td { border-bottom: none; }
-        table.compare td.bad { color: #f87171; }
-        table.compare td.good { color: #86efac; }
+        table.compare td.bad { color: #ff8787; }
+        table.compare td.good { color: #b2f2bb; }
 
         /* Tag */
         .tag {
@@ -421,12 +396,12 @@
         .tag-violet { background: rgba(77, 171, 247, 0.15); color: #a5d8ff; border: 1px solid rgba(77, 171, 247, 0.30); }
         .tag-cyan   { background: rgba(59, 201, 219, 0.12); color: #99e9f2; border: 1px solid rgba(59, 201, 219, 0.25); }
         .tag-pink   { background: rgba(34, 211, 238, 0.12); color: #99e9f2; border: 1px solid rgba(34, 211, 238, 0.30); }
-        .tag-green  { background: rgba(52, 211, 153, 0.12); color: #86efac; border: 1px solid rgba(52, 211, 153, 0.28); }
-        .tag-amber  { background: rgba(252, 168, 106, 0.14); color: #fcd9b6; border: 1px solid rgba(252, 168, 106, 0.32); }
+        .tag-green  { background: rgba(81, 207, 102, 0.12); color: #b2f2bb; border: 1px solid rgba(81, 207, 102, 0.25); }
+        .tag-amber  { background: rgba(250, 176, 5, 0.12); color: #ffec99; border: 1px solid rgba(250, 176, 5, 0.25); }
 
         /* JSON syntax */
         .json-key   { color: #74c0fc; }
-        .json-str   { color: #86efac; }
+        .json-str   { color: #b2f2bb; }
         .json-num   { color: #74c0fc; }
         .json-bool  { color: #ffd43b; }
         .json-punct { color: #6c7193; }
@@ -476,7 +451,7 @@
             inset: 0;
             z-index: 0;            /* above body bg, below content (.bg-mesh shares z-index 0 but is painted first) */
             pointer-events: none;
-            opacity: 0.26;
+            opacity: 0.32;
             mix-blend-mode: screen;
         }
         .page-shader canvas {
@@ -756,7 +731,6 @@
 </head>
 <body class="font-sans antialiased bg-grain">
     <div class="bg-mesh"></div>
-    <div class="bg-aurora" aria-hidden="true"></div>
     <!-- Full-page WebGL shader background (z-index 0, behind all content) -->
     <div class="page-shader" aria-hidden="true">
         <canvas id="hero-shader-canvas"></canvas>
@@ -888,11 +862,11 @@
             </div>
 
             <div class="grid md:grid-cols-2 gap-6">
-                <div class="glass-card rounded-2xl p-7 ring-gradient text-center" style="border-color: rgba(252,168,106,0.22)">
-                    <div class="text-xs uppercase tracking-wider mb-3" style="color:#fca86a">Without ContextLayer</div>
-                    <div class="text-7xl font-extrabold mb-2" style="color:#fca86a; opacity:0.85; text-shadow: 0 0 40px rgba(252,168,106,0.25)">0%</div>
-                    <div class="text-sm text-gray-400 mb-4">of demo queries surface a PR-cited rule.</div>
-                    <div class="text-xs font-mono text-gray-500 leading-relaxed">A stock LLM has never read your repo's PRs. It can't cite what it can't see — so it confidently improvises.</div>
+                <div class="glass-card rounded-2xl p-7 ring-gradient text-center">
+                    <div class="text-xs uppercase tracking-wider text-gray-500 mb-3">Without ContextLayer</div>
+                    <div class="text-7xl font-extrabold text-gray-700 mb-2">0%</div>
+                    <div class="text-sm text-gray-500 mb-4">of demo queries surface a PR-cited rule.</div>
+                    <div class="text-xs font-mono text-gray-600 leading-relaxed">A stock LLM has never read your repo's PRs. It can't cite what it can't see — so it confidently improvises.</div>
                 </div>
 
                 <div class="glass-card rounded-2xl p-7 ring-gradient text-center" style="border-color: rgba(77,171,247,0.3)">
@@ -1038,14 +1012,14 @@
             <!-- NEW v1.1 features -->
             <div>
                 <div class="flex items-center gap-3 mb-3">
-                    <div class="text-xs font-mono text-accent-amber uppercase tracking-wider">🚀 New in v1.1 · CI-grade signals</div>
-                    <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-accent-amber/20 text-accent-amber">NEW</span>
+                    <div class="text-xs font-mono text-accent-violet uppercase tracking-wider">🚀 New in v1.1 · CI-grade signals</div>
+                    <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-accent-violet/20 text-accent-violet">NEW</span>
                 </div>
                 <div class="grid md:grid-cols-3 gap-4">
                     <!-- HEALTH -->
-                    <div class="glass-card accent-amber rounded-xl p-5 ring-gradient" style="border-color: rgba(252,168,106,0.32)">
+                    <div class="glass-card rounded-xl p-5 ring-gradient" style="border-color: rgba(151,71,255,0.35)">
                         <div class="flex items-baseline gap-2 mb-2">
-                            <code class="text-accent-amber font-mono text-sm font-semibold">contextlayer health</code>
+                            <code class="text-accent-violet font-mono text-sm font-semibold">contextlayer health</code>
                         </div>
                         <p class="text-sm text-gray-400 leading-relaxed mb-3">
                             Scores your convention index <strong class="text-white">0–100 (A–F)</strong> across 6 dimensions:
@@ -1064,9 +1038,9 @@
                     </div>
 
                     <!-- DRIFT -->
-                    <div class="glass-card accent-amber rounded-xl p-5 ring-gradient" style="border-color: rgba(252,168,106,0.32)">
+                    <div class="glass-card rounded-xl p-5 ring-gradient" style="border-color: rgba(151,71,255,0.35)">
                         <div class="flex items-baseline gap-2 mb-2">
-                            <code class="text-accent-amber font-mono text-sm font-semibold">contextlayer drift</code>
+                            <code class="text-accent-violet font-mono text-sm font-semibold">contextlayer drift</code>
                         </div>
                         <p class="text-sm text-gray-400 leading-relaxed mb-3">
                             Checks recent commits against indexed rules. Heuristic, deterministic,
@@ -1085,9 +1059,9 @@
                     </div>
 
                     <!-- CLAUDE-MD -->
-                    <div class="glass-card accent-amber rounded-xl p-5 ring-gradient" style="border-color: rgba(252,168,106,0.32)">
+                    <div class="glass-card rounded-xl p-5 ring-gradient" style="border-color: rgba(151,71,255,0.35)">
                         <div class="flex items-baseline gap-2 mb-2">
-                            <code class="text-accent-amber font-mono text-sm font-semibold">contextlayer claude-md</code>
+                            <code class="text-accent-violet font-mono text-sm font-semibold">contextlayer claude-md</code>
                         </div>
                         <p class="text-sm text-gray-400 leading-relaxed mb-3">
                             Emits a production-quality <code class="text-brand-300 font-mono text-xs">CLAUDE.md</code> derived from the index — topic-grouped, rules first, citations inlined. <code class="text-brand-300 font-mono text-xs">--append</code> works for existing files.
@@ -1190,14 +1164,14 @@
                     </ul>
                 </div>
 
-                <div class="glass-card accent-amber rounded-2xl p-7 ring-gradient">
-                    <div class="text-xs font-mono text-accent-amber mb-2 uppercase tracking-wider">tier · premium</div>
+                <div class="glass-card rounded-2xl p-7 ring-gradient">
+                    <div class="text-xs font-mono text-accent-violet mb-2 uppercase tracking-wider">tier · premium</div>
                     <h3 class="font-bold text-white text-xl mb-3">Maximum accuracy</h3>
                     <ul class="space-y-2 text-sm text-gray-400 leading-relaxed">
-                        <li class="flex gap-2"><span class="text-accent-amber">✓</span> Every check runs through Haiku judge</li>
-                        <li class="flex gap-2"><span class="text-accent-amber">✓</span> Highest verdict accuracy</li>
-                        <li class="flex gap-2"><span class="text-accent-amber">✓</span> Falls back to deterministic on failure</li>
-                        <li class="flex gap-2"><span class="text-accent-amber">✓</span> Best for high-stakes enterprise paths</li>
+                        <li class="flex gap-2"><span class="text-accent-violet">✓</span> Every check runs through Haiku judge</li>
+                        <li class="flex gap-2"><span class="text-accent-violet">✓</span> Highest verdict accuracy</li>
+                        <li class="flex gap-2"><span class="text-accent-violet">✓</span> Falls back to deterministic on failure</li>
+                        <li class="flex gap-2"><span class="text-accent-violet">✓</span> Best for high-stakes enterprise paths</li>
                     </ul>
                 </div>
             </div>
