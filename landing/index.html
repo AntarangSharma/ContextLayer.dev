@@ -105,37 +105,35 @@
                         mono: ['JetBrains Mono', 'monospace'],
                     },
                     colors: {
-                        /* Direction B — Linear Pure Dark: one electric blue against zinc. */
                         brand: {
-                            50: '#eff6ff',
-                            100: '#dbeafe',
-                            200: '#bfdbfe',
-                            300: '#93c5fd',
-                            400: '#60a5fa',   /* the one accent */
-                            500: '#3b82f6',
-                            600: '#2563eb',
-                            700: '#1d4ed8',
-                            800: '#1e40af',
-                            900: '#1e3a8a',
+                            50: '#e7f5ff',
+                            100: '#d0ebff',
+                            200: '#a5d8ff',
+                            300: '#74c0fc',
+                            400: '#4dabf7',
+                            500: '#339af0',
+                            600: '#228be6',
+                            700: '#1c7ed6',
+                            800: '#1971c2',
+                            900: '#1864ab',
                         },
                         accent: {
-                            /* In Direction B these all collapse onto the same electric blue.
-                               Kept as aliases so existing class names still resolve. */
-                            amber: '#60a5fa',
-                            amberHot: '#3b82f6',
-                            violet: '#60a5fa',
-                            pink: '#60a5fa',
-                            cyan: '#60a5fa',
-                            green: '#a1a1aa',  /* muted zinc — "ok" reads as neutral, not green-celebrate */
+                            /* warm amber — single non-blue accent for CTAs, "missing signal", v1.1 */
+                            amber: '#fca86a',
+                            amberHot: '#f97316',
+                            violet: '#4dabf7',
+                            pink: '#22d3ee',
+                            cyan: '#3bc9db',
+                            green: '#34d399',
                             danger: '#f87171',
                         },
                         surface: {
-                            50: '#fafafa',
-                            100: '#f4f4f5',
-                            800: '#27272a',   /* zinc-800 */
-                            850: '#1f1f23',
-                            900: '#18181b',   /* zinc-900 */
-                            950: '#09090b',   /* zinc-950 — canvas */
+                            50: '#f8f9fa',
+                            100: '#f1f3f5',
+                            800: '#1e2233',
+                            850: '#161825',
+                            900: '#0e1019',
+                            950: '#07080f',
                         }
                     }
                 }
@@ -150,33 +148,37 @@
         html { scroll-behavior: smooth; }
 
         body {
-            background: #09090b;     /* zinc-950 — Linear-style canvas */
-            color: #e4e4e7;          /* zinc-200 */
+            background: #07080f;
+            color: #d4d4d8;
             overflow-x: hidden;
         }
 
-        /* Direction B: aurora kept but drained to a single faint blue corner. */
+        /* Soft amber vignette anchored top-right — gives the hero a sunrise warmth */
+        /* without abandoning the cool blue identity. Sits above bg-mesh, below content. */
         .bg-aurora {
             position: fixed;
             inset: 0;
             z-index: 0;
             pointer-events: none;
             background:
-                radial-gradient(ellipse 70% 55% at 88% 6%, rgba(96, 165, 250, 0.08) 0%, transparent 65%);
+                radial-gradient(ellipse 60% 50% at 88% 8%, rgba(252, 168, 106, 0.10) 0%, transparent 60%),
+                radial-gradient(ellipse 50% 40% at 6% 92%, rgba(252, 168, 106, 0.05) 0%, transparent 60%);
             mix-blend-mode: screen;
         }
 
-        /* Mesh background: monochrome zinc + one electric-blue accent in top-left. */
+        /* Animated mesh-gradient background */
         .bg-mesh {
             position: fixed;
             inset: 0;
             z-index: 0;
             pointer-events: none;
             background:
-                radial-gradient(at 14% 10%, rgba(96, 165, 250, 0.14) 0px, transparent 50%),
-                radial-gradient(at 86% 88%, rgba(63, 63, 70, 0.35) 0px, transparent 55%);
-            filter: blur(24px);
-            animation: meshShift 26s ease-in-out infinite alternate;
+                radial-gradient(at 18% 12%, rgba(51, 154, 240, 0.22) 0px, transparent 50%),
+                radial-gradient(at 82% 8%, rgba(77, 171, 247, 0.20) 0px, transparent 50%),
+                radial-gradient(at 50% 80%, rgba(34, 211, 238, 0.10) 0px, transparent 55%),
+                radial-gradient(at 95% 60%, rgba(59, 201, 219, 0.08) 0px, transparent 50%);
+            filter: blur(20px);
+            animation: meshShift 22s ease-in-out infinite alternate;
         }
 
         @keyframes meshShift {
@@ -185,14 +187,14 @@
             100% { transform: translate3d(2%, -1%, 0) scale(1.02); }
         }
 
-        /* Dotted grid — neutral zinc dots, no blue tint */
+        /* Dotted grid */
         .bg-grid {
             position: fixed;
             inset: 0;
             z-index: 0;
             pointer-events: none;
             background-image:
-                radial-gradient(circle at 1px 1px, rgba(161, 161, 170, 0.10) 1px, transparent 0);
+                radial-gradient(circle at 1px 1px, rgba(51, 154, 240, 0.10) 1px, transparent 0);
             background-size: 28px 28px;
             mask-image: radial-gradient(ellipse 70% 55% at 50% 30%, #000 30%, transparent 75%);
             -webkit-mask-image: radial-gradient(ellipse 70% 55% at 50% 30%, #000 30%, transparent 75%);
@@ -209,47 +211,45 @@
             background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
         }
 
-        /* Direction B: gradient-text collapsed to a single electric blue → near-white */
         .gradient-text {
-            background: linear-gradient(135deg, #93c5fd 0%, #60a5fa 50%, #ffffff 100%);
+            background: linear-gradient(135deg, #74c0fc 0%, #4dabf7 50%, #22d3ee 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
 
         .gradient-text-cool {
-            background: linear-gradient(135deg, #93c5fd 0%, #3b82f6 100%);
+            background: linear-gradient(135deg, #3bc9db 0%, #339af0 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
 
-        /* Glass cards — pure zinc, almost no chroma. Linear-app feel. */
         .glass-card {
-            background: linear-gradient(180deg, rgba(39, 39, 42, 0.55) 0%, rgba(24, 24, 27, 0.55) 100%);
-            backdrop-filter: blur(20px) saturate(120%);
-            -webkit-backdrop-filter: blur(20px) saturate(120%);
-            border: 1px solid rgba(255, 255, 255, 0.06);
+            background: linear-gradient(180deg, rgba(30, 34, 51, 0.62) 0%, rgba(22, 24, 37, 0.58) 100%);
+            backdrop-filter: blur(20px) saturate(140%);
+            -webkit-backdrop-filter: blur(20px) saturate(140%);
+            border: 1px solid rgba(116, 192, 252, 0.12);
             transition: border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
         }
         .glass-card:hover {
-            border-color: rgba(255, 255, 255, 0.12);
+            border-color: rgba(116, 192, 252, 0.28);
             transform: translateY(-2px);
-            box-shadow: 0 18px 40px -20px rgba(0, 0, 0, 0.6);
+            box-shadow: 0 18px 40px -20px rgba(77, 171, 247, 0.28);
         }
-        /* Direction B: the "amber-accent" variant becomes a soft blue ring on a neutral card. */
+        /* Amber-accented glass — for v1.1 / "what's new" / "you're missing this" cards */
         .glass-card.accent-amber {
-            border-color: rgba(96, 165, 250, 0.30);
+            border-color: rgba(252, 168, 106, 0.28);
         }
         .glass-card.accent-amber:hover {
-            border-color: rgba(96, 165, 250, 0.55);
-            box-shadow: 0 18px 40px -20px rgba(59, 130, 246, 0.30);
+            border-color: rgba(252, 168, 106, 0.45);
+            box-shadow: 0 18px 40px -20px rgba(249, 115, 22, 0.30);
         }
 
         .glow-border {
             box-shadow:
-                0 0 0 1px rgba(96, 165, 250, 0.18),
-                0 30px 60px -30px rgba(59, 130, 246, 0.40);
+                0 0 0 1px rgba(51, 154, 240, 0.18),
+                0 30px 60px -30px rgba(51, 154, 240, 0.35);
         }
 
         .ring-gradient {
@@ -261,19 +261,18 @@
             inset: -1px;
             border-radius: inherit;
             padding: 1px;
-            /* monochrome ring: subtle white-on-zinc with one blue inflection */
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(96, 165, 250, 0.32) 50%, rgba(255, 255, 255, 0.06));
+            background: linear-gradient(135deg, rgba(51, 154, 240, 0.5), rgba(77, 171, 247, 0.45) 50%, rgba(34, 211, 238, 0.45));
             -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
             -webkit-mask-composite: xor;
                     mask-composite: exclude;
             pointer-events: none;
-            opacity: 0.7;
+            opacity: 0.6;
         }
 
         .code-block {
-            background: linear-gradient(180deg, #18181b 0%, #0f0f12 100%);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+            background: linear-gradient(180deg, #10111c 0%, #0b0c16 100%);
+            border: 1px solid rgba(51, 154, 240, 0.12);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
         }
 
         .pulse-dot { animation: pulse 2s infinite; }
@@ -312,21 +311,21 @@
             transform: none;
         }
 
-        /* Stat cards — single blue, no cyan blend */
+        /* Stat cards */
         .stat-num {
-            background: linear-gradient(135deg, #93c5fd, #60a5fa);
+            background: linear-gradient(135deg, #74c0fc, #22d3ee);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
             font-variant-numeric: tabular-nums;
         }
 
-        /* Pipeline arrow — neutral white tint, no blue */
+        /* Pipeline arrow */
         .arrow {
             position: relative;
             width: 100%;
             height: 2px;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.30), transparent);
+            background: linear-gradient(90deg, transparent, rgba(51, 154, 240, 0.4), transparent);
         }
         .arrow::after {
             content: "";
@@ -335,12 +334,12 @@
             top: -3px;
             width: 8px;
             height: 8px;
-            border-top: 2px solid rgba(255, 255, 255, 0.45);
-            border-right: 2px solid rgba(255, 255, 255, 0.45);
+            border-top: 2px solid rgba(51, 154, 240, 0.6);
+            border-right: 2px solid rgba(51, 154, 240, 0.6);
             transform: rotate(45deg);
         }
 
-        /* Soft chip — neutral zinc */
+        /* Soft chip */
         .chip {
             display: inline-flex;
             align-items: center;
@@ -350,20 +349,20 @@
             font-size: 11px;
             font-weight: 600;
             letter-spacing: 0.02em;
-            border: 1px solid rgba(255, 255, 255, 0.10);
-            background: rgba(255, 255, 255, 0.04);
-            color: #d4d4d8;
+            border: 1px solid rgba(51, 154, 240, 0.18);
+            background: rgba(51, 154, 240, 0.08);
+            color: #a5d8ff;
         }
 
         /* Selection */
-        ::selection { background: rgba(96, 165, 250, 0.35); color: white; }
+        ::selection { background: rgba(51, 154, 240, 0.35); color: white; }
 
-        /* Scrollbar — zinc */
+        /* Scrollbar */
         ::-webkit-scrollbar { width: 10px; height: 10px; }
-        ::-webkit-scrollbar-thumb { background: #27272a; border-radius: 8px; }
-        ::-webkit-scrollbar-thumb:hover { background: #3f3f46; }
+        ::-webkit-scrollbar-thumb { background: #1e2233; border-radius: 8px; }
+        ::-webkit-scrollbar-thumb:hover { background: #2a3148; }
 
-        /* Copy button — neutral */
+        /* Copy button */
         .copy-btn {
             position: absolute;
             top: 8px;
@@ -371,14 +370,14 @@
             font-size: 11px;
             padding: 4px 8px;
             border-radius: 6px;
-            background: rgba(255, 255, 255, 0.06);
-            color: #d4d4d8;
-            border: 1px solid rgba(255, 255, 255, 0.10);
+            background: rgba(51, 154, 240, 0.12);
+            color: #a5d8ff;
+            border: 1px solid rgba(51, 154, 240, 0.15);
             cursor: pointer;
             transition: all 0.15s ease;
             font-family: 'JetBrains Mono', monospace;
         }
-        .copy-btn:hover { background: rgba(96, 165, 250, 0.20); color: white; border-color: rgba(96, 165, 250, 0.30); }
+        .copy-btn:hover { background: rgba(51, 154, 240, 0.25); color: white; }
 
         /* Marquee for trust row */
         .trust-row {
@@ -389,26 +388,26 @@
             opacity: 0.85;
         }
 
-        /* Table — Linear-style: hairline zinc borders, single blue header. */
+        /* Table */
         table.compare th, table.compare td {
             padding: 14px 18px;
             text-align: left;
             vertical-align: top;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            border-bottom: 1px solid rgba(51, 154, 240, 0.08);
             font-size: 14px;
         }
         table.compare thead th {
             font-size: 12px;
             text-transform: uppercase;
             letter-spacing: 0.08em;
-            color: #60a5fa;
-            background: rgba(255, 255, 255, 0.02);
+            color: #74c0fc;
+            background: rgba(51, 154, 240, 0.06);
         }
         table.compare tr:last-child td { border-bottom: none; }
-        table.compare td.bad  { color: #f87171; }
-        table.compare td.good { color: #d4d4d8; font-weight: 500; }  /* neutral "yes", no green celebration */
+        table.compare td.bad { color: #f87171; }
+        table.compare td.good { color: #86efac; }
 
-        /* Tag — Direction B: all collapse to two flavours, neutral + accent-blue. */
+        /* Tag */
         .tag {
             display: inline-flex;
             align-items: center;
@@ -419,18 +418,18 @@
             font-weight: 600;
             font-family: 'JetBrains Mono', monospace;
         }
-        .tag-violet { background: rgba(96, 165, 250, 0.12); color: #bfdbfe; border: 1px solid rgba(96, 165, 250, 0.28); }
-        .tag-cyan   { background: rgba(255, 255, 255, 0.04); color: #d4d4d8; border: 1px solid rgba(255, 255, 255, 0.10); }
-        .tag-pink   { background: rgba(96, 165, 250, 0.10); color: #93c5fd; border: 1px solid rgba(96, 165, 250, 0.22); }
-        .tag-green  { background: rgba(255, 255, 255, 0.04); color: #a1a1aa; border: 1px solid rgba(255, 255, 255, 0.08); }
-        .tag-amber  { background: rgba(96, 165, 250, 0.12); color: #bfdbfe; border: 1px solid rgba(96, 165, 250, 0.30); }
+        .tag-violet { background: rgba(77, 171, 247, 0.15); color: #a5d8ff; border: 1px solid rgba(77, 171, 247, 0.30); }
+        .tag-cyan   { background: rgba(59, 201, 219, 0.12); color: #99e9f2; border: 1px solid rgba(59, 201, 219, 0.25); }
+        .tag-pink   { background: rgba(34, 211, 238, 0.12); color: #99e9f2; border: 1px solid rgba(34, 211, 238, 0.30); }
+        .tag-green  { background: rgba(52, 211, 153, 0.12); color: #86efac; border: 1px solid rgba(52, 211, 153, 0.28); }
+        .tag-amber  { background: rgba(252, 168, 106, 0.14); color: #fcd9b6; border: 1px solid rgba(252, 168, 106, 0.32); }
 
-        /* JSON syntax — minimalist: one blue, one near-white, one muted. */
-        .json-key   { color: #60a5fa; }
-        .json-str   { color: #e4e4e7; }
-        .json-num   { color: #60a5fa; }
-        .json-bool  { color: #93c5fd; }
-        .json-punct { color: #71717a; }
+        /* JSON syntax */
+        .json-key   { color: #74c0fc; }
+        .json-str   { color: #86efac; }
+        .json-num   { color: #74c0fc; }
+        .json-bool  { color: #ffd43b; }
+        .json-punct { color: #6c7193; }
 
         /* Roadmap rail */
         .rail {
@@ -444,7 +443,7 @@
             top: 6px;
             bottom: 6px;
             width: 2px;
-            background: linear-gradient(180deg, rgba(96, 165, 250, 0.55), rgba(255, 255, 255, 0.08));
+            background: linear-gradient(180deg, rgba(51, 154, 240, 0.5), rgba(34, 211, 238, 0.25));
         }
         .rail-dot {
             position: absolute;
@@ -453,9 +452,9 @@
             width: 14px;
             height: 14px;
             border-radius: 50%;
-            background: #09090b;
-            border: 2px solid rgba(96, 165, 250, 0.7);
-            box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.08);
+            background: #0a0b12;
+            border: 2px solid rgba(51, 154, 240, 0.6);
+            box-shadow: 0 0 0 4px rgba(51, 154, 240, 0.08);
         }
 
         /* Section heading underline */
@@ -465,7 +464,7 @@
             font-size: 11px;
             letter-spacing: 0.18em;
             text-transform: uppercase;
-            color: #60a5fa;
+            color: #74c0fc;
             margin-bottom: 12px;
         }
 
@@ -477,7 +476,7 @@
             inset: 0;
             z-index: 0;            /* above body bg, below content (.bg-mesh shares z-index 0 but is painted first) */
             pointer-events: none;
-            opacity: 0.08;         /* Direction B: shader almost invisible — Linear-pure-dark feel */
+            opacity: 0.26;
             mix-blend-mode: screen;
         }
         .page-shader canvas {
@@ -510,7 +509,7 @@
             opacity: 0;
             transform: translateY(110%);
             transition: transform 0.65s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.4s ease;
-            background: linear-gradient(135deg, #93c5fd 0%, #60a5fa 50%, #ffffff 100%);
+            background: linear-gradient(135deg, #74c0fc 0%, #4dabf7 50%, #22d3ee 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -548,14 +547,14 @@
             height: 52px;
             border-radius: 26px;
             padding: 0 20px;
-            background: rgba(24, 24, 27, 0.94);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(16, 17, 28, 0.92);
+            border: 1px solid rgba(51, 154, 240, 0.22);
             box-shadow:
-                0 18px 40px -16px rgba(0, 0, 0, 0.65),
-                0 0 0 1px rgba(255, 255, 255, 0.04) inset;
-            backdrop-filter: blur(18px) saturate(120%);
-            -webkit-backdrop-filter: blur(18px) saturate(120%);
-            color: #e4e4e7;
+                0 18px 40px -16px rgba(0, 0, 0, 0.55),
+                0 0 0 1px rgba(255, 255, 255, 0.03) inset;
+            backdrop-filter: blur(18px) saturate(140%);
+            -webkit-backdrop-filter: blur(18px) saturate(140%);
+            color: #e9ecef;
             cursor: pointer;
             overflow: hidden;
             transition:
@@ -598,15 +597,15 @@
             width: 8px;
             height: 8px;
             border-radius: 999px;
-            background: #60a5fa;
-            box-shadow: 0 0 12px #60a5fa;
+            background: #4dabf7;
+            box-shadow: 0 0 12px #4dabf7;
             flex: 0 0 8px;
         }
         .island-active {
             flex: 1;
             font-size: 13.5px;
             font-weight: 500;
-            color: #e4e4e7;
+            color: #e9ecef;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -622,11 +621,11 @@
         }
         .island-progress .track  { stroke: rgba(255, 255, 255, 0.12); }
         .island-progress .fill   {
-            stroke: #60a5fa;
+            stroke: #74c0fc;
             stroke-dasharray: 62.83; /* 2 * pi * 10 */
             stroke-dashoffset: 62.83;
             transition: stroke-dashoffset 0.2s ease-out;
-            filter: drop-shadow(0 0 6px rgba(96, 165, 250, 0.55));
+            filter: drop-shadow(0 0 6px rgba(116, 192, 252, 0.55));
         }
         .island-menu {
             position: absolute;
@@ -655,7 +654,7 @@
             font-size: 11px;
             letter-spacing: 0.12em;
             text-transform: uppercase;
-            color: #60a5fa;
+            color: #74c0fc;
             font-weight: 600;
         }
         .island-close {
@@ -714,16 +713,16 @@
             width: 6px;
             height: 6px;
             border-radius: 999px;
-            background: #60a5fa;
+            background: #74c0fc;
             margin-left: 10px;
             opacity: 0;
             transform: scale(0);
             transition: opacity 0.3s ease, transform 0.3s ease;
-            box-shadow: 0 0 10px #60a5fa;
+            box-shadow: 0 0 10px #74c0fc;
             flex: 0 0 6px;
         }
         .toc-item.active {
-            background: rgba(96, 165, 250, 0.14);
+            background: rgba(116, 192, 252, 0.12);
             color: #ffffff;
             font-weight: 500;
         }
@@ -889,14 +888,14 @@
             </div>
 
             <div class="grid md:grid-cols-2 gap-6">
-                <div class="glass-card rounded-2xl p-7 ring-gradient text-center" style="border-color: rgba(255,255,255,0.06)">
-                    <div class="text-xs uppercase tracking-wider mb-3" style="color:#71717a">Without ContextLayer</div>
-                    <div class="text-7xl font-extrabold mb-2" style="color:#3f3f46">0%</div>
+                <div class="glass-card rounded-2xl p-7 ring-gradient text-center" style="border-color: rgba(252,168,106,0.22)">
+                    <div class="text-xs uppercase tracking-wider mb-3" style="color:#fca86a">Without ContextLayer</div>
+                    <div class="text-7xl font-extrabold mb-2" style="color:#fca86a; opacity:0.85; text-shadow: 0 0 40px rgba(252,168,106,0.25)">0%</div>
                     <div class="text-sm text-gray-400 mb-4">of demo queries surface a PR-cited rule.</div>
                     <div class="text-xs font-mono text-gray-500 leading-relaxed">A stock LLM has never read your repo's PRs. It can't cite what it can't see — so it confidently improvises.</div>
                 </div>
 
-                <div class="glass-card rounded-2xl p-7 ring-gradient text-center" style="border-color: rgba(96,165,250,0.40)">
+                <div class="glass-card rounded-2xl p-7 ring-gradient text-center" style="border-color: rgba(77,171,247,0.3)">
                     <div class="text-xs uppercase tracking-wider text-brand-300 mb-3">With ContextLayer</div>
                     <div class="text-7xl font-extrabold gradient-text mb-2" id="bench-rate">100%</div>
                     <div class="text-sm text-gray-300 mb-4"><span id="bench-fraction">8 of 8</span> demo queries surface the right rule with a real citation.</div>
@@ -1044,7 +1043,7 @@
                 </div>
                 <div class="grid md:grid-cols-3 gap-4">
                     <!-- HEALTH -->
-                    <div class="glass-card accent-amber rounded-xl p-5 ring-gradient" style="border-color: rgba(96,165,250,0.32)">
+                    <div class="glass-card accent-amber rounded-xl p-5 ring-gradient" style="border-color: rgba(252,168,106,0.32)">
                         <div class="flex items-baseline gap-2 mb-2">
                             <code class="text-accent-amber font-mono text-sm font-semibold">contextlayer health</code>
                         </div>
@@ -1065,7 +1064,7 @@
                     </div>
 
                     <!-- DRIFT -->
-                    <div class="glass-card accent-amber rounded-xl p-5 ring-gradient" style="border-color: rgba(96,165,250,0.32)">
+                    <div class="glass-card accent-amber rounded-xl p-5 ring-gradient" style="border-color: rgba(252,168,106,0.32)">
                         <div class="flex items-baseline gap-2 mb-2">
                             <code class="text-accent-amber font-mono text-sm font-semibold">contextlayer drift</code>
                         </div>
@@ -1086,7 +1085,7 @@
                     </div>
 
                     <!-- CLAUDE-MD -->
-                    <div class="glass-card accent-amber rounded-xl p-5 ring-gradient" style="border-color: rgba(96,165,250,0.32)">
+                    <div class="glass-card accent-amber rounded-xl p-5 ring-gradient" style="border-color: rgba(252,168,106,0.32)">
                         <div class="flex items-baseline gap-2 mb-2">
                             <code class="text-accent-amber font-mono text-sm font-semibold">contextlayer claude-md</code>
                         </div>
@@ -1180,7 +1179,7 @@
                     </ul>
                 </div>
 
-                <div class="glass-card rounded-2xl p-7 ring-gradient" style="border-color: rgba(96,165,250,0.40)">
+                <div class="glass-card rounded-2xl p-7 ring-gradient" style="border-color: rgba(77,171,247,0.4)">
                     <div class="text-xs font-mono text-brand-300 mb-2 uppercase tracking-wider">tier · hybrid · default</div>
                     <h3 class="font-bold text-white text-xl mb-3">Best of both</h3>
                     <ul class="space-y-2 text-sm text-gray-400 leading-relaxed">
