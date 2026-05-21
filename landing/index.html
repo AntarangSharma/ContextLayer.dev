@@ -442,6 +442,286 @@
             color: #74c0fc;
             margin-bottom: 12px;
         }
+
+        /* ============================================================ */
+        /* HERO SHADER CANVAS — GLSL fragment shader fades into hero      */
+        /* ============================================================ */
+        .hero-shader {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0.55;
+            mix-blend-mode: screen;
+            /* Fade out at the bottom so it blends into the page content */
+            mask-image: linear-gradient(180deg, #000 0%, #000 55%, transparent 100%);
+            -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 55%, transparent 100%);
+        }
+        .hero-shader canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        /* Rotating word — spring-style flip in the H1 */
+        .rotator {
+            position: relative;
+            display: inline-block;
+            vertical-align: baseline;
+            height: 1.05em;
+            min-width: 4.5ch;
+            text-align: left;
+            overflow: hidden;
+        }
+        .rotator > span {
+            position: absolute;
+            inset: 0;
+            display: inline-block;
+            opacity: 0;
+            transform: translateY(110%);
+            transition: transform 0.65s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.45s ease;
+            background: linear-gradient(135deg, #74c0fc 0%, #4dabf7 50%, #22d3ee 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            white-space: nowrap;
+        }
+        .rotator > span.in {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .rotator > span.out {
+            opacity: 0;
+            transform: translateY(-110%);
+        }
+
+        /* ============================================================ */
+        /* DYNAMIC ISLAND TOC — floating pill that expands into a menu  */
+        /* ============================================================ */
+        .island-wrap {
+            position: fixed;
+            left: 50%;
+            bottom: 28px;
+            transform: translateX(-50%);
+            z-index: 9999;
+            pointer-events: none; /* let children turn it back on */
+        }
+        .island {
+            pointer-events: auto;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            width: 280px;
+            height: 52px;
+            border-radius: 26px;
+            padding: 0 20px;
+            background: rgba(16, 17, 28, 0.92);
+            border: 1px solid rgba(51, 154, 240, 0.22);
+            box-shadow:
+                0 18px 40px -16px rgba(0, 0, 0, 0.55),
+                0 0 0 1px rgba(255, 255, 255, 0.03) inset;
+            backdrop-filter: blur(18px) saturate(140%);
+            -webkit-backdrop-filter: blur(18px) saturate(140%);
+            color: #e9ecef;
+            cursor: pointer;
+            overflow: hidden;
+            transition:
+                width 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+                height 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+                border-radius 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+                transform 0.3s ease,
+                opacity 0.6s ease;
+            transform: translateY(60px);
+            opacity: 0;
+        }
+        .island.ready {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        .island.expanded {
+            width: 340px;
+            height: 380px;
+            border-radius: 22px;
+            cursor: default;
+            padding: 0;
+        }
+        .island-pill {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 0 20px;
+            opacity: 1;
+            transition: opacity 0.45s ease, transform 0.45s ease, filter 0.45s ease;
+        }
+        .island.expanded .island-pill {
+            opacity: 0;
+            transform: scale(0.96);
+            filter: blur(4px);
+            pointer-events: none;
+        }
+        .island-pulse {
+            width: 8px;
+            height: 8px;
+            border-radius: 999px;
+            background: #4dabf7;
+            box-shadow: 0 0 12px #4dabf7;
+            flex: 0 0 8px;
+        }
+        .island-active {
+            flex: 1;
+            font-size: 13.5px;
+            font-weight: 500;
+            color: #e9ecef;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .island-active.swap-out { opacity: 0; transform: translateY(-12px); }
+        .island-active.swap-in  { opacity: 0; transform: translateY(12px); }
+        .island-progress {
+            width: 24px;
+            height: 24px;
+            transform: rotate(-90deg);
+            flex: 0 0 24px;
+        }
+        .island-progress .track  { stroke: rgba(255, 255, 255, 0.12); }
+        .island-progress .fill   {
+            stroke: #74c0fc;
+            stroke-dasharray: 62.83; /* 2 * pi * 10 */
+            stroke-dashoffset: 62.83;
+            transition: stroke-dashoffset 0.2s ease-out;
+            filter: drop-shadow(0 0 6px rgba(116, 192, 252, 0.55));
+        }
+        .island-menu {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            opacity: 0;
+            transform: scale(1.04);
+            transition: opacity 0.45s ease 0.12s, transform 0.45s ease 0.12s;
+            pointer-events: none;
+        }
+        .island.expanded .island-menu {
+            opacity: 1;
+            transform: scale(1);
+            pointer-events: auto;
+        }
+        .island-menu-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 22px 10px;
+            flex: 0 0 auto;
+        }
+        .island-menu-head .label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: #74c0fc;
+            font-weight: 600;
+        }
+        .island-close {
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.55);
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 6px;
+            display: inline-flex;
+            transition: color 0.2s ease, background 0.2s ease;
+        }
+        .island-close:hover {
+            color: white;
+            background: rgba(255, 255, 255, 0.06);
+        }
+        .island-list {
+            flex: 1;
+            overflow-y: auto;
+            overscroll-behavior: contain;
+            padding: 0 12px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .island-list::-webkit-scrollbar { width: 6px; }
+        .island-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 4px; }
+        .toc-item {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            background: transparent;
+            border: none;
+            text-align: left;
+            padding: 9px 12px;
+            border-radius: 10px;
+            font-size: 13.5px;
+            color: rgba(255, 255, 255, 0.55);
+            cursor: pointer;
+            transition: background 0.25s ease, color 0.25s ease, transform 0.25s ease;
+            font-family: 'Inter', sans-serif;
+        }
+        .toc-item:hover {
+            background: rgba(255, 255, 255, 0.04);
+            color: rgba(255, 255, 255, 0.85);
+        }
+        .toc-item .text {
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            transition: transform 0.25s ease;
+        }
+        .toc-item:hover .text { transform: translateX(3px); }
+        .toc-item .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 999px;
+            background: #74c0fc;
+            margin-left: 10px;
+            opacity: 0;
+            transform: scale(0);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            box-shadow: 0 0 10px #74c0fc;
+            flex: 0 0 6px;
+        }
+        .toc-item.active {
+            background: rgba(116, 192, 252, 0.12);
+            color: #ffffff;
+            font-weight: 500;
+        }
+        .toc-item.active .dot { opacity: 1; transform: scale(1); }
+
+        .island-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.35);
+            backdrop-filter: blur(3px);
+            -webkit-backdrop-filter: blur(3px);
+            opacity: 0;
+            pointer-events: none;
+            z-index: 9998;
+            transition: opacity 0.4s ease;
+        }
+        .island-backdrop.show { opacity: 1; pointer-events: auto; }
+
+        /* Mobile: tighten island so it doesn't overflow */
+        @media (max-width: 480px) {
+            .island          { width: calc(100vw - 32px); max-width: 320px; }
+            .island.expanded { width: calc(100vw - 24px); max-width: 360px; height: 60vh; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .hero-shader { display: none; }
+            .rotator > span { transition: none; }
+            .island { transition: none; }
+        }
     </style>
 </head>
 <body class="font-sans antialiased bg-grain">
@@ -480,25 +760,33 @@
         <!-- ============================================================ -->
         <!-- HERO                                                          -->
         <!-- ============================================================ -->
-        <section class="max-w-5xl mx-auto px-6 pt-10 pb-12 text-center">
-            <div class="fade-in">
+        <section class="relative max-w-5xl mx-auto px-6 pt-10 pb-12 text-center">
+            <!-- Shader background — WebGL2 fragment shader, drifts behind hero -->
+            <div class="hero-shader" aria-hidden="true">
+                <canvas id="hero-shader-canvas"></canvas>
+            </div>
+
+            <div class="relative z-10 fade-in">
                 <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full glass-card text-xs font-medium text-brand-300 mb-7">
                     <span class="pulse-dot w-2 h-2 rounded-full bg-accent-green inline-block"></span>
                     The missing context layer for AI coding agents
                 </div>
             </div>
 
-            <h1 class="text-4xl sm:text-5xl md:text-[68px] font-extrabold leading-[1.02] tracking-tight mb-6 fade-in fade-in-delay-1">
-                Claude forgets your rules.<br>
+            <h1 class="relative z-10 text-4xl sm:text-5xl md:text-[68px] font-extrabold leading-[1.02] tracking-tight mb-6 fade-in fade-in-delay-1">
+                Claude forgets your
+                <span class="rotator" id="rotating-word" aria-live="polite">
+                    <span class="in">rules</span><span>patterns</span><span>decisions</span><span>conventions</span><span>context</span>
+                </span>.<br>
                 <span class="gradient-text">We make it remember.</span>
             </h1>
 
-            <p class="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto mb-9 fade-in fade-in-delay-2 leading-relaxed">
+            <p class="relative z-10 text-lg md:text-xl text-gray-400 max-w-2xl mx-auto mb-9 fade-in fade-in-delay-2 leading-relaxed">
                 Read your git history once. Stop watching Claude reinvent your conventions every session.<br class="hidden sm:block">
                 <span class="text-white">Local. MCP-native. Works offline.</span>
             </p>
 
-            <div class="flex flex-col sm:flex-row items-center justify-center gap-3 fade-in fade-in-delay-3 mb-4">
+            <div class="relative z-10 flex flex-col sm:flex-row items-center justify-center gap-3 fade-in fade-in-delay-3 mb-4">
                 <a href="#try" class="px-6 py-3 rounded-xl bg-gradient-to-r from-brand-600 to-accent-violet text-white font-semibold text-sm transition-all hover:shadow-lg hover:shadow-brand-600/30">
                     ⚡ Try a live query
                 </a>
@@ -508,7 +796,7 @@
                 </a>
             </div>
 
-            <div class="trust-row fade-in fade-in-delay-4 text-xs font-mono text-gray-500 mt-6">
+            <div class="relative z-10 trust-row fade-in fade-in-delay-4 text-xs font-mono text-gray-500 mt-6">
                 <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-accent-green"></span>Open Source · MIT</span>
                 <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-brand-400"></span>No API key to query</span>
                 <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-accent-pink"></span>No telemetry</span>
@@ -1159,6 +1447,333 @@ contextlayer mcp --repo .</pre>
         if (data.queries.length) {
             setTimeout(() => renderResults(data.queries[0].atoms, data.queries[0].q), 400);
         }
+    })();
+    </script>
+
+    <!-- ============================================================ -->
+    <!-- DYNAMIC ISLAND TOC                                            -->
+    <!-- ============================================================ -->
+    <div class="island-backdrop" id="island-backdrop" aria-hidden="true"></div>
+    <div class="island-wrap" role="navigation" aria-label="Page sections">
+        <div class="island" id="island" role="button" tabindex="0" aria-expanded="false" aria-controls="island-menu">
+            <div class="island-pill">
+                <span class="island-pulse" aria-hidden="true"></span>
+                <span class="island-active" id="island-active">Contents</span>
+                <svg class="island-progress" viewBox="0 0 24 24" aria-hidden="true">
+                    <circle class="track" cx="12" cy="12" r="10" fill="none" stroke-width="2.5" />
+                    <circle class="fill"  cx="12" cy="12" r="10" fill="none" stroke-width="2.5" stroke-linecap="round" />
+                </svg>
+            </div>
+
+            <div class="island-menu" id="island-menu">
+                <div class="island-menu-head">
+                    <span class="label">On this page</span>
+                    <button class="island-close" id="island-close" aria-label="Close menu">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                    </button>
+                </div>
+                <div class="island-list" id="island-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- EFFECT 1 — Rotating word in the hero H1                       -->
+    <!-- ============================================================ -->
+    <script>
+    (function rotator() {
+        const root = document.getElementById('rotating-word');
+        if (!root) return;
+        const words = Array.from(root.children);
+        let current = 0;
+        if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+        setInterval(() => {
+            const outgoing = words[current];
+            current = (current + 1) % words.length;
+            const incoming = words[current];
+
+            outgoing.classList.remove('in');
+            outgoing.classList.add('out');
+            // Re-seed incoming from "below" so it springs in.
+            incoming.classList.remove('out');
+            incoming.classList.remove('in');
+            // Force reflow so the transition fires from the start state.
+            void incoming.offsetWidth;
+            requestAnimationFrame(() => incoming.classList.add('in'));
+
+            // After the transition, clean up the outgoing element.
+            setTimeout(() => outgoing.classList.remove('out'), 700);
+        }, 2200);
+    })();
+    </script>
+
+    <!-- ============================================================ -->
+    <!-- EFFECT 2 — WebGL2 shader background behind the hero            -->
+    <!-- ============================================================ -->
+    <script>
+    (function shader() {
+        const canvas = document.getElementById('hero-shader-canvas');
+        if (!canvas) return;
+        if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+        const gl = canvas.getContext('webgl2', { antialias: false, alpha: true, premultipliedAlpha: false });
+        if (!gl) {
+            canvas.parentElement.style.display = 'none';
+            return;
+        }
+
+        // Vertex shader — full-screen quad
+        const vsSrc = `#version 300 es
+            precision highp float;
+            in vec4 position;
+            void main() { gl_Position = position; }`;
+
+        // Fragment shader — drifting cosmic clouds, recolored to the brand
+        // (blue / cyan / azure) instead of the orange/yellow original.
+        const fsSrc = `#version 300 es
+            precision highp float;
+            out vec4 O;
+            uniform vec2 resolution;
+            uniform float time;
+            #define FC gl_FragCoord.xy
+            #define T time
+            #define R resolution
+            #define MN min(R.x, R.y)
+
+            float rnd(vec2 p) {
+                p = fract(p * vec2(12.9898, 78.233));
+                p += dot(p, p + 34.56);
+                return fract(p.x * p.y);
+            }
+            float noise(in vec2 p) {
+                vec2 i = floor(p), f = fract(p), u = f * f * (3. - 2. * f);
+                float a = rnd(i),
+                      b = rnd(i + vec2(1, 0)),
+                      c = rnd(i + vec2(0, 1)),
+                      d = rnd(i + 1.);
+                return mix(mix(a, b, u.x), mix(c, d, u.x), u.y);
+            }
+            float fbm(vec2 p) {
+                float t = 0., a = 1.;
+                mat2 m = mat2(1., -.5, .2, 1.2);
+                for (int i = 0; i < 5; i++) {
+                    t += a * noise(p);
+                    p *= 2. * m;
+                    a *= .5;
+                }
+                return t;
+            }
+            float clouds(vec2 p) {
+                float d = 1., t = 0.;
+                for (float i = 0.; i < 3.; i++) {
+                    float a = d * fbm(i * 10. + p.x * .2 + .2 * (1. + i) * p.y + d + i * i + p);
+                    t = mix(t, d, a);
+                    d = a;
+                    p *= 2. / (i + 1.);
+                }
+                return t;
+            }
+            void main(void) {
+                vec2 uv = (FC - .5 * R) / MN, st = uv * vec2(2, 1);
+                vec3 col = vec3(0);
+                float bg = clouds(vec2(st.x + T * .35, -st.y));
+                uv *= 1. - .25 * (sin(T * .2) * .5 + .5);
+
+                for (float i = 1.; i < 12.; i++) {
+                    uv += .1 * cos(i * vec2(.1 + .01 * i, .8) + i * i + T * .45 + .1 * uv.x);
+                    vec2 p = uv;
+                    float d = length(p);
+                    // Recoloured starfield: cool blue/cyan instead of warm.
+                    vec3 starTint = cos(sin(i) * vec3(2.2, 1.4, 0.9)) + 1.;
+                    col += .00115 / d * starTint;
+
+                    float b = noise(i + p + bg * 1.731);
+                    col += .0018 * b / length(max(p, vec2(b * p.x * .02, p.y)));
+
+                    // Cool blue cloud bed (brand palette: #228be6 / #22d3ee).
+                    vec3 cloudCol = vec3(bg * 0.12, bg * 0.22, bg * 0.40);
+                    col = mix(col, cloudCol, d * 0.95);
+                }
+                O = vec4(col, 1.0);
+            }`;
+
+        function compile(type, src) {
+            const sh = gl.createShader(type);
+            gl.shaderSource(sh, src);
+            gl.compileShader(sh);
+            if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) {
+                console.warn('Shader compile error:', gl.getShaderInfoLog(sh));
+                gl.deleteShader(sh);
+                return null;
+            }
+            return sh;
+        }
+
+        const vs = compile(gl.VERTEX_SHADER, vsSrc);
+        const fs = compile(gl.FRAGMENT_SHADER, fsSrc);
+        if (!vs || !fs) { canvas.parentElement.style.display = 'none'; return; }
+
+        const prog = gl.createProgram();
+        gl.attachShader(prog, vs);
+        gl.attachShader(prog, fs);
+        gl.linkProgram(prog);
+        if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
+            console.warn('Program link error:', gl.getProgramInfoLog(prog));
+            canvas.parentElement.style.display = 'none';
+            return;
+        }
+
+        const buf = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, 1, -1, -1, 1, 1, 1, -1]), gl.STATIC_DRAW);
+        const posLoc = gl.getAttribLocation(prog, 'position');
+        gl.enableVertexAttribArray(posLoc);
+        gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0);
+
+        const uRes  = gl.getUniformLocation(prog, 'resolution');
+        const uTime = gl.getUniformLocation(prog, 'time');
+
+        function resize() {
+            const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+            const w = canvas.clientWidth  || canvas.parentElement.clientWidth  || window.innerWidth;
+            const h = canvas.clientHeight || canvas.parentElement.clientHeight || 600;
+            canvas.width  = Math.floor(w * dpr);
+            canvas.height = Math.floor(h * dpr);
+            gl.viewport(0, 0, canvas.width, canvas.height);
+        }
+        const ro = new ResizeObserver(resize);
+        ro.observe(canvas);
+        window.addEventListener('resize', resize);
+        resize();
+
+        // Pause render loop when the hero is offscreen — saves battery.
+        let visible = true;
+        const io = new IntersectionObserver(entries => {
+            visible = entries[0].isIntersecting;
+        }, { rootMargin: '60px' });
+        io.observe(canvas);
+
+        let raf = 0;
+        function frame(now) {
+            if (visible) {
+                gl.useProgram(prog);
+                gl.uniform2f(uRes, canvas.width, canvas.height);
+                gl.uniform1f(uTime, now * 1e-3);
+                gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+            }
+            raf = requestAnimationFrame(frame);
+        }
+        raf = requestAnimationFrame(frame);
+    })();
+    </script>
+
+    <!-- ============================================================ -->
+    <!-- EFFECT 3 — Dynamic Island TOC: scroll spy + jump-to-section   -->
+    <!-- ============================================================ -->
+    <script>
+    (function islandTOC() {
+        const island   = document.getElementById('island');
+        const list     = document.getElementById('island-list');
+        const active   = document.getElementById('island-active');
+        const close    = document.getElementById('island-close');
+        const backdrop = document.getElementById('island-backdrop');
+        const fill     = document.querySelector('.island-progress .fill');
+        if (!island || !list || !active) return;
+
+        // Sections we want to expose in the TOC, in document order.
+        const SECTION_IDS = ['top', 'try', 'proof', 'how', 'features', 'validate', 'tiers', 'quickstart', 'faq'];
+        const LABELS = {
+            top: 'Top of page',
+            try: 'Try a live query',
+            proof: 'The proof',
+            how: 'How it works',
+            features: 'Features',
+            validate: 'context_validate',
+            tiers: 'Tiers',
+            quickstart: 'Quick start',
+            faq: 'FAQ',
+        };
+
+        const sections = SECTION_IDS
+            .map(id => ({ id, el: document.getElementById(id), label: LABELS[id] }))
+            .filter(s => s.el && s.label);
+
+        // Build the menu items.
+        sections.forEach(s => {
+            const btn = document.createElement('button');
+            btn.className = 'toc-item';
+            btn.dataset.id = s.id;
+            btn.innerHTML = `<span class="text">${s.label}</span><span class="dot" aria-hidden="true"></span>`;
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const y = s.el.getBoundingClientRect().top + window.scrollY - 70;
+                window.scrollTo({ top: y, behavior: 'smooth' });
+                setExpanded(false);
+            });
+            list.appendChild(btn);
+        });
+
+        // Expand / collapse state.
+        let expanded = false;
+        function setExpanded(v) {
+            expanded = v;
+            island.classList.toggle('expanded', v);
+            island.setAttribute('aria-expanded', v ? 'true' : 'false');
+            backdrop.classList.toggle('show', v);
+        }
+        island.addEventListener('click', () => { if (!expanded) setExpanded(true); });
+        island.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setExpanded(!expanded); }
+            if (e.key === 'Escape') setExpanded(false);
+        });
+        close.addEventListener('click', (e) => { e.stopPropagation(); setExpanded(false); });
+        backdrop.addEventListener('click', () => setExpanded(false));
+
+        // Scroll spy: find the topmost section whose top is ≤ 140px from the viewport top.
+        const CIRC = 2 * Math.PI * 10; // r=10 in our SVG
+        let lastActiveId = null;
+
+        function setActiveLabel(id) {
+            if (id === lastActiveId) return;
+            lastActiveId = id;
+
+            // Animate text swap on the pill.
+            const labelText = id === 'top' ? 'Contents' : (LABELS[id] || 'Contents');
+            active.classList.add('swap-out');
+            setTimeout(() => {
+                active.textContent = labelText;
+                active.classList.remove('swap-out');
+                active.classList.add('swap-in');
+                requestAnimationFrame(() => active.classList.remove('swap-in'));
+            }, 180);
+
+            // Highlight active row in the menu.
+            list.querySelectorAll('.toc-item').forEach(el => {
+                el.classList.toggle('active', el.dataset.id === id);
+            });
+        }
+
+        function onScroll() {
+            // Pick the last section whose top is above the 140px threshold.
+            let currentId = sections[0].id;
+            for (const s of sections) {
+                const top = s.el.getBoundingClientRect().top;
+                if (top <= 140) currentId = s.id;
+                else break;
+            }
+            setActiveLabel(currentId);
+
+            // Update the progress ring.
+            const total = document.documentElement.scrollHeight - window.innerHeight;
+            const pct = total > 0 ? Math.min(1, Math.max(0, window.scrollY / total)) : 0;
+            if (fill) fill.style.strokeDashoffset = (CIRC * (1 - pct)).toFixed(2);
+        }
+        window.addEventListener('scroll', onScroll, { passive: true });
+        onScroll();
+
+        // Fade the island in once the page settles.
+        requestAnimationFrame(() => island.classList.add('ready'));
     })();
     </script>
 
