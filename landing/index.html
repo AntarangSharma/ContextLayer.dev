@@ -8,7 +8,7 @@
     <meta property="og:title" content="ContextLayer.dev — The Missing Context Layer for AI Coding Agents">
     <meta property="og:description" content="Your AI answers like a senior engineer who read everything — including the unwritten parts.">
     <meta property="og:type" content="website">
-    <meta name="theme-color" content="#0a0b12">
+    <meta name="theme-color" content="#09090B">
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -94,365 +94,80 @@
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['Inter', 'system-ui', 'sans-serif'],
-                        mono: ['JetBrains Mono', 'monospace'],
+                        sans: ['"Space Grotesk"', 'Inter', 'system-ui', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace'],
                     },
                     colors: {
-                        brand: {
-                            50: '#e7f5ff',
-                            100: '#d0ebff',
-                            200: '#a5d8ff',
-                            300: '#74c0fc',
-                            400: '#4dabf7',
-                            500: '#339af0',
-                            600: '#228be6',
-                            700: '#1c7ed6',
-                            800: '#1971c2',
-                            900: '#1864ab',
-                        },
-                        accent: {
-                            violet: '#4dabf7',
-                            pink: '#22d3ee',
-                            cyan: '#3bc9db',
-                            green: '#51cf66',
-                        },
-                        surface: {
-                            50: '#f8f9fa',
-                            100: '#f1f3f5',
-                            800: '#1a1b2e',
-                            850: '#141524',
-                            900: '#0f1019',
-                            950: '#0a0b12',
-                        }
+                        // Kinetic Typography palette
+                        ink:        '#09090B', // rich black canvas
+                        paper:      '#FAFAFA', // off-white foreground
+                        muted:      '#27272A', // dark gray surface
+                        zinc4:      '#A1A1AA', // muted-foreground (zinc 400)
+                        line:       '#3F3F46', // border (zinc 700)
+                        acid:       '#DFE104', // acid yellow accent
                     }
                 }
             }
         }
     </script>
     <style>
-        :root {
-            color-scheme: dark;
-        }
-
+        :root { color-scheme: dark; }
         html { scroll-behavior: smooth; }
 
         body {
-            background: #06070d;
-            color: #e9ecef;
+            background: #09090B;
+            color: #FAFAFA;
+            font-family: 'Space Grotesk', Inter, system-ui, sans-serif;
+            font-weight: 400;
             overflow-x: hidden;
-        }
-
-        /* Animated mesh-gradient background */
-        .bg-mesh {
-            position: fixed;
-            inset: 0;
-            z-index: 0;
-            pointer-events: none;
-            background:
-                radial-gradient(at 18% 12%, rgba(51, 154, 240, 0.22) 0px, transparent 50%),
-                radial-gradient(at 82% 8%, rgba(77, 171, 247, 0.20) 0px, transparent 50%),
-                radial-gradient(at 50% 80%, rgba(34, 211, 238, 0.10) 0px, transparent 55%),
-                radial-gradient(at 95% 60%, rgba(59, 201, 219, 0.08) 0px, transparent 50%);
-            filter: blur(20px);
-            animation: meshShift 22s ease-in-out infinite alternate;
-        }
-
-        @keyframes meshShift {
-            0%   { transform: translate3d(0, 0, 0) scale(1); }
-            50%  { transform: translate3d(-2%, 1%, 0) scale(1.05); }
-            100% { transform: translate3d(2%, -1%, 0) scale(1.02); }
-        }
-
-        /* Dotted grid */
-        .bg-grid {
-            position: fixed;
-            inset: 0;
-            z-index: 0;
-            pointer-events: none;
-            background-image:
-                radial-gradient(circle at 1px 1px, rgba(51, 154, 240, 0.10) 1px, transparent 0);
-            background-size: 28px 28px;
-            mask-image: radial-gradient(ellipse 70% 55% at 50% 30%, #000 30%, transparent 75%);
-            -webkit-mask-image: radial-gradient(ellipse 70% 55% at 50% 30%, #000 30%, transparent 75%);
-        }
-
-        /* Subtle film grain */
-        .bg-grain::before {
-            content: "";
-            position: fixed;
-            inset: 0;
-            z-index: 0;
-            pointer-events: none;
-            opacity: 0.04;
-            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
-        }
-
-        .gradient-text {
-            background: linear-gradient(135deg, #74c0fc 0%, #4dabf7 50%, #22d3ee 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .gradient-text-cool {
-            background: linear-gradient(135deg, #3bc9db 0%, #339af0 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .glass-card {
-            background: linear-gradient(180deg, rgba(26, 27, 46, 0.65) 0%, rgba(20, 21, 36, 0.6) 100%);
-            backdrop-filter: blur(20px) saturate(140%);
-            -webkit-backdrop-filter: blur(20px) saturate(140%);
-            border: 1px solid rgba(51, 154, 240, 0.14);
-            transition: border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
-        }
-        .glass-card:hover {
-            border-color: rgba(51, 154, 240, 0.32);
-            transform: translateY(-2px);
-            box-shadow: 0 18px 40px -20px rgba(51, 154, 240, 0.25);
-        }
-
-        .glow-border {
-            box-shadow:
-                0 0 0 1px rgba(51, 154, 240, 0.18),
-                0 30px 60px -30px rgba(51, 154, 240, 0.35);
-        }
-
-        .ring-gradient {
-            position: relative;
-        }
-        .ring-gradient::before {
-            content: "";
-            position: absolute;
-            inset: -1px;
-            border-radius: inherit;
-            padding: 1px;
-            background: linear-gradient(135deg, rgba(51, 154, 240, 0.5), rgba(77, 171, 247, 0.45) 50%, rgba(34, 211, 238, 0.45));
-            -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-            -webkit-mask-composite: xor;
-                    mask-composite: exclude;
-            pointer-events: none;
-            opacity: 0.6;
-        }
-
-        .code-block {
-            background: linear-gradient(180deg, #10111c 0%, #0b0c16 100%);
-            border: 1px solid rgba(51, 154, 240, 0.12);
-            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
-        }
-
-        .pulse-dot { animation: pulse 2s infinite; }
-        @keyframes pulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50%      { opacity: 0.45; transform: scale(0.9); }
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50%      { transform: translateY(-6px); }
-        }
-        .float-anim { animation: float 6s ease-in-out infinite; }
-
-        .fade-in {
-            animation: fadeIn 0.9s ease-out forwards;
-            opacity: 0;
-            transform: translateY(8px);
-        }
-        @keyframes fadeIn {
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .fade-in-delay-1 { animation-delay: 0.15s; }
-        .fade-in-delay-2 { animation-delay: 0.30s; }
-        .fade-in-delay-3 { animation-delay: 0.45s; }
-        .fade-in-delay-4 { animation-delay: 0.60s; }
-
-        /* Reveal on scroll */
-        .reveal {
-            opacity: 0;
-            transform: translateY(18px);
-            transition: opacity 0.7s ease, transform 0.7s ease;
-        }
-        .reveal.in {
-            opacity: 1;
-            transform: none;
-        }
-
-        /* Stat cards */
-        .stat-num {
-            background: linear-gradient(135deg, #74c0fc, #22d3ee);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            font-variant-numeric: tabular-nums;
-        }
-
-        /* Pipeline arrow */
-        .arrow {
-            position: relative;
-            width: 100%;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, rgba(51, 154, 240, 0.4), transparent);
-        }
-        .arrow::after {
-            content: "";
-            position: absolute;
-            right: -4px;
-            top: -3px;
-            width: 8px;
-            height: 8px;
-            border-top: 2px solid rgba(51, 154, 240, 0.6);
-            border-right: 2px solid rgba(51, 154, 240, 0.6);
-            transform: rotate(45deg);
-        }
-
-        /* Soft chip */
-        .chip {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 4px 10px;
-            border-radius: 999px;
-            font-size: 11px;
-            font-weight: 600;
-            letter-spacing: 0.02em;
-            border: 1px solid rgba(51, 154, 240, 0.18);
-            background: rgba(51, 154, 240, 0.08);
-            color: #a5d8ff;
-        }
-
-        /* Selection */
-        ::selection { background: rgba(51, 154, 240, 0.35); color: white; }
-
-        /* Scrollbar */
-        ::-webkit-scrollbar { width: 10px; height: 10px; }
-        ::-webkit-scrollbar-thumb { background: #1a1b2e; border-radius: 8px; }
-        ::-webkit-scrollbar-thumb:hover { background: #2a2b46; }
-
-        /* Copy button */
-        .copy-btn {
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            font-size: 11px;
-            padding: 4px 8px;
-            border-radius: 6px;
-            background: rgba(51, 154, 240, 0.12);
-            color: #a5d8ff;
-            border: 1px solid rgba(51, 154, 240, 0.15);
-            cursor: pointer;
-            transition: all 0.15s ease;
-            font-family: 'JetBrains Mono', monospace;
-        }
-        .copy-btn:hover { background: rgba(51, 154, 240, 0.25); color: white; }
-
-        /* Marquee for trust row */
-        .trust-row {
-            display: flex;
-            gap: 28px;
-            flex-wrap: wrap;
-            justify-content: center;
-            opacity: 0.85;
-        }
-
-        /* Table */
-        table.compare th, table.compare td {
-            padding: 14px 18px;
-            text-align: left;
-            vertical-align: top;
-            border-bottom: 1px solid rgba(51, 154, 240, 0.08);
-            font-size: 14px;
-        }
-        table.compare thead th {
-            font-size: 12px;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            color: #74c0fc;
-            background: rgba(51, 154, 240, 0.06);
-        }
-        table.compare tr:last-child td { border-bottom: none; }
-        table.compare td.bad { color: #ff8787; }
-        table.compare td.good { color: #b2f2bb; }
-
-        /* Tag */
-        .tag {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 4px 10px;
-            border-radius: 6px;
-            font-size: 11px;
-            font-weight: 600;
-            font-family: 'JetBrains Mono', monospace;
-        }
-        .tag-violet { background: rgba(77, 171, 247, 0.15); color: #a5d8ff; border: 1px solid rgba(77, 171, 247, 0.30); }
-        .tag-cyan   { background: rgba(59, 201, 219, 0.12); color: #99e9f2; border: 1px solid rgba(59, 201, 219, 0.25); }
-        .tag-pink   { background: rgba(34, 211, 238, 0.12); color: #99e9f2; border: 1px solid rgba(34, 211, 238, 0.30); }
-        .tag-green  { background: rgba(81, 207, 102, 0.12); color: #b2f2bb; border: 1px solid rgba(81, 207, 102, 0.25); }
-        .tag-amber  { background: rgba(250, 176, 5, 0.12); color: #ffec99; border: 1px solid rgba(250, 176, 5, 0.25); }
-
-        /* JSON syntax */
-        .json-key   { color: #74c0fc; }
-        .json-str   { color: #b2f2bb; }
-        .json-num   { color: #74c0fc; }
-        .json-bool  { color: #ffd43b; }
-        .json-punct { color: #6c7193; }
-
-        /* Roadmap rail */
-        .rail {
-            position: relative;
-            padding-left: 24px;
-        }
-        .rail::before {
-            content: "";
-            position: absolute;
-            left: 6px;
-            top: 6px;
-            bottom: 6px;
-            width: 2px;
-            background: linear-gradient(180deg, rgba(51, 154, 240, 0.5), rgba(34, 211, 238, 0.25));
-        }
-        .rail-dot {
-            position: absolute;
-            left: 0;
-            top: 4px;
-            width: 14px;
-            height: 14px;
-            border-radius: 50%;
-            background: #0a0b12;
-            border: 2px solid rgba(51, 154, 240, 0.6);
-            box-shadow: 0 0 0 4px rgba(51, 154, 240, 0.08);
-        }
-
-        /* Section heading underline */
-        .eyebrow {
-            display: inline-block;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 11px;
-            letter-spacing: 0.18em;
-            text-transform: uppercase;
-            color: #74c0fc;
-            margin-bottom: 12px;
+            -webkit-font-smoothing: antialiased;
         }
 
         /* ============================================================ */
-        /* PAGE SHADER CANVAS — fixed, fills the whole viewport          */
+        /* SELECTION                                                     */
+        /* ============================================================ */
+        ::selection { background: #DFE104; color: #000; }
+        ::-moz-selection { background: #DFE104; color: #000; }
+
+        /* ============================================================ */
+        /* SCROLLBAR                                                     */
+        /* ============================================================ */
+        ::-webkit-scrollbar { width: 12px; height: 12px; }
+        ::-webkit-scrollbar-track { background: #09090B; }
+        ::-webkit-scrollbar-thumb { background: #3F3F46; }
+        ::-webkit-scrollbar-thumb:hover { background: #DFE104; }
+
+        /* ============================================================ */
+        /* NOISE OVERLAY — print/poster texture                          */
+        /* ============================================================ */
+        .noise {
+            position: fixed;
+            inset: 0;
+            z-index: 1;
+            pointer-events: none;
+            opacity: 0.04;
+            mix-blend-mode: overlay;
+            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='400'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+        }
+
+        /* ============================================================ */
+        /* PAGE SHADER CANVAS — preserved from v1, muted for KT          */
         /* ============================================================ */
         .page-shader {
             position: fixed;
             inset: 0;
-            z-index: 0;            /* above body bg, below content (.bg-mesh shares z-index 0 but is painted first) */
+            z-index: 0;
             pointer-events: none;
-            opacity: 0.32;
+            opacity: 0.18; /* lower than v1's 0.32 — KT prefers near-flat */
             mix-blend-mode: screen;
+            filter: saturate(0.15); /* desaturate the blue clouds toward neutral */
         }
         .page-shader canvas {
             width: 100%;
@@ -460,8 +175,49 @@
             display: block;
         }
 
-        /* Rotating word — flips in place, wrapper width animates to match  */
-        /* the current word so the trailing period stays glued to it.       */
+        /* ============================================================ */
+        /* TYPOGRAPHY UTILITIES                                          */
+        /* ============================================================ */
+        .display {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: -0.04em;
+            line-height: 0.86;
+        }
+        .hero-h1 {
+            font-size: clamp(3rem, 12vw, 14rem);
+            line-height: 0.85;
+            letter-spacing: -0.05em;
+        }
+        .section-h2 {
+            font-size: clamp(2.5rem, 8vw, 7rem);
+            line-height: 0.88;
+            letter-spacing: -0.04em;
+        }
+        .massive-num {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+            line-height: 0.85;
+            letter-spacing: -0.06em;
+        }
+        .eyebrow {
+            display: inline-block;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            font-weight: 500;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: #DFE104;
+            margin-bottom: 24px;
+            padding: 6px 10px;
+            border: 2px solid #DFE104;
+        }
+
+        /* ============================================================ */
+        /* ROTATING WORD — flat acid yellow, no gradient                 */
+        /* ============================================================ */
         .rotator {
             position: relative;
             display: inline-flex;
@@ -471,7 +227,7 @@
             line-height: inherit;
             overflow: hidden;
             transition: width 0.55s cubic-bezier(0.22, 1, 0.36, 1);
-            width: 0; /* set by JS once measured */
+            width: 0;
         }
         .rotator > span {
             position: absolute;
@@ -484,33 +240,225 @@
             opacity: 0;
             transform: translateY(110%);
             transition: transform 0.65s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.4s ease;
-            background: linear-gradient(135deg, #74c0fc 0%, #4dabf7 50%, #22d3ee 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            color: transparent;
+            color: #DFE104;
             white-space: nowrap;
-            padding-right: 0.04em; /* tiny breathing room so the gradient edge isn't clipped */
+            padding-right: 0.04em;
         }
-        .rotator > span.in {
-            opacity: 1;
-            transform: translateY(0);
+        .rotator > span.in  { opacity: 1; transform: translateY(0); }
+        .rotator > span.out { opacity: 0; transform: translateY(-110%); }
+
+        /* ============================================================ */
+        /* MARQUEE — pure CSS, GPU-accelerated, no gradients             */
+        /* ============================================================ */
+        @keyframes marquee-x {
+            from { transform: translate3d(0, 0, 0); }
+            to   { transform: translate3d(-50%, 0, 0); }
         }
-        .rotator > span.out {
-            opacity: 0;
-            transform: translateY(-110%);
+        .marquee {
+            display: flex;
+            overflow: hidden;
+            width: 100%;
+            user-select: none;
+        }
+        .marquee-track {
+            display: flex;
+            flex-shrink: 0;
+            min-width: 100%;
+            animation: marquee-x var(--marquee-duration, 35s) linear infinite;
+            will-change: transform;
+        }
+        .marquee-fast .marquee-track { --marquee-duration: 22s; }
+        .marquee-slow .marquee-track { --marquee-duration: 60s; }
+        .marquee:hover .marquee-track { animation-play-state: paused; }
+        @media (prefers-reduced-motion: reduce) {
+            .marquee-track { animation: none; }
         }
 
         /* ============================================================ */
-        /* DYNAMIC ISLAND TOC — floating pill that expands into a menu  */
+        /* BRUTALIST CARDS                                                */
+        /* ============================================================ */
+        .kt-card {
+            background: #09090B;
+            border: 2px solid #3F3F46;
+            transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+        }
+        .kt-card:hover {
+            background: #DFE104;
+            border-color: #DFE104;
+            color: #000;
+        }
+        .kt-card:hover .kt-card-text,
+        .kt-card:hover .kt-card-meta,
+        .kt-card:hover .kt-card-code-name {
+            color: #000;
+        }
+        .kt-card:hover .kt-card-code-block {
+            background: #000;
+            color: #DFE104;
+            border-color: #000;
+        }
+        .kt-card-static {
+            background: #09090B;
+            border: 2px solid #3F3F46;
+        }
+
+        /* ============================================================ */
+        /* BUTTONS                                                       */
+        /* ============================================================ */
+        .btn-acid {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #DFE104;
+            color: #000;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
+            border: 2px solid #DFE104;
+            padding: 18px 28px;
+            font-size: 14px;
+            transition: transform 0.2s ease;
+            cursor: pointer;
+        }
+        .btn-acid:hover { transform: scale(1.04); }
+        .btn-acid:active { transform: scale(0.96); }
+
+        .btn-outline {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+            color: #FAFAFA;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
+            border: 2px solid #3F3F46;
+            padding: 18px 28px;
+            font-size: 14px;
+            transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+            cursor: pointer;
+        }
+        .btn-outline:hover {
+            background: #FAFAFA;
+            color: #000;
+            border-color: #FAFAFA;
+        }
+
+        /* ============================================================ */
+        /* INPUTS — extra tall, border-b only, uppercase                 */
+        /* ============================================================ */
+        .kt-input {
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid #3F3F46;
+            color: #FAFAFA;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            font-size: clamp(1.25rem, 2.5vw, 1.875rem);
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
+            padding: 18px 0;
+            width: 100%;
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+        .kt-input::placeholder {
+            color: #27272A;
+            text-transform: uppercase;
+        }
+        .kt-input:focus { border-bottom-color: #DFE104; }
+
+        /* ============================================================ */
+        /* CODE BLOCKS                                                   */
+        /* ============================================================ */
+        .kt-code {
+            background: #000;
+            border: 2px solid #3F3F46;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11.5px;
+            line-height: 1.6;
+            color: #A1A1AA;
+            transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* ============================================================ */
+        /* QUERY RESULT CARDS (rendered by JS)                           */
+        /* ============================================================ */
+        .qr-card {
+            border: 2px solid #3F3F46;
+            background: #09090B;
+            padding: 20px;
+            transition: border-color 0.2s ease;
+        }
+        .qr-card:hover { border-color: #DFE104; }
+        .qr-chip {
+            display: inline-block;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            padding: 4px 8px;
+            border: 1px solid #3F3F46;
+            color: #A1A1AA;
+        }
+        .qr-chip-rule { background: #DFE104; color: #000; border-color: #DFE104; }
+        .qr-chip-ref  { background: #27272A; color: #FAFAFA; border-color: #27272A; }
+
+        /* ============================================================ */
+        /* CANNED QUESTION CHIPS                                          */
+        /* ============================================================ */
+        .canned-chip {
+            display: inline-block;
+            background: transparent;
+            border: 2px solid #3F3F46;
+            color: #FAFAFA;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: -0.01em;
+            padding: 10px 14px;
+            cursor: pointer;
+            transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+        }
+        .canned-chip:hover {
+            background: #DFE104;
+            color: #000;
+            border-color: #DFE104;
+        }
+
+        /* ============================================================ */
+        /* MEGA NUMBER BACKDROP                                          */
+        /* ============================================================ */
+        .mega-bg-num {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            font-size: clamp(6rem, 18vw, 18rem);
+            line-height: 0.85;
+            letter-spacing: -0.06em;
+            color: #18181B;
+            user-select: none;
+            pointer-events: none;
+        }
+
+        /* ============================================================ */
+        /* SECTION DIVIDERS                                              */
+        /* ============================================================ */
+        .section-edge { border-top: 2px solid #3F3F46; }
+
+        /* ============================================================ */
+        /* DYNAMIC ISLAND TOC — brutalist remix                          */
         /* ============================================================ */
         .island-wrap {
             position: fixed;
             left: 50%;
-            bottom: 28px;
+            bottom: 24px;
             transform: translateX(-50%);
             z-index: 9999;
-            pointer-events: none; /* let children turn it back on */
+            pointer-events: none;
         }
         .island {
             pointer-events: auto;
@@ -520,87 +468,71 @@
             justify-content: flex-start;
             width: 280px;
             height: 52px;
-            border-radius: 26px;
-            padding: 0 20px;
-            background: rgba(16, 17, 28, 0.92);
-            border: 1px solid rgba(51, 154, 240, 0.22);
-            box-shadow:
-                0 18px 40px -16px rgba(0, 0, 0, 0.55),
-                0 0 0 1px rgba(255, 255, 255, 0.03) inset;
-            backdrop-filter: blur(18px) saturate(140%);
-            -webkit-backdrop-filter: blur(18px) saturate(140%);
-            color: #e9ecef;
+            border: 2px solid #3F3F46;
+            background: #09090B;
+            padding: 0 18px;
+            color: #FAFAFA;
             cursor: pointer;
             overflow: hidden;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            font-size: 12px;
             transition:
-                width 0.5s cubic-bezier(0.22, 1, 0.36, 1),
-                height 0.5s cubic-bezier(0.22, 1, 0.36, 1),
-                border-radius 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+                width 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+                height 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+                border-color 0.3s ease,
                 transform 0.3s ease,
                 opacity 0.6s ease;
             transform: translateY(60px);
             opacity: 0;
         }
-        .island.ready {
-            transform: translateY(0);
-            opacity: 1;
-        }
+        .island.ready { transform: translateY(0); opacity: 1; }
+        .island:hover { border-color: #DFE104; }
         .island.expanded {
             width: 340px;
-            height: 380px;
-            border-radius: 22px;
+            height: 400px;
             cursor: default;
             padding: 0;
+            border-color: #DFE104;
         }
         .island-pill {
             position: absolute;
             inset: 0;
             display: flex;
             align-items: center;
-            gap: 14px;
-            padding: 0 20px;
+            gap: 12px;
+            padding: 0 18px;
             opacity: 1;
-            transition: opacity 0.45s ease, transform 0.45s ease, filter 0.45s ease;
+            transition: opacity 0.35s ease;
         }
-        .island.expanded .island-pill {
-            opacity: 0;
-            transform: scale(0.96);
-            filter: blur(4px);
-            pointer-events: none;
-        }
+        .island.expanded .island-pill { opacity: 0; pointer-events: none; }
         .island-pulse {
-            width: 8px;
-            height: 8px;
-            border-radius: 999px;
-            background: #4dabf7;
-            box-shadow: 0 0 12px #4dabf7;
+            width: 8px; height: 8px;
+            background: #DFE104;
             flex: 0 0 8px;
         }
         .island-active {
             flex: 1;
-            font-size: 13.5px;
-            font-weight: 500;
-            color: #e9ecef;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: opacity 0.3s ease, transform 0.3s ease;
         }
-        .island-active.swap-out { opacity: 0; transform: translateY(-12px); }
-        .island-active.swap-in  { opacity: 0; transform: translateY(12px); }
+        .island-active.swap-out { opacity: 0; transform: translateY(-8px); }
+        .island-active.swap-in  { opacity: 0; transform: translateY(8px); }
         .island-progress {
-            width: 24px;
-            height: 24px;
+            width: 22px; height: 22px;
             transform: rotate(-90deg);
-            flex: 0 0 24px;
+            flex: 0 0 22px;
         }
-        .island-progress .track  { stroke: rgba(255, 255, 255, 0.12); }
-        .island-progress .fill   {
-            stroke: #74c0fc;
-            stroke-dasharray: 62.83; /* 2 * pi * 10 */
+        .island-progress .track { stroke: #27272A; }
+        .island-progress .fill {
+            stroke: #DFE104;
+            stroke-dasharray: 62.83;
             stroke-dashoffset: 62.83;
             transition: stroke-dashoffset 0.2s ease-out;
-            filter: drop-shadow(0 0 6px rgba(116, 192, 252, 0.55));
         }
         .island-menu {
             position: absolute;
@@ -608,55 +540,44 @@
             display: flex;
             flex-direction: column;
             opacity: 0;
-            transform: scale(1.04);
-            transition: opacity 0.45s ease 0.12s, transform 0.45s ease 0.12s;
+            transition: opacity 0.35s ease 0.1s;
             pointer-events: none;
         }
-        .island.expanded .island-menu {
-            opacity: 1;
-            transform: scale(1);
-            pointer-events: auto;
-        }
+        .island.expanded .island-menu { opacity: 1; pointer-events: auto; }
         .island-menu-head {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 18px 22px 10px;
-            flex: 0 0 auto;
+            padding: 18px 18px 12px;
+            border-bottom: 2px solid #3F3F46;
         }
         .island-menu-head .label {
             font-family: 'JetBrains Mono', monospace;
             font-size: 11px;
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
-            color: #74c0fc;
+            letter-spacing: 0.16em;
+            color: #DFE104;
             font-weight: 600;
         }
         .island-close {
             background: transparent;
             border: none;
-            color: rgba(255, 255, 255, 0.55);
+            color: #A1A1AA;
             cursor: pointer;
             padding: 4px;
-            border-radius: 6px;
             display: inline-flex;
-            transition: color 0.2s ease, background 0.2s ease;
         }
-        .island-close:hover {
-            color: white;
-            background: rgba(255, 255, 255, 0.06);
-        }
+        .island-close:hover { color: #DFE104; }
         .island-list {
             flex: 1;
             overflow-y: auto;
             overscroll-behavior: contain;
-            padding: 0 12px 14px;
+            padding: 8px;
             display: flex;
             flex-direction: column;
             gap: 2px;
         }
-        .island-list::-webkit-scrollbar { width: 6px; }
-        .island-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 4px; }
+        .island-list::-webkit-scrollbar { width: 4px; }
+        .island-list::-webkit-scrollbar-thumb { background: #3F3F46; }
         .toc-item {
             display: flex;
             align-items: center;
@@ -664,295 +585,373 @@
             background: transparent;
             border: none;
             text-align: left;
-            padding: 9px 12px;
-            border-radius: 10px;
-            font-size: 13.5px;
-            color: rgba(255, 255, 255, 0.55);
+            padding: 12px 14px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+            color: #A1A1AA;
             cursor: pointer;
-            transition: background 0.25s ease, color 0.25s ease, transform 0.25s ease;
-            font-family: 'Inter', sans-serif;
+            transition: background-color 0.2s ease, color 0.2s ease;
         }
-        .toc-item:hover {
-            background: rgba(255, 255, 255, 0.04);
-            color: rgba(255, 255, 255, 0.85);
-        }
-        .toc-item .text {
-            flex: 1;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            transition: transform 0.25s ease;
-        }
-        .toc-item:hover .text { transform: translateX(3px); }
-        .toc-item .dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 999px;
-            background: #74c0fc;
-            margin-left: 10px;
-            opacity: 0;
-            transform: scale(0);
-            transition: opacity 0.3s ease, transform 0.3s ease;
-            box-shadow: 0 0 10px #74c0fc;
-            flex: 0 0 6px;
-        }
-        .toc-item.active {
-            background: rgba(116, 192, 252, 0.12);
-            color: #ffffff;
-            font-weight: 500;
-        }
-        .toc-item.active .dot { opacity: 1; transform: scale(1); }
+        .toc-item:hover { background: #DFE104; color: #000; }
+        .toc-item .text { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .toc-item .dot { width: 6px; height: 6px; background: #DFE104; opacity: 0; flex: 0 0 6px; }
+        .toc-item.active { color: #DFE104; }
+        .toc-item.active .dot { opacity: 1; }
+        .toc-item.active:hover { color: #000; }
+        .toc-item.active:hover .dot { background: #000; }
 
         .island-backdrop {
             position: fixed;
             inset: 0;
-            background: rgba(0, 0, 0, 0.35);
-            backdrop-filter: blur(3px);
-            -webkit-backdrop-filter: blur(3px);
+            background: rgba(9, 9, 11, 0.86);
             opacity: 0;
             pointer-events: none;
+            transition: opacity 0.3s ease;
             z-index: 9998;
-            transition: opacity 0.4s ease;
         }
         .island-backdrop.show { opacity: 1; pointer-events: auto; }
 
-        /* Mobile: tighten island so it doesn't overflow */
-        @media (max-width: 480px) {
-            .island          { width: calc(100vw - 32px); max-width: 320px; }
-            .island.expanded { width: calc(100vw - 24px); max-width: 360px; height: 60vh; }
+        /* ============================================================ */
+        /* FAQ ACCORDION                                                  */
+        /* ============================================================ */
+        details.kt-faq {
+            border: 2px solid #3F3F46;
+            background: #09090B;
+            transition: border-color 0.3s ease;
+        }
+        details.kt-faq[open] { border-color: #DFE104; }
+        details.kt-faq summary {
+            list-style: none;
+            cursor: pointer;
+            padding: 24px 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: -0.01em;
+            font-size: 16px;
+            color: #FAFAFA;
+            user-select: none;
+        }
+        details.kt-faq summary::-webkit-details-marker { display: none; }
+        details.kt-faq[open] summary { color: #DFE104; }
+        details.kt-faq summary .chev { transition: transform 0.3s ease; }
+        details.kt-faq[open] summary .chev { transform: rotate(180deg); color: #DFE104; }
+        details.kt-faq .faq-body {
+            padding: 0 28px 24px 28px;
+            color: #A1A1AA;
+            line-height: 1.6;
+            font-size: 15px;
+            border-top: 2px solid #3F3F46;
+            padding-top: 20px;
+        }
+
+        /* ============================================================ */
+        /* TRUST-ROW DOTS                                                 */
+        /* ============================================================ */
+        .trust-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: #DFE104;
+        }
+
+        /* ============================================================ */
+        /* REVEAL ON SCROLL                                              */
+        /* ============================================================ */
+        .reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+        .reveal.in {
+            opacity: 1;
+            transform: none;
         }
         @media (prefers-reduced-motion: reduce) {
-            .page-shader { display: none; }
-            .rotator { transition: none; }
-            .rotator > span { transition: none; }
-            .island { transition: none; }
+            .reveal { opacity: 1; transform: none; transition: none; }
         }
+
+        /* ============================================================ */
+        /* PULSE                                                          */
+        /* ============================================================ */
+        @keyframes kt-pulse {
+            0%, 100% { opacity: 1; }
+            50%      { opacity: 0.3; }
+        }
+        .pulse-dot { animation: kt-pulse 1.6s ease-in-out infinite; }
+
+        /* ============================================================ */
+        /* CONTAINER                                                      */
+        /* ============================================================ */
+        .container-wide { max-width: 95vw; margin-left: auto; margin-right: auto; }
+        .container-tight { max-width: 90vw; margin-left: auto; margin-right: auto; }
+
     </style>
 </head>
-<body class="font-sans antialiased bg-grain">
-    <div class="bg-mesh"></div>
-    <!-- Full-page WebGL shader background (z-index 0, behind all content) -->
+<body class="bg-ink text-paper">
+
+    <!-- WebGL shader background (preserved, opacity & saturation tuned for KT) -->
     <div class="page-shader" aria-hidden="true">
         <canvas id="hero-shader-canvas"></canvas>
     </div>
-    <!-- Nav -->
-    <nav class="relative z-20 max-w-6xl mx-auto px-6 py-5 flex items-center justify-between">
-        <a href="#top" class="flex items-center gap-2.5 group">
-            <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-brand-500 to-accent-violet flex items-center justify-center shadow-lg shadow-brand-600/30 ring-gradient">
-                <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+
+    <!-- Noise overlay -->
+    <div class="noise" aria-hidden="true"></div>
+
+    <!-- ============================================================ -->
+    <!-- NAV                                                            -->
+    <!-- ============================================================ -->
+    <nav class="relative z-20 container-wide px-6 md:px-10 py-6 flex items-center justify-between border-b-2 border-line">
+        <a href="#top" class="flex items-center gap-3 group">
+            <div class="w-10 h-10 bg-acid flex items-center justify-center">
+                <svg class="w-5 h-5 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
             </div>
-            <span class="text-base font-bold text-white tracking-tight">ContextLayer<span class="text-brand-400">.dev</span></span>
+            <span class="display text-base text-paper">ContextLayer<span class="text-acid">.dev</span></span>
         </a>
-        <div class="hidden md:flex items-center gap-7 text-sm text-gray-400">
-            <a href="#try" class="hover:text-white transition-colors">Try it</a>
-            <a href="#proof" class="hover:text-white transition-colors">Proof</a>
-            <a href="#how" class="hover:text-white transition-colors">How it works</a>
-            <a href="#features" class="hover:text-white transition-colors">Features</a>
-            <a href="#validate" class="hover:text-white transition-colors">Validate</a>
-            <a href="#faq" class="hover:text-white transition-colors">FAQ</a>
+        <div class="hidden lg:flex items-center gap-8 text-xs font-bold uppercase tracking-wider text-zinc4">
+            <a href="#try" class="hover:text-acid transition-colors">Try</a>
+            <a href="#proof" class="hover:text-acid transition-colors">Proof</a>
+            <a href="#how" class="hover:text-acid transition-colors">How</a>
+            <a href="#features" class="hover:text-acid transition-colors">Features</a>
+            <a href="#validate" class="hover:text-acid transition-colors">Validate</a>
+            <a href="#faq" class="hover:text-acid transition-colors">FAQ</a>
         </div>
         <div class="flex items-center gap-3">
             <a href="https://github.com/AntarangSharma/ContextLayer.dev" target="_blank"
-               class="text-sm text-gray-400 hover:text-white transition-colors flex items-center gap-1.5">
+               class="hidden sm:inline-flex items-center gap-2 px-4 py-2 border-2 border-line text-xs font-bold uppercase tracking-wider text-paper hover:bg-paper hover:text-black hover:border-paper transition-colors">
                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
-                <span class="hidden sm:inline">Star</span>
+                Star
             </a>
-            <a href="#try"
-               class="text-sm font-semibold bg-gradient-to-r from-brand-600 to-accent-violet hover:from-brand-500 hover:to-accent-violet text-white px-4 py-2 rounded-lg transition-all hover:shadow-lg hover:shadow-brand-600/30">
-                Try it now →
-            </a>
+            <a href="#try" class="btn-acid !py-2 !px-4 !text-xs">Try Now →</a>
         </div>
     </nav>
 
     <main id="top" class="relative z-10">
 
         <!-- ============================================================ -->
-        <!-- HERO                                                          -->
+        <!-- HERO — viewport-scale typography                              -->
         <!-- ============================================================ -->
-        <section class="relative max-w-5xl mx-auto px-6 pt-10 pb-12 text-center">
-            <div class="relative z-10 fade-in">
-                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full glass-card text-xs font-medium text-brand-300 mb-7">
-                    <span class="pulse-dot w-2 h-2 rounded-full bg-accent-green inline-block"></span>
-                    The missing context layer for AI coding agents
-                </div>
+        <section class="relative container-wide px-6 md:px-10 pt-16 md:pt-24 pb-16 md:pb-24">
+            <div class="inline-flex items-center gap-2 px-3 py-1.5 border-2 border-acid text-acid text-xs font-mono font-semibold uppercase tracking-widest mb-10">
+                <span class="pulse-dot w-2 h-2 bg-acid inline-block"></span>
+                The missing context layer for AI coding agents
             </div>
 
-            <h1 class="relative z-10 text-4xl sm:text-5xl md:text-[68px] font-extrabold leading-[1.02] tracking-tight mb-6 fade-in fade-in-delay-1">
-                LLMs forget your <span class="rotator" id="rotating-word" aria-live="polite"><span>rules</span><span>patterns</span><span>decisions</span><span>context</span></span>.<br>
-                <span class="gradient-text">We make it remember.</span>
+            <h1 class="display hero-h1 text-paper mb-10">
+                LLMs<br>
+                Forget Your <span class="rotator" id="rotating-word" aria-live="polite"><span>rules</span><span>patterns</span><span>decisions</span><span>context</span></span>.<br>
+                <span class="text-acid">We Make<br>It Remember.</span>
             </h1>
 
-            <p class="relative z-10 text-lg md:text-xl text-gray-400 max-w-2xl mx-auto mb-9 fade-in fade-in-delay-2 leading-relaxed">
-                Read your git history once. Stop watching LLMs reinvent your conventions every session.<br class="hidden sm:block">
-                <span class="text-white">Local. MCP-native. Works offline.</span>
-            </p>
-
-            <div class="relative z-10 flex flex-col sm:flex-row items-center justify-center gap-3 fade-in fade-in-delay-3 mb-4">
-                <a href="#try" class="px-6 py-3 rounded-xl bg-gradient-to-r from-brand-600 to-accent-violet text-white font-semibold text-sm transition-all hover:shadow-lg hover:shadow-brand-600/30">
-                    ⚡ Try a live query
-                </a>
-                <a href="https://github.com/AntarangSharma/ContextLayer.dev" target="_blank" class="px-6 py-3 rounded-xl glass-card text-gray-200 font-semibold text-sm transition-all hover:border-brand-500/40 flex items-center gap-2">
-                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
-                    Star on GitHub
-                </a>
+            <div class="grid md:grid-cols-[2fr_1fr] gap-10 md:gap-16 items-end mt-12 mb-12">
+                <p class="text-xl md:text-2xl lg:text-3xl text-paper leading-tight font-medium max-w-3xl">
+                    Read your git history once. Stop watching LLMs reinvent your rules every session.
+                    <span class="text-acid block mt-3">Local. MCP-native. Works offline.</span>
+                </p>
+                <div class="flex flex-col gap-3">
+                    <a href="#try" class="btn-acid">⚡ Try a live query</a>
+                    <a href="https://github.com/AntarangSharma/ContextLayer.dev" target="_blank" class="btn-outline">Star on GitHub →</a>
+                </div>
             </div>
 
-            <div class="relative z-10 trust-row fade-in fade-in-delay-4 text-xs font-mono text-gray-500 mt-6">
-                <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-accent-green"></span>Open Source · MIT</span>
-                <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-brand-400"></span>No API key to query</span>
-                <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-accent-pink"></span>No telemetry</span>
-                <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-accent-cyan"></span>MCP-native</span>
+            <div class="flex flex-wrap gap-6 md:gap-10 text-xs md:text-sm font-mono font-semibold uppercase tracking-widest text-zinc4 pt-8 border-t-2 border-line">
+                <span class="flex items-center gap-2"><span class="trust-dot"></span>Open Source · MIT</span>
+                <span class="flex items-center gap-2"><span class="trust-dot"></span>No API Key to Query</span>
+                <span class="flex items-center gap-2"><span class="trust-dot"></span>No Telemetry</span>
+                <span class="flex items-center gap-2"><span class="trust-dot"></span>MCP-Native</span>
             </div>
         </section>
 
         <!-- ============================================================ -->
-        <!-- LIVE COUNTERS STRIP (real numbers from the demo DB)           -->
+        <!-- STATS MARQUEE — high-energy infinite scroll                   -->
         <!-- ============================================================ -->
-        <section class="max-w-5xl mx-auto px-6 pb-20 reveal">
-            <div class="glass-card rounded-2xl py-6 px-6">
-                <div class="flex items-center justify-center gap-2 text-xs font-mono text-gray-500 mb-4">
-                    <span class="pulse-dot w-1.5 h-1.5 rounded-full bg-accent-green inline-block"></span>
-                    Indexed live from the demo repo · <span class="text-gray-400">acme-billing-api</span>
-                </div>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-                    <div><div id="stat-atoms" class="text-3xl md:text-4xl font-extrabold gradient-text">—</div><div class="text-xs text-gray-500 mt-1 uppercase tracking-wider">atoms extracted</div></div>
-                    <div><div id="stat-rules" class="text-3xl md:text-4xl font-extrabold gradient-text">—</div><div class="text-xs text-gray-500 mt-1 uppercase tracking-wider">rules promoted</div></div>
-                    <div><div id="stat-topics" class="text-3xl md:text-4xl font-extrabold gradient-text">—</div><div class="text-xs text-gray-500 mt-1 uppercase tracking-wider">topics discovered</div></div>
-                    <div><div id="stat-citations" class="text-3xl md:text-4xl font-extrabold gradient-text">—</div><div class="text-xs text-gray-500 mt-1 uppercase tracking-wider">PR / commit citations</div></div>
-                </div>
-            </div>
-        </section>
-
-        <!-- ============================================================ -->
-        <!-- LIVE QUERY BOX — the hero proof point                          -->
-        <!-- ============================================================ -->
-        <section id="try" class="max-w-5xl mx-auto px-6 pb-24 reveal">
-            <div class="text-center mb-8">
-                <span class="eyebrow">Try it right now</span>
-                <h2 class="text-3xl md:text-4xl font-bold text-white mb-3 tracking-tight">Ask the demo repo a question.</h2>
-                <p class="text-gray-400 max-w-2xl mx-auto leading-relaxed">Every result below is a real atom extracted from the demo repo's git history — with the actual PR and commit citations.</p>
-            </div>
-
-            <div class="glass-card rounded-2xl p-5 md:p-7 ring-gradient">
-                <div class="flex flex-wrap gap-2 mb-4" id="canned-questions"></div>
-
-                <div class="flex gap-2 mb-5">
-                    <input id="query-input" type="text" placeholder="Ask anything about the demo repo's conventions..." class="flex-1 bg-black/40 border border-white/10 rounded-lg px-4 py-3 text-sm text-gray-100 placeholder-gray-600 focus:outline-none focus:border-brand-500/60 focus:ring-2 focus:ring-brand-500/20 font-mono" />
-                    <button id="query-button" class="px-5 py-3 rounded-lg bg-gradient-to-r from-brand-600 to-accent-violet text-white font-semibold text-sm transition-all hover:shadow-lg hover:shadow-brand-600/30 disabled:opacity-50">
-                        Ask →
-                    </button>
-                </div>
-
-                <div id="query-results" class="space-y-3 min-h-[140px]">
-                    <div class="text-center text-sm text-gray-500 py-10">Pick a question above, or type your own.</div>
-                </div>
-                <div class="text-[11px] font-mono text-gray-600 mt-4 pt-4 border-t border-white/5 text-center">
-                    Results are real atoms from a pre-indexed demo DB. Same retrieval pipeline runs in <code class="text-brand-400">context_query</code> for any repo you index yourself.
+        <section class="relative bg-acid text-black border-y-2 border-acid py-8 md:py-10 overflow-hidden">
+            <div class="marquee marquee-fast" aria-hidden="true">
+                <div class="marquee-track">
+                    <div class="flex items-center gap-12 md:gap-16 px-8">
+                        <span class="display text-3xl md:text-5xl">9 COMMANDS</span><span class="display text-3xl md:text-5xl">✦</span>
+                        <span class="display text-3xl md:text-5xl">0 TELEMETRY</span><span class="display text-3xl md:text-5xl">✦</span>
+                        <span class="display text-3xl md:text-5xl">100% OFFLINE</span><span class="display text-3xl md:text-5xl">✦</span>
+                        <span class="display text-3xl md:text-5xl">SQLITE LOCAL</span><span class="display text-3xl md:text-5xl">✦</span>
+                        <span class="display text-3xl md:text-5xl">MCP-NATIVE</span><span class="display text-3xl md:text-5xl">✦</span>
+                        <span class="display text-3xl md:text-5xl">MIT LICENSE</span><span class="display text-3xl md:text-5xl">✦</span>
+                    </div>
+                    <div class="flex items-center gap-12 md:gap-16 px-8">
+                        <span class="display text-3xl md:text-5xl">9 COMMANDS</span><span class="display text-3xl md:text-5xl">✦</span>
+                        <span class="display text-3xl md:text-5xl">0 TELEMETRY</span><span class="display text-3xl md:text-5xl">✦</span>
+                        <span class="display text-3xl md:text-5xl">100% OFFLINE</span><span class="display text-3xl md:text-5xl">✦</span>
+                        <span class="display text-3xl md:text-5xl">SQLITE LOCAL</span><span class="display text-3xl md:text-5xl">✦</span>
+                        <span class="display text-3xl md:text-5xl">MCP-NATIVE</span><span class="display text-3xl md:text-5xl">✦</span>
+                        <span class="display text-3xl md:text-5xl">MIT LICENSE</span><span class="display text-3xl md:text-5xl">✦</span>
+                    </div>
                 </div>
             </div>
         </section>
 
         <!-- ============================================================ -->
-        <!-- PROOF STAT — real benchmark                                    -->
+        <!-- LIVE COUNTERS — massive numbers, brutalist grid               -->
         <!-- ============================================================ -->
-        <section id="proof" class="max-w-5xl mx-auto px-6 pb-24 reveal">
-            <div class="text-center mb-8">
-                <span class="eyebrow">Proof, not promises</span>
-                <h2 class="text-3xl md:text-4xl font-bold text-white mb-3 tracking-tight">When the team's rules are missing, LLMs make them up.</h2>
+        <section class="relative container-wide px-6 md:px-10 py-20 md:py-32 reveal">
+            <div class="flex items-center gap-3 mb-12 text-xs font-mono uppercase tracking-widest text-acid">
+                <span class="pulse-dot w-2 h-2 bg-acid"></span>
+                Indexed Live from acme-billing-api Demo Repo
             </div>
-
-            <div class="grid md:grid-cols-2 gap-6">
-                <div class="glass-card rounded-2xl p-7 ring-gradient text-center">
-                    <div class="text-xs uppercase tracking-wider text-gray-500 mb-3">Without ContextLayer</div>
-                    <div class="text-7xl font-extrabold text-gray-700 mb-2">0%</div>
-                    <div class="text-sm text-gray-500 mb-4">of demo queries surface a PR-cited rule.</div>
-                    <div class="text-xs font-mono text-gray-600 leading-relaxed">A stock LLM has never read your repo's PRs. It can't cite what it can't see — so it confidently improvises.</div>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-px bg-line">
+                <div class="bg-ink p-8 md:p-10">
+                    <div id="stat-atoms" class="massive-num text-7xl md:text-8xl text-acid mb-2">—</div>
+                    <div class="text-xs md:text-sm font-mono font-semibold uppercase tracking-widest text-zinc4">Atoms Extracted</div>
                 </div>
-
-                <div class="glass-card rounded-2xl p-7 ring-gradient text-center" style="border-color: rgba(77,171,247,0.3)">
-                    <div class="text-xs uppercase tracking-wider text-brand-300 mb-3">With ContextLayer</div>
-                    <div class="text-7xl font-extrabold gradient-text mb-2" id="bench-rate">100%</div>
-                    <div class="text-sm text-gray-300 mb-4"><span id="bench-fraction">8 of 8</span> demo queries surface the right rule with a real citation.</div>
-                    <div class="text-xs font-mono text-gray-500 leading-relaxed">Indexed from git+PR history into a local SQLite. The retrieval pipeline picks rules first; the LLM sees citations, not vibes.</div>
+                <div class="bg-ink p-8 md:p-10">
+                    <div id="stat-rules" class="massive-num text-7xl md:text-8xl text-acid mb-2">—</div>
+                    <div class="text-xs md:text-sm font-mono font-semibold uppercase tracking-widest text-zinc4">Rules Promoted</div>
                 </div>
-            </div>
-
-            <div class="text-center text-[11px] font-mono text-gray-600 mt-5">
-                Benchmark: 8 hand-curated queries against the demo repo · top-5 must include an <code class="text-brand-400">is_rule</code> atom with non-empty <code class="text-brand-400">source_refs</code> · reproducible via <code class="text-brand-400">contextlayer query</code>.
-            </div>
-        </section>
-
-        <!-- ============================================================ -->
-        <!-- HOW IT WORKS — three glyphs                                    -->
-        <!-- ============================================================ -->
-        <section id="how" class="max-w-5xl mx-auto px-6 pb-24 reveal">
-            <div class="text-center mb-12">
-                <span class="eyebrow">In 30 seconds</span>
-                <h2 class="text-3xl md:text-4xl font-bold text-white mb-3 tracking-tight">Three steps. No SaaS. No login.</h2>
-            </div>
-
-            <div class="grid md:grid-cols-3 gap-5">
-                <div class="glass-card rounded-2xl p-7 ring-gradient">
-                    <div class="text-3xl mb-3">📖</div>
-                    <div class="text-xs font-mono text-brand-300 mb-1">step 1 · once</div>
-                    <h3 class="font-bold text-white text-lg mb-2">Index your repo</h3>
-                    <p class="text-sm text-gray-400 leading-relaxed mb-3"><code class="text-brand-300 font-mono text-xs">contextlayer index .</code> reads git + PRs and writes a local SQLite of <strong class="text-white">conventions, decisions, deprecations</strong>.</p>
-                    <div class="text-[11px] font-mono text-gray-600">Re-runs are near-free (idempotent cache).</div>
+                <div class="bg-ink p-8 md:p-10">
+                    <div id="stat-topics" class="massive-num text-7xl md:text-8xl text-acid mb-2">—</div>
+                    <div class="text-xs md:text-sm font-mono font-semibold uppercase tracking-widest text-zinc4">Topics</div>
                 </div>
-
-                <div class="glass-card rounded-2xl p-7 ring-gradient">
-                    <div class="text-3xl mb-3">🔌</div>
-                    <div class="text-xs font-mono text-brand-300 mb-1">step 2 · once</div>
-                    <h3 class="font-bold text-white text-lg mb-2">Plug into your AI</h3>
-                    <p class="text-sm text-gray-400 leading-relaxed mb-3">One <code class="text-brand-300 font-mono text-xs">.mcp.json</code> block. Claude Code, Cursor, and Claude Desktop pick it up automatically.</p>
-                    <div class="text-[11px] font-mono text-gray-600">MCP-native — no SDK, no shims.</div>
-                </div>
-
-                <div class="glass-card rounded-2xl p-7 ring-gradient">
-                    <div class="text-3xl mb-3">🎯</div>
-                    <div class="text-xs font-mono text-brand-300 mb-1">step 3 · every session</div>
-                    <h3 class="font-bold text-white text-lg mb-2">Your AI cites your team</h3>
-                    <p class="text-sm text-gray-400 leading-relaxed mb-3">Your LLM calls <code class="text-brand-300 font-mono text-xs">context_query</code> before answering. Replies come back with <strong class="text-white">real PR numbers</strong> and commit SHAs.</p>
-                    <div class="text-[11px] font-mono text-gray-600">No telemetry. No data leaves your box.</div>
+                <div class="bg-ink p-8 md:p-10">
+                    <div id="stat-citations" class="massive-num text-7xl md:text-8xl text-acid mb-2">—</div>
+                    <div class="text-xs md:text-sm font-mono font-semibold uppercase tracking-widest text-zinc4">PR / Commit Refs</div>
                 </div>
             </div>
         </section>
 
         <!-- ============================================================ -->
-        <!-- FEATURES — every CLI command, the full surface area           -->
+        <!-- LIVE QUERY BOX                                                -->
         <!-- ============================================================ -->
-        <section id="features" class="max-w-5xl mx-auto px-6 pb-24 reveal">
-            <div class="text-center mb-10">
-                <span class="eyebrow">Everything in the box</span>
-                <h2 class="text-3xl md:text-4xl font-bold text-white mb-3 tracking-tight">
-                    Nine commands. <span class="gradient-text">One mental model.</span>
-                </h2>
-                <p class="text-gray-400 max-w-2xl mx-auto leading-relaxed">
-                    Each subcommand reads from — or writes to — the same local SQLite knowledge store.
-                    Combine them in CI, in your editor, or at the prompt. The three highlighted commands
-                    are brand-new in <strong class="text-white">v1.1</strong>.
+        <section id="try" class="relative container-wide px-6 md:px-10 py-20 md:py-32 reveal section-edge">
+            <div class="grid md:grid-cols-[1fr_2fr] gap-10 md:gap-16 mb-10 md:mb-16">
+                <div>
+                    <span class="eyebrow">Try It Right Now</span>
+                    <h2 class="display section-h2 text-paper">Ask the<br>Demo<br>Repo.</h2>
+                </div>
+                <p class="text-lg md:text-xl text-zinc4 leading-tight max-w-2xl self-end">
+                    Every result below is a real atom extracted from the demo repo's git history — with the actual PR and commit citations attached. No mocks.
                 </p>
             </div>
 
+            <div class="kt-card-static p-6 md:p-10">
+                <div class="text-xs font-mono uppercase tracking-widest text-acid mb-4">Pick a question</div>
+                <div class="flex flex-wrap gap-2 mb-8" id="canned-questions"></div>
+
+                <div class="flex flex-col md:flex-row gap-4 md:gap-6 mb-8 items-stretch">
+                    <input id="query-input" type="text" placeholder="Or type your own..." class="kt-input flex-1" autocomplete="off" />
+                    <button id="query-button" class="btn-acid md:w-auto">Ask →</button>
+                </div>
+
+                <div id="query-results" class="space-y-3 min-h-[140px]">
+                    <div class="text-zinc4 text-base py-12 font-mono uppercase tracking-widest text-xs">Pick a question above, or type your own.</div>
+                </div>
+
+                <div class="text-xs font-mono uppercase tracking-widest text-zinc4 mt-6 pt-6 border-t-2 border-line">
+                    Same retrieval pipeline runs in <code class="text-acid">context_query</code> for any repo you index.
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================================ -->
+        <!-- PROOF — massive 0% vs 100% as poster numerals                 -->
+        <!-- ============================================================ -->
+        <section id="proof" class="relative container-wide px-6 md:px-10 py-20 md:py-32 reveal section-edge">
+            <span class="eyebrow">Proof, Not Promises</span>
+            <h2 class="display section-h2 text-paper mb-16">
+                When the rules<br>are missing,<br><span class="text-acid">LLMs make<br>them up.</span>
+            </h2>
+
+            <div class="grid md:grid-cols-2 gap-px bg-line">
+                <div class="bg-ink p-8 md:p-12 relative overflow-hidden">
+                    <div class="text-xs font-mono uppercase tracking-widest text-zinc4 mb-6">Without ContextLayer</div>
+                    <div class="massive-num text-[10rem] md:text-[14rem] lg:text-[18rem] text-muted leading-[0.8] mb-4">0%</div>
+                    <p class="text-base md:text-lg text-zinc4 leading-tight">A stock LLM has never read your repo's PRs. It can't cite what it can't see — so it confidently improvises.</p>
+                </div>
+                <div class="bg-acid p-8 md:p-12 relative overflow-hidden text-black">
+                    <div class="text-xs font-mono uppercase tracking-widest text-black mb-6 opacity-80">With ContextLayer</div>
+                    <div class="massive-num text-[10rem] md:text-[14rem] lg:text-[18rem] text-black leading-[0.8] mb-4" id="bench-rate">100%</div>
+                    <p class="text-base md:text-lg text-black leading-tight font-semibold"><span id="bench-fraction">8 of 8</span> demo queries surface the right rule with a real citation. Indexed from git+PR history into a local SQLite.</p>
+                </div>
+            </div>
+
+            <div class="text-xs font-mono uppercase tracking-widest text-zinc4 mt-8">
+                Benchmark: 8 hand-curated queries · top-5 must include an <code class="text-acid">is_rule</code> atom with non-empty <code class="text-acid">source_refs</code> · reproducible via <code class="text-acid">contextlayer query</code>
+            </div>
+        </section>
+
+        <!-- ============================================================ -->
+        <!-- HOW IT WORKS — three brutalist cards                           -->
+        <!-- ============================================================ -->
+        <section id="how" class="relative container-wide px-6 md:px-10 py-20 md:py-32 reveal section-edge">
+            <div class="grid md:grid-cols-[1fr_2fr] gap-10 md:gap-16 mb-16">
+                <div>
+                    <span class="eyebrow">In 30 Seconds</span>
+                    <h2 class="display section-h2 text-paper">Three<br>Steps.<br><span class="text-acid">No SaaS.</span></h2>
+                </div>
+                <p class="text-lg md:text-xl text-zinc4 leading-tight max-w-2xl self-end">
+                    No login. No dashboard. No cloud. One CLI, one local SQLite file, one MCP stdio server. That's it.
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-px bg-line">
+                <div class="kt-card p-8 md:p-10 group">
+                    <div class="massive-num text-[5rem] md:text-[6rem] text-muted mb-6 group-hover:text-black transition-colors">01</div>
+                    <div class="text-xs font-mono uppercase tracking-widest text-acid kt-card-meta mb-4 group-hover:text-black transition-colors">Step 1 · Once</div>
+                    <h3 class="display text-2xl md:text-3xl text-paper kt-card-text mb-4 group-hover:text-black transition-colors">Index Your Repo</h3>
+                    <p class="text-base text-zinc4 kt-card-text leading-tight mb-4 group-hover:text-black transition-colors"><code class="font-mono text-sm text-acid kt-card-code-name group-hover:text-black">contextlayer index .</code> reads git + PRs and writes a local SQLite of conventions, decisions, deprecations.</p>
+                    <div class="text-xs font-mono uppercase tracking-widest text-zinc4 kt-card-meta group-hover:text-black transition-colors">Re-runs near-free</div>
+                </div>
+                <div class="kt-card p-8 md:p-10 group">
+                    <div class="massive-num text-[5rem] md:text-[6rem] text-muted mb-6 group-hover:text-black transition-colors">02</div>
+                    <div class="text-xs font-mono uppercase tracking-widest text-acid kt-card-meta mb-4 group-hover:text-black transition-colors">Step 2 · Once</div>
+                    <h3 class="display text-2xl md:text-3xl text-paper kt-card-text mb-4 group-hover:text-black transition-colors">Plug Into Your AI</h3>
+                    <p class="text-base text-zinc4 kt-card-text leading-tight mb-4 group-hover:text-black transition-colors">One <code class="font-mono text-sm text-acid kt-card-code-name group-hover:text-black">.mcp.json</code> block. Claude Code, Cursor, Claude Desktop pick it up automatically.</p>
+                    <div class="text-xs font-mono uppercase tracking-widest text-zinc4 kt-card-meta group-hover:text-black transition-colors">No SDK, no shims</div>
+                </div>
+                <div class="kt-card p-8 md:p-10 group">
+                    <div class="massive-num text-[5rem] md:text-[6rem] text-muted mb-6 group-hover:text-black transition-colors">03</div>
+                    <div class="text-xs font-mono uppercase tracking-widest text-acid kt-card-meta mb-4 group-hover:text-black transition-colors">Step 3 · Every Session</div>
+                    <h3 class="display text-2xl md:text-3xl text-paper kt-card-text mb-4 group-hover:text-black transition-colors">AI Cites Your Team</h3>
+                    <p class="text-base text-zinc4 kt-card-text leading-tight mb-4 group-hover:text-black transition-colors">Your LLM calls <code class="font-mono text-sm text-acid kt-card-code-name group-hover:text-black">context_query</code> before answering. Replies come back with real PR numbers and commit SHAs.</p>
+                    <div class="text-xs font-mono uppercase tracking-widest text-zinc4 kt-card-meta group-hover:text-black transition-colors">No telemetry</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================================ -->
+        <!-- FEATURES — nine commands                                       -->
+        <!-- ============================================================ -->
+        <section id="features" class="relative container-wide px-6 md:px-10 py-20 md:py-32 reveal section-edge">
+            <span class="eyebrow">Everything in the Box</span>
+            <h2 class="display section-h2 text-paper mb-6">
+                Nine Commands.<br><span class="text-acid">One Mental<br>Model.</span>
+            </h2>
+            <p class="text-lg md:text-xl text-zinc4 leading-tight max-w-3xl mb-16">
+                Every subcommand reads from — or writes to — the same local SQLite knowledge store. Combine them in CI, in your editor, or at the prompt. <span class="text-acid font-bold">Three are brand-new in v1.1.</span>
+            </p>
+
             <!-- Build / index commands -->
-            <div class="mb-8">
-                <div class="text-xs font-mono text-brand-300 mb-3 uppercase tracking-wider">📖 Build the index</div>
-                <div class="grid md:grid-cols-2 gap-4">
-                    <div class="glass-card rounded-xl p-5 ring-gradient">
-                        <div class="flex items-baseline gap-2 mb-2">
-                            <code class="text-brand-300 font-mono text-sm font-semibold">contextlayer index</code>
-                            <span class="text-[10px] font-mono text-gray-600 uppercase tracking-wider">requires ANTHROPIC_API_KEY</span>
+            <div class="mb-16">
+                <div class="display text-xs font-mono uppercase tracking-widest text-acid mb-6">📖 / Build the Index</div>
+                <div class="grid md:grid-cols-2 gap-px bg-line">
+                    <div class="kt-card p-8 group">
+                        <div class="flex items-baseline justify-between gap-3 mb-3">
+                            <code class="font-mono text-base font-bold text-acid kt-card-code-name group-hover:text-black transition-colors">contextlayer index</code>
+                            <span class="text-[10px] font-mono uppercase tracking-widest text-zinc4 kt-card-meta group-hover:text-black transition-colors">Requires ANTHROPIC_API_KEY</span>
                         </div>
-                        <p class="text-sm text-gray-400 leading-relaxed">
-                            Runs the full <strong class="text-white">Haiku → Sonnet → Opus</strong> extraction pipeline against your git log, GitHub PRs, and code. Writes canonical atoms + embeddings + topic clusters. Idempotent — re-runs are near-free.
+                        <p class="text-base text-zinc4 kt-card-text leading-tight group-hover:text-black transition-colors">
+                            Runs the full <strong class="text-paper kt-card-text group-hover:text-black">Haiku → Sonnet → Opus</strong> extraction pipeline against git log, GitHub PRs, and code. Writes canonical atoms + embeddings + topic clusters. Idempotent.
                         </p>
                     </div>
-                    <div class="glass-card rounded-xl p-5 ring-gradient">
-                        <div class="flex items-baseline gap-2 mb-2">
-                            <code class="text-brand-300 font-mono text-sm font-semibold">contextlayer scan</code>
-                            <span class="text-[10px] font-mono text-gray-600 uppercase tracking-wider">requires ANTHROPIC_API_KEY</span>
+                    <div class="kt-card p-8 group">
+                        <div class="flex items-baseline justify-between gap-3 mb-3">
+                            <code class="font-mono text-base font-bold text-acid kt-card-code-name group-hover:text-black transition-colors">contextlayer scan</code>
+                            <span class="text-[10px] font-mono uppercase tracking-widest text-zinc4 kt-card-meta group-hover:text-black transition-colors">Requires ANTHROPIC_API_KEY</span>
                         </div>
-                        <p class="text-sm text-gray-400 leading-relaxed">
+                        <p class="text-base text-zinc4 kt-card-text leading-tight group-hover:text-black transition-colors">
                             Code-only ingestion path. For greenfield repos with no PR history — reads manifests, READMEs, and top source files. Day-one conventions on any repo.
                         </p>
                     </div>
@@ -960,24 +959,24 @@
             </div>
 
             <!-- Serve / query commands -->
-            <div class="mb-8">
-                <div class="text-xs font-mono text-brand-300 mb-3 uppercase tracking-wider">🔌 Serve the index</div>
-                <div class="grid md:grid-cols-2 gap-4">
-                    <div class="glass-card rounded-xl p-5 ring-gradient">
-                        <div class="flex items-baseline gap-2 mb-2">
-                            <code class="text-brand-300 font-mono text-sm font-semibold">contextlayer mcp</code>
-                            <span class="text-[10px] font-mono text-accent-green uppercase tracking-wider">keyless</span>
+            <div class="mb-16">
+                <div class="display text-xs font-mono uppercase tracking-widest text-acid mb-6">🔌 / Serve the Index</div>
+                <div class="grid md:grid-cols-2 gap-px bg-line">
+                    <div class="kt-card p-8 group">
+                        <div class="flex items-baseline justify-between gap-3 mb-3">
+                            <code class="font-mono text-base font-bold text-acid kt-card-code-name group-hover:text-black transition-colors">contextlayer mcp</code>
+                            <span class="text-[10px] font-mono uppercase tracking-widest text-acid kt-card-meta group-hover:text-black transition-colors">Keyless</span>
                         </div>
-                        <p class="text-sm text-gray-400 leading-relaxed">
-                            Starts the stdio MCP server. Exposes <code class="text-brand-300 font-mono text-xs">context_query</code>, <code class="text-brand-300 font-mono text-xs">context_validate</code>, and <code class="text-brand-300 font-mono text-xs">context_list_topics</code> to Claude Code, Cursor, Claude Desktop, and any MCP-compatible client.
+                        <p class="text-base text-zinc4 kt-card-text leading-tight group-hover:text-black transition-colors">
+                            Starts the stdio MCP server. Exposes <code class="font-mono text-sm text-acid kt-card-code-name group-hover:text-black">context_query</code>, <code class="font-mono text-sm text-acid kt-card-code-name group-hover:text-black">context_validate</code>, <code class="font-mono text-sm text-acid kt-card-code-name group-hover:text-black">context_list_topics</code> to any MCP client.
                         </p>
                     </div>
-                    <div class="glass-card rounded-xl p-5 ring-gradient">
-                        <div class="flex items-baseline gap-2 mb-2">
-                            <code class="text-brand-300 font-mono text-sm font-semibold">contextlayer status</code>
-                            <span class="text-[10px] font-mono text-accent-green uppercase tracking-wider">keyless</span>
+                    <div class="kt-card p-8 group">
+                        <div class="flex items-baseline justify-between gap-3 mb-3">
+                            <code class="font-mono text-base font-bold text-acid kt-card-code-name group-hover:text-black transition-colors">contextlayer status</code>
+                            <span class="text-[10px] font-mono uppercase tracking-widest text-acid kt-card-meta group-hover:text-black transition-colors">Keyless</span>
                         </div>
-                        <p class="text-sm text-gray-400 leading-relaxed">
+                        <p class="text-base text-zinc4 kt-card-text leading-tight group-hover:text-black transition-colors">
                             Print atom / rule / topic counts and last-indexed time. The fastest "is this thing built yet?" check.
                         </p>
                     </div>
@@ -985,24 +984,24 @@
             </div>
 
             <!-- Capture commands -->
-            <div class="mb-8">
-                <div class="text-xs font-mono text-brand-300 mb-3 uppercase tracking-wider">✍️ Capture &amp; export knowledge</div>
-                <div class="grid md:grid-cols-2 gap-4">
-                    <div class="glass-card rounded-xl p-5 ring-gradient">
-                        <div class="flex items-baseline gap-2 mb-2">
-                            <code class="text-brand-300 font-mono text-sm font-semibold">contextlayer note</code>
-                            <span class="text-[10px] font-mono text-accent-green uppercase tracking-wider">keyless</span>
+            <div class="mb-16">
+                <div class="display text-xs font-mono uppercase tracking-widest text-acid mb-6">✍ / Capture &amp; Export</div>
+                <div class="grid md:grid-cols-2 gap-px bg-line">
+                    <div class="kt-card p-8 group">
+                        <div class="flex items-baseline justify-between gap-3 mb-3">
+                            <code class="font-mono text-base font-bold text-acid kt-card-code-name group-hover:text-black transition-colors">contextlayer note</code>
+                            <span class="text-[10px] font-mono uppercase tracking-widest text-acid kt-card-meta group-hover:text-black transition-colors">Keyless</span>
                         </div>
-                        <p class="text-sm text-gray-400 leading-relaxed">
-                            Manually capture a decision atom: <code class="text-brand-300 font-mono text-xs">contextlayer note "Do not use threading" --scope src/workers/**</code>. No PR? No problem.
+                        <p class="text-base text-zinc4 kt-card-text leading-tight group-hover:text-black transition-colors">
+                            Manually capture a decision atom: <code class="font-mono text-xs text-acid kt-card-code-name group-hover:text-black">contextlayer note "Do not use threading" --scope src/workers/**</code>. No PR? No problem.
                         </p>
                     </div>
-                    <div class="glass-card rounded-xl p-5 ring-gradient">
-                        <div class="flex items-baseline gap-2 mb-2">
-                            <code class="text-brand-300 font-mono text-sm font-semibold">contextlayer explain</code>
-                            <span class="text-[10px] font-mono text-accent-green uppercase tracking-wider">keyless</span>
+                    <div class="kt-card p-8 group">
+                        <div class="flex items-baseline justify-between gap-3 mb-3">
+                            <code class="font-mono text-base font-bold text-acid kt-card-code-name group-hover:text-black transition-colors">contextlayer explain</code>
+                            <span class="text-[10px] font-mono uppercase tracking-widest text-acid kt-card-meta group-hover:text-black transition-colors">Keyless</span>
                         </div>
-                        <p class="text-sm text-gray-400 leading-relaxed">
+                        <p class="text-base text-zinc4 kt-card-text leading-tight group-hover:text-black transition-colors">
                             Renders a Markdown project brief from indexed atoms. Pipe into a fresh LLM session and skip the "explain my project" tax.
                         </p>
                     </div>
@@ -1011,120 +1010,96 @@
 
             <!-- NEW v1.1 features -->
             <div>
-                <div class="flex items-center gap-3 mb-3">
-                    <div class="text-xs font-mono text-accent-violet uppercase tracking-wider">🚀 New in v1.1 · CI-grade signals</div>
-                    <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-accent-violet/20 text-accent-violet">NEW</span>
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="display text-xs font-mono uppercase tracking-widest text-acid">🚀 / New in v1.1 · CI-Grade Signals</div>
+                    <span class="text-[10px] font-mono uppercase tracking-widest font-bold px-2 py-0.5 bg-acid text-black">NEW</span>
                 </div>
-                <div class="grid md:grid-cols-3 gap-4">
-                    <!-- HEALTH -->
-                    <div class="glass-card rounded-xl p-5 ring-gradient" style="border-color: rgba(151,71,255,0.35)">
-                        <div class="flex items-baseline gap-2 mb-2">
-                            <code class="text-accent-violet font-mono text-sm font-semibold">contextlayer health</code>
-                        </div>
-                        <p class="text-sm text-gray-400 leading-relaxed mb-3">
-                            Scores your convention index <strong class="text-white">0–100 (A–F)</strong> across 6 dimensions:
-                            atom count, rule count, topic breadth, citation coverage, freshness, and conflict-freedom.
-                            Pure read, no API calls.
+                <div class="grid md:grid-cols-3 gap-px bg-line">
+                    <div class="bg-ink border-2 border-acid p-8">
+                        <code class="font-mono text-base font-bold text-acid block mb-3">contextlayer health</code>
+                        <p class="text-base text-zinc4 leading-tight mb-5">
+                            Scores your convention index <strong class="text-paper">0–100 (A–F)</strong> across 6 dimensions. Pure read, no API calls.
                         </p>
-                        <div class="code-block rounded-lg p-3 font-mono text-[11px] leading-relaxed text-gray-400 overflow-x-auto">
-<pre><span class="text-gray-600">┌──────────────────────────────┐</span>
-<span class="text-gray-600">│</span>  <span class="text-white">Convention Health: A+ (98)</span>  <span class="text-gray-600">│</span>
-<span class="text-gray-600">│</span>                              <span class="text-gray-600">│</span>
-<span class="text-gray-600">│</span>  <span class="text-accent-green">✓</span> 15 atoms · 8 rules        <span class="text-gray-600">│</span>
-<span class="text-gray-600">│</span>  <span class="text-accent-green">✓</span> 7 topics · 24 citations   <span class="text-gray-600">│</span>
-<span class="text-gray-600">│</span>  <span class="text-accent-green">✓</span> No conflicts · all fresh  <span class="text-gray-600">│</span>
-<span class="text-gray-600">└──────────────────────────────┘</span></pre>
-                        </div>
+                        <pre class="kt-code p-4 overflow-x-auto whitespace-pre"><span style="color:#71717A">┌──────────────────────────────┐</span>
+<span style="color:#71717A">│</span>  <span style="color:#FAFAFA">Health: A+ (98)</span>             <span style="color:#71717A">│</span>
+<span style="color:#71717A">│</span>                              <span style="color:#71717A">│</span>
+<span style="color:#71717A">│</span>  <span style="color:#DFE104">✓</span> 15 atoms · 8 rules        <span style="color:#71717A">│</span>
+<span style="color:#71717A">│</span>  <span style="color:#DFE104">✓</span> 7 topics · 24 citations   <span style="color:#71717A">│</span>
+<span style="color:#71717A">│</span>  <span style="color:#DFE104">✓</span> No conflicts · all fresh  <span style="color:#71717A">│</span>
+<span style="color:#71717A">└──────────────────────────────┘</span></pre>
                     </div>
-
-                    <!-- DRIFT -->
-                    <div class="glass-card rounded-xl p-5 ring-gradient" style="border-color: rgba(151,71,255,0.35)">
-                        <div class="flex items-baseline gap-2 mb-2">
-                            <code class="text-accent-violet font-mono text-sm font-semibold">contextlayer drift</code>
-                        </div>
-                        <p class="text-sm text-gray-400 leading-relaxed mb-3">
-                            Checks recent commits against indexed rules. Heuristic, deterministic,
-                            <strong class="text-white">zero LLM calls</strong> — safe to gate CI on.
-                            Exits 1 when violations are found. Use in pre-merge hooks.
+                    <div class="bg-ink border-2 border-acid p-8">
+                        <code class="font-mono text-base font-bold text-acid block mb-3">contextlayer drift</code>
+                        <p class="text-base text-zinc4 leading-tight mb-5">
+                            Checks recent commits against indexed rules. Deterministic, <strong class="text-paper">zero LLM calls</strong>. Exits 1 on violations.
                         </p>
-                        <div class="code-block rounded-lg p-3 font-mono text-[11px] leading-relaxed text-gray-400 overflow-x-auto">
-<pre><span class="text-gray-600">$</span> contextlayer drift --last 10
-<span class="text-accent-pink">⚠ 1 potential violation:</span>
+                        <pre class="kt-code p-4 overflow-x-auto whitespace-pre"><span style="color:#71717A">$</span> contextlayer drift --last 10
+<span style="color:#DFE104">⚠ 1 potential violation:</span>
 
   commit def5678 (5d ago)
-  ┗━ Violates <span class="text-brand-300">a_2598</span>: "Do not
+  ┗━ Violates <span style="color:#DFE104">a_2598</span>: "Do not
      use utils/db_helper"
-     <span class="text-gray-600">Source: PR #8</span></pre>
-                        </div>
+     <span style="color:#71717A">Source: PR #8</span></pre>
                     </div>
-
-                    <!-- CLAUDE-MD -->
-                    <div class="glass-card rounded-xl p-5 ring-gradient" style="border-color: rgba(151,71,255,0.35)">
-                        <div class="flex items-baseline gap-2 mb-2">
-                            <code class="text-accent-violet font-mono text-sm font-semibold">contextlayer claude-md</code>
-                        </div>
-                        <p class="text-sm text-gray-400 leading-relaxed mb-3">
-                            Emits a production-quality <code class="text-brand-300 font-mono text-xs">CLAUDE.md</code> derived from the index — topic-grouped, rules first, citations inlined. <code class="text-brand-300 font-mono text-xs">--append</code> works for existing files.
+                    <div class="bg-ink border-2 border-acid p-8">
+                        <code class="font-mono text-base font-bold text-acid block mb-3">contextlayer claude-md</code>
+                        <p class="text-base text-zinc4 leading-tight mb-5">
+                            Emits a production-quality <code class="font-mono text-sm text-acid">CLAUDE.md</code> — topic-grouped, rules first, citations inlined. <code class="font-mono text-sm text-acid">--append</code> for existing files.
                         </p>
-                        <div class="code-block rounded-lg p-3 font-mono text-[11px] leading-relaxed text-gray-400 overflow-x-auto">
-<pre><span class="text-gray-600">## Database Access</span>
+                        <pre class="kt-code p-4 overflow-x-auto whitespace-pre"><span style="color:#71717A">## Database Access</span>
 
-<span class="text-gray-600">### Rules</span>
-- <span class="text-white">NEVER share sessions.</span>
-  <span class="text-gray-600">[Scope: routes/**]</span>
-  <span class="text-gray-600">(Source: PR #14)</span></pre>
-                        </div>
+<span style="color:#71717A">### Rules</span>
+- <span style="color:#FAFAFA">NEVER share sessions.</span>
+  <span style="color:#71717A">[Scope: routes/**]</span>
+  <span style="color:#71717A">(Source: PR #14)</span></pre>
                     </div>
                 </div>
-                <div class="text-center text-[11px] font-mono text-gray-600 mt-5">
-                    All three v1.1 commands are <strong class="text-accent-green">keyless</strong> and <strong class="text-accent-green">read-only</strong>. Wire them into <code class="text-brand-400">.github/workflows</code> or a <code class="text-brand-400">pre-commit</code> hook today.
+                <div class="text-xs font-mono uppercase tracking-widest text-zinc4 mt-6">
+                    All three v1.1 commands are <strong class="text-acid">keyless</strong> and <strong class="text-acid">read-only</strong>. Wire into <code class="text-acid">.github/workflows</code> or pre-commit today.
                 </div>
             </div>
         </section>
 
         <!-- ============================================================ -->
-        <!-- context_validate — the killer feature                          -->
+        <!-- context_validate                                                -->
         <!-- ============================================================ -->
-        <section id="validate" class="max-w-5xl mx-auto px-6 pb-24 reveal">
-            <div class="text-center mb-10">
-                <span class="eyebrow">Push, not just pull</span>
-                <h2 class="text-3xl md:text-4xl font-bold text-white mb-3 tracking-tight">
-                    Catch <span class="gradient-text">convention violations</span> before they ship.
-                </h2>
-                <p class="text-gray-400 max-w-2xl mx-auto leading-relaxed">
-                    <code class="text-brand-300 font-mono text-sm">context_query</code> is pull: the agent has to ask.
-                    <code class="text-brand-300 font-mono text-sm">context_validate</code> is push: show your proposed change, get a verdict.
-                </p>
-            </div>
+        <section id="validate" class="relative container-wide px-6 md:px-10 py-20 md:py-32 reveal section-edge">
+            <span class="eyebrow">Push, Not Just Pull</span>
+            <h2 class="display section-h2 text-paper mb-6">
+                Catch <span class="text-acid">violations</span><br>before they ship.
+            </h2>
+            <p class="text-lg md:text-xl text-zinc4 leading-tight max-w-3xl mb-16">
+                <code class="text-acid">context_query</code> is pull: the agent has to ask. <code class="text-acid">context_validate</code> is push: show your proposed change, get a verdict.
+            </p>
 
-            <div class="grid md:grid-cols-2 gap-6 items-start">
-                <div class="glass-card rounded-2xl p-7 ring-gradient">
-                    <div class="text-xs font-mono text-brand-300 mb-3 uppercase tracking-wider">The flow</div>
-                    <ol class="space-y-3 text-sm text-gray-300 leading-relaxed">
-                        <li class="flex gap-3"><span class="text-brand-400 font-mono">1.</span>Your LLM proposes a change.</li>
-                        <li class="flex gap-3"><span class="text-brand-400 font-mono">2.</span>It calls <code class="text-brand-300 font-mono text-xs">context_validate(proposed_change=...)</code></li>
-                        <li class="flex gap-3"><span class="text-brand-400 font-mono">3.</span>A deterministic engine checks scope, anti-patterns, and forbidden phrases — <strong class="text-white">no LLM call needed</strong> for the common cases.</li>
-                        <li class="flex gap-3"><span class="text-brand-400 font-mono">4.</span>Ambiguous cases escalate to a Haiku judge (pennies/call). Premium tier sends every check.</li>
-                        <li class="flex gap-3"><span class="text-brand-400 font-mono">5.</span>Verdict + cited source_refs come back. The LLM revises.</li>
+            <div class="grid md:grid-cols-2 gap-px bg-line">
+                <div class="bg-ink p-8 md:p-12">
+                    <div class="text-xs font-mono uppercase tracking-widest text-acid mb-6">The Flow</div>
+                    <ol class="space-y-5 text-base md:text-lg text-paper leading-tight">
+                        <li class="flex gap-4"><span class="massive-num text-3xl md:text-4xl text-acid flex-shrink-0">01</span><span class="self-center">Your LLM proposes a change.</span></li>
+                        <li class="flex gap-4"><span class="massive-num text-3xl md:text-4xl text-acid flex-shrink-0">02</span><span class="self-center">It calls <code class="font-mono text-sm text-acid">context_validate(proposed_change=...)</code></span></li>
+                        <li class="flex gap-4"><span class="massive-num text-3xl md:text-4xl text-acid flex-shrink-0">03</span><span class="self-center">Deterministic engine checks scope, anti-patterns, forbidden phrases — <strong class="text-acid">no LLM call</strong> for common cases.</span></li>
+                        <li class="flex gap-4"><span class="massive-num text-3xl md:text-4xl text-acid flex-shrink-0">04</span><span class="self-center">Ambiguous cases escalate to a Haiku judge (pennies/call). Premium tier sends every check.</span></li>
+                        <li class="flex gap-4"><span class="massive-num text-3xl md:text-4xl text-acid flex-shrink-0">05</span><span class="self-center">Verdict + cited source_refs come back. The LLM revises.</span></li>
                     </ol>
                 </div>
 
-                <div class="glass-card rounded-2xl p-5 ring-gradient code-block">
-<pre class="text-xs leading-relaxed text-gray-300 overflow-x-auto font-mono"><span class="text-gray-600">// Your LLM calls: context_validate(
+                <div class="bg-ink p-6 md:p-8 overflow-hidden">
+                    <pre class="kt-code p-5 text-xs md:text-sm leading-relaxed overflow-x-auto"><span style="color:#71717A">// Your LLM calls: context_validate(
 //   proposed_change="Add endpoint that uses
 //                    threading for concurrent DB calls"
 // )</span>
 {
-  <span class="text-brand-300">"passes"</span>: <span class="text-accent-pink">false</span>,
-  <span class="text-brand-300">"violations"</span>: [{
-    <span class="text-brand-300">"rule_id"</span>: <span class="text-accent-green">"a_8f1c..."</span>,
-    <span class="text-brand-300">"rule_summary"</span>: <span class="text-accent-green">"Do not use threading —</span>
-<span class="text-accent-green">                       caused race condition in #88"</span>,
-    <span class="text-brand-300">"why_violated"</span>: <span class="text-accent-green">"Proposal uses threading</span>
-<span class="text-accent-green">                      where async-first is required"</span>,
-    <span class="text-brand-300">"severity"</span>: <span class="text-accent-green">"high"</span>,
-    <span class="text-brand-300">"source_refs"</span>: [<span class="text-accent-green">"issue:88"</span>, <span class="text-accent-green">"pr:142"</span>],
-    <span class="text-brand-300">"scope"</span>: <span class="text-accent-green">"src/workers/**"</span>
+  <span style="color:#DFE104">"passes"</span>: <span style="color:#FAFAFA">false</span>,
+  <span style="color:#DFE104">"violations"</span>: [{
+    <span style="color:#DFE104">"rule_id"</span>: <span style="color:#FAFAFA">"a_8f1c..."</span>,
+    <span style="color:#DFE104">"rule_summary"</span>: <span style="color:#FAFAFA">"Do not use threading —</span>
+<span style="color:#FAFAFA">                       caused race condition in #88"</span>,
+    <span style="color:#DFE104">"why_violated"</span>: <span style="color:#FAFAFA">"Proposal uses threading</span>
+<span style="color:#FAFAFA">                      where async-first is required"</span>,
+    <span style="color:#DFE104">"severity"</span>: <span style="color:#FAFAFA">"high"</span>,
+    <span style="color:#DFE104">"source_refs"</span>: [<span style="color:#FAFAFA">"issue:88"</span>, <span style="color:#FAFAFA">"pr:142"</span>],
+    <span style="color:#DFE104">"scope"</span>: <span style="color:#FAFAFA">"src/workers/**"</span>
   }]
 }</pre>
                 </div>
@@ -1132,160 +1107,191 @@
         </section>
 
         <!-- ============================================================ -->
-        <!-- TIER COMPARISON (no pricing per user request)                  -->
+        <!-- TESTIMONIALS / TRUST MARQUEE (slower)                          -->
         <!-- ============================================================ -->
-        <section id="tiers" class="max-w-5xl mx-auto px-6 pb-24 reveal">
-            <div class="text-center mb-10">
-                <span class="eyebrow">Three modes</span>
-                <h2 class="text-3xl md:text-4xl font-bold text-white mb-3 tracking-tight">Pick how it runs.</h2>
-                <p class="text-gray-400 max-w-2xl mx-auto leading-relaxed">A single env var picks the validation mode. All modes share the same local-first query pipeline.</p>
-            </div>
-
-            <div class="grid md:grid-cols-3 gap-5">
-                <div class="glass-card rounded-2xl p-7 ring-gradient">
-                    <div class="text-xs font-mono text-accent-green mb-2 uppercase tracking-wider">tier · free</div>
-                    <h3 class="font-bold text-white text-xl mb-3">Deterministic only</h3>
-                    <ul class="space-y-2 text-sm text-gray-400 leading-relaxed">
-                        <li class="flex gap-2"><span class="text-accent-green">✓</span> No API key required</li>
-                        <li class="flex gap-2"><span class="text-accent-green">✓</span> Scope, anti-pattern, and forbidden-phrase checks</li>
-                        <li class="flex gap-2"><span class="text-accent-green">✓</span> Sub-15ms warm latency</li>
-                        <li class="flex gap-2"><span class="text-accent-green">✓</span> 100% offline · zero telemetry</li>
-                    </ul>
-                </div>
-
-                <div class="glass-card rounded-2xl p-7 ring-gradient" style="border-color: rgba(77,171,247,0.4)">
-                    <div class="text-xs font-mono text-brand-300 mb-2 uppercase tracking-wider">tier · hybrid · default</div>
-                    <h3 class="font-bold text-white text-xl mb-3">Best of both</h3>
-                    <ul class="space-y-2 text-sm text-gray-400 leading-relaxed">
-                        <li class="flex gap-2"><span class="text-brand-400">✓</span> Deterministic engine runs first</li>
-                        <li class="flex gap-2"><span class="text-brand-400">✓</span> Escalates to Haiku only on uncertainty</li>
-                        <li class="flex gap-2"><span class="text-brand-400">✓</span> Auto-degrades if no key set</li>
-                        <li class="flex gap-2"><span class="text-brand-400">✓</span> The recommended default for teams</li>
-                    </ul>
-                </div>
-
-                <div class="glass-card rounded-2xl p-7 ring-gradient">
-                    <div class="text-xs font-mono text-accent-violet mb-2 uppercase tracking-wider">tier · premium</div>
-                    <h3 class="font-bold text-white text-xl mb-3">Maximum accuracy</h3>
-                    <ul class="space-y-2 text-sm text-gray-400 leading-relaxed">
-                        <li class="flex gap-2"><span class="text-accent-violet">✓</span> Every check runs through Haiku judge</li>
-                        <li class="flex gap-2"><span class="text-accent-violet">✓</span> Highest verdict accuracy</li>
-                        <li class="flex gap-2"><span class="text-accent-violet">✓</span> Falls back to deterministic on failure</li>
-                        <li class="flex gap-2"><span class="text-accent-violet">✓</span> Best for high-stakes enterprise paths</li>
-                    </ul>
+        <section class="relative border-y-2 border-line py-12 overflow-hidden bg-ink">
+            <div class="marquee marquee-slow" aria-hidden="true">
+                <div class="marquee-track">
+                    <div class="flex items-center gap-12 md:gap-20 px-8">
+                        <span class="display text-xl md:text-3xl text-zinc4">CLAUDE CODE</span><span class="text-acid text-2xl md:text-4xl">●</span>
+                        <span class="display text-xl md:text-3xl text-zinc4">CLAUDE DESKTOP</span><span class="text-acid text-2xl md:text-4xl">●</span>
+                        <span class="display text-xl md:text-3xl text-zinc4">CURSOR</span><span class="text-acid text-2xl md:text-4xl">●</span>
+                        <span class="display text-xl md:text-3xl text-zinc4">ZED</span><span class="text-acid text-2xl md:text-4xl">●</span>
+                        <span class="display text-xl md:text-3xl text-zinc4">MCP-NATIVE</span><span class="text-acid text-2xl md:text-4xl">●</span>
+                        <span class="display text-xl md:text-3xl text-zinc4">SQLITE WAL</span><span class="text-acid text-2xl md:text-4xl">●</span>
+                        <span class="display text-xl md:text-3xl text-zinc4">FASTEMBED</span><span class="text-acid text-2xl md:text-4xl">●</span>
+                        <span class="display text-xl md:text-3xl text-zinc4">PYTHON 3.11+</span><span class="text-acid text-2xl md:text-4xl">●</span>
+                    </div>
+                    <div class="flex items-center gap-12 md:gap-20 px-8">
+                        <span class="display text-xl md:text-3xl text-zinc4">CLAUDE CODE</span><span class="text-acid text-2xl md:text-4xl">●</span>
+                        <span class="display text-xl md:text-3xl text-zinc4">CLAUDE DESKTOP</span><span class="text-acid text-2xl md:text-4xl">●</span>
+                        <span class="display text-xl md:text-3xl text-zinc4">CURSOR</span><span class="text-acid text-2xl md:text-4xl">●</span>
+                        <span class="display text-xl md:text-3xl text-zinc4">ZED</span><span class="text-acid text-2xl md:text-4xl">●</span>
+                        <span class="display text-xl md:text-3xl text-zinc4">MCP-NATIVE</span><span class="text-acid text-2xl md:text-4xl">●</span>
+                        <span class="display text-xl md:text-3xl text-zinc4">SQLITE WAL</span><span class="text-acid text-2xl md:text-4xl">●</span>
+                        <span class="display text-xl md:text-3xl text-zinc4">FASTEMBED</span><span class="text-acid text-2xl md:text-4xl">●</span>
+                        <span class="display text-xl md:text-3xl text-zinc4">PYTHON 3.11+</span><span class="text-acid text-2xl md:text-4xl">●</span>
+                    </div>
                 </div>
             </div>
-            <div class="text-center text-[11px] font-mono text-gray-600 mt-5">
-                <code class="text-brand-400">CONTEXTLAYER_TIER=free|hybrid|premium</code> · query path is keyless on every tier.
+        </section>
+
+        <!-- ============================================================ -->
+        <!-- TIERS                                                          -->
+        <!-- ============================================================ -->
+        <section id="tiers" class="relative container-wide px-6 md:px-10 py-20 md:py-32 reveal">
+            <span class="eyebrow">Three Modes</span>
+            <h2 class="display section-h2 text-paper mb-6">Pick how<br>it <span class="text-acid">runs.</span></h2>
+            <p class="text-lg md:text-xl text-zinc4 leading-tight max-w-3xl mb-16">
+                A single env var picks the validation mode. All modes share the same local-first query pipeline.
+            </p>
+
+            <div class="grid md:grid-cols-3 gap-px bg-line">
+                <div class="kt-card p-8 md:p-10 group">
+                    <div class="text-xs font-mono uppercase tracking-widest text-zinc4 kt-card-meta mb-4 group-hover:text-black transition-colors">Tier · Free</div>
+                    <h3 class="display text-3xl md:text-4xl text-paper kt-card-text mb-6 group-hover:text-black transition-colors">Deterministic Only</h3>
+                    <ul class="space-y-3 text-base text-zinc4 kt-card-text leading-tight group-hover:text-black transition-colors">
+                        <li class="flex gap-2"><span class="text-acid kt-card-meta group-hover:text-black">✓</span> No API key required</li>
+                        <li class="flex gap-2"><span class="text-acid kt-card-meta group-hover:text-black">✓</span> Scope, anti-pattern, forbidden-phrase checks</li>
+                        <li class="flex gap-2"><span class="text-acid kt-card-meta group-hover:text-black">✓</span> Sub-15ms warm latency</li>
+                        <li class="flex gap-2"><span class="text-acid kt-card-meta group-hover:text-black">✓</span> 100% offline · zero telemetry</li>
+                    </ul>
+                </div>
+
+                <div class="bg-acid p-8 md:p-10 text-black relative">
+                    <div class="absolute top-4 right-4 text-[10px] font-mono uppercase tracking-widest font-bold bg-black text-acid px-2 py-1">Default</div>
+                    <div class="text-xs font-mono uppercase tracking-widest text-black mb-4 opacity-80">Tier · Hybrid</div>
+                    <h3 class="display text-3xl md:text-4xl text-black mb-6">Best of Both</h3>
+                    <ul class="space-y-3 text-base text-black leading-tight font-medium">
+                        <li class="flex gap-2"><span>✓</span> Deterministic engine runs first</li>
+                        <li class="flex gap-2"><span>✓</span> Escalates to Haiku only on uncertainty</li>
+                        <li class="flex gap-2"><span>✓</span> Auto-degrades if no key set</li>
+                        <li class="flex gap-2"><span>✓</span> Recommended default for teams</li>
+                    </ul>
+                </div>
+
+                <div class="kt-card p-8 md:p-10 group">
+                    <div class="text-xs font-mono uppercase tracking-widest text-zinc4 kt-card-meta mb-4 group-hover:text-black transition-colors">Tier · Premium</div>
+                    <h3 class="display text-3xl md:text-4xl text-paper kt-card-text mb-6 group-hover:text-black transition-colors">Maximum Accuracy</h3>
+                    <ul class="space-y-3 text-base text-zinc4 kt-card-text leading-tight group-hover:text-black transition-colors">
+                        <li class="flex gap-2"><span class="text-acid kt-card-meta group-hover:text-black">✓</span> Every check runs through Haiku judge</li>
+                        <li class="flex gap-2"><span class="text-acid kt-card-meta group-hover:text-black">✓</span> Highest verdict accuracy</li>
+                        <li class="flex gap-2"><span class="text-acid kt-card-meta group-hover:text-black">✓</span> Falls back to deterministic on failure</li>
+                        <li class="flex gap-2"><span class="text-acid kt-card-meta group-hover:text-black">✓</span> Best for high-stakes enterprise paths</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="text-xs font-mono uppercase tracking-widest text-zinc4 mt-6">
+                <code class="text-acid">CONTEXTLAYER_TIER=free|hybrid|premium</code> · query path is keyless on every tier.
             </div>
         </section>
 
         <!-- ============================================================ -->
         <!-- QUICK START                                                    -->
         <!-- ============================================================ -->
-        <section id="quickstart" class="max-w-3xl mx-auto px-6 pb-28 reveal">
-            <div class="glass-card rounded-2xl p-8 md:p-10 text-center ring-gradient">
-                <span class="eyebrow">30-second quick start</span>
-                <h3 class="text-2xl md:text-3xl font-bold text-white mt-3 mb-6">Try it on your repo.</h3>
-                <div class="code-block rounded-xl p-5 font-mono text-sm text-left text-gray-300 leading-relaxed overflow-x-auto">
-<pre><span class="text-gray-600"># 1. Install</span>
-pip install <span class="text-brand-300">contextlayer-dev</span>
+        <section id="quickstart" class="relative container-wide px-6 md:px-10 py-20 md:py-32 reveal section-edge">
+            <div class="grid md:grid-cols-[1fr_2fr] gap-10 md:gap-16 mb-16">
+                <div>
+                    <span class="eyebrow">30-Second Quick Start</span>
+                    <h2 class="display section-h2 text-paper">Try it on<br><span class="text-acid">your repo.</span></h2>
+                </div>
+                <p class="text-lg md:text-xl text-zinc4 leading-tight max-w-2xl self-end">
+                    Three lines. Two minutes. Your AI starts citing your team's actual decisions instead of inventing new ones.
+                </p>
+            </div>
 
-<span class="text-gray-600"># 2. Index — needs ANTHROPIC_API_KEY only for the build step</span>
-export <span class="text-brand-300">ANTHROPIC_API_KEY</span>=sk-ant-...
+            <div class="kt-card-static p-6 md:p-10">
+                <pre class="kt-code p-6 md:p-8 text-sm md:text-base overflow-x-auto whitespace-pre leading-relaxed"><span style="color:#71717A"># 1. Install</span>
+pip install <span style="color:#DFE104">contextlayer-dev</span>
+
+<span style="color:#71717A"># 2. Index — needs ANTHROPIC_API_KEY only for the build step</span>
+export <span style="color:#DFE104">ANTHROPIC_API_KEY</span>=sk-ant-...
 contextlayer index .
 
-<span class="text-gray-600"># 3. Plug into your AI — open Claude Code. Done.</span>
+<span style="color:#71717A"># 3. Plug into your AI — open Claude Code. Done.</span>
 contextlayer mcp --repo .</pre>
-                </div>
-                <div class="mt-6 flex flex-wrap items-center justify-center gap-3">
-                    <a href="https://github.com/AntarangSharma/ContextLayer.dev" target="_blank"
-                       class="inline-flex items-center gap-2 px-5 py-3 rounded-lg bg-gradient-to-r from-brand-600 to-accent-violet text-white font-semibold text-sm transition-all hover:shadow-lg hover:shadow-brand-600/30">
-                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                <div class="mt-8 flex flex-col sm:flex-row gap-3">
+                    <a href="https://github.com/AntarangSharma/ContextLayer.dev" target="_blank" class="btn-acid">
+                        <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
                         Star on GitHub
                     </a>
-                    <a href="https://github.com/AntarangSharma/ContextLayer.dev/blob/main/USER-MANUAL.md" target="_blank" class="inline-flex items-center gap-2 px-5 py-3 rounded-lg glass-card text-gray-200 font-semibold text-sm transition-all hover:border-brand-500/40">
-                        📖 Read the manual
+                    <a href="https://github.com/AntarangSharma/ContextLayer.dev/blob/main/USER-MANUAL.md" target="_blank" class="btn-outline">
+                        📖 Read the Manual
                     </a>
                 </div>
             </div>
         </section>
 
         <!-- ============================================================ -->
-        <!-- FAQ — address objections directly                              -->
+        <!-- FAQ                                                            -->
         <!-- ============================================================ -->
-        <section id="faq" class="max-w-3xl mx-auto px-6 pb-24 reveal">
-            <div class="text-center mb-10">
-                <span class="eyebrow">Common questions</span>
-                <h2 class="text-3xl md:text-4xl font-bold text-white mb-3 tracking-tight">You're wondering. We'll answer.</h2>
+        <section id="faq" class="relative container-wide px-6 md:px-10 py-20 md:py-32 reveal section-edge">
+            <div class="grid md:grid-cols-[1fr_2fr] gap-10 md:gap-16 mb-16">
+                <div>
+                    <span class="eyebrow">Common Questions</span>
+                    <h2 class="display section-h2 text-paper">You're<br>wondering.<br><span class="text-acid">We'll<br>answer.</span></h2>
+                </div>
+                <div class="self-end text-lg md:text-xl text-zinc4 leading-tight">Six things people ask before they install. If you have a seventh, open an issue.</div>
             </div>
 
             <div class="space-y-3" id="faq-accordion">
-                <details class="glass-card rounded-xl group" open>
-                    <summary class="flex items-center justify-between px-6 py-5 cursor-pointer text-sm font-semibold text-white hover:text-brand-300 transition-colors">
+                <details class="kt-faq" open>
+                    <summary>
                         Does my code leave my machine?
-                        <svg class="w-4 h-4 text-gray-500 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                        <svg class="chev w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
                     </summary>
-                    <div class="px-6 pb-5 text-sm text-gray-400 leading-relaxed border-t border-white/5 pt-4">
-                        <strong class="text-white">Never.</strong> ContextLayer runs entirely locally. Your code, atoms, and embeddings stay in a SQLite file on your disk. The only network call is to the Anthropic API during the one-time indexing step (using <em>your own key</em>). Queries, validation, and the MCP server are <strong class="text-accent-green">100% offline</strong>.
+                    <div class="faq-body">
+                        <strong class="text-paper">Never.</strong> ContextLayer runs entirely locally. Your code, atoms, and embeddings stay in a SQLite file on your disk. The only network call is to the Anthropic API during the one-time indexing step (using <em>your own key</em>). Queries, validation, and the MCP server are <strong class="text-acid">100% offline</strong>.
                     </div>
                 </details>
 
-                <details class="glass-card rounded-xl group">
-                    <summary class="flex items-center justify-between px-6 py-5 cursor-pointer text-sm font-semibold text-white hover:text-brand-300 transition-colors">
+                <details class="kt-faq">
+                    <summary>
                         Do I need to pay?
-                        <svg class="w-4 h-4 text-gray-500 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                        <svg class="chev w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
                     </summary>
-                    <div class="px-6 pb-5 text-sm text-gray-400 leading-relaxed border-t border-white/5 pt-4">
-                        <strong class="text-white">Querying is free forever</strong> — no API key needed. Building an index costs roughly <strong class="text-white">~$1.50</strong> in Anthropic API credits (your own key). The free validation tier is fully deterministic with zero API calls. Re-indexing is near-free thanks to per-event caching.
+                    <div class="faq-body">
+                        <strong class="text-paper">Querying is free forever</strong> — no API key needed. Building an index costs roughly <strong class="text-paper">~$1.50</strong> in Anthropic API credits (your own key). The free validation tier is fully deterministic with zero API calls. Re-indexing is near-free thanks to per-event caching.
                     </div>
                 </details>
 
-                <details class="glass-card rounded-xl group">
-                    <summary class="flex items-center justify-between px-6 py-5 cursor-pointer text-sm font-semibold text-white hover:text-brand-300 transition-colors">
+                <details class="kt-faq">
+                    <summary>
                         Does it work on repos with no PRs?
-                        <svg class="w-4 h-4 text-gray-500 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                        <svg class="chev w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
                     </summary>
-                    <div class="px-6 pb-5 text-sm text-gray-400 leading-relaxed border-t border-white/5 pt-4">
-                        <strong class="text-white">Yes.</strong> Use <code class="text-brand-300 font-mono text-xs">contextlayer scan</code> to extract conventions from code structure alone — manifests, README, top source files. Or use <code class="text-brand-300 font-mono text-xs">contextlayer note</code> to capture decisions manually. Both work on any repo, day one.
+                    <div class="faq-body">
+                        <strong class="text-paper">Yes.</strong> Use <code class="font-mono text-sm text-acid">contextlayer scan</code> to extract conventions from code structure alone — manifests, README, top source files. Or use <code class="font-mono text-sm text-acid">contextlayer note</code> to capture decisions manually. Both work on any repo, day one.
                     </div>
                 </details>
 
-                <details class="glass-card rounded-xl group">
-                    <summary class="flex items-center justify-between px-6 py-5 cursor-pointer text-sm font-semibold text-white hover:text-brand-300 transition-colors">
+                <details class="kt-faq">
+                    <summary>
                         Which AI tools does it work with?
-                        <svg class="w-4 h-4 text-gray-500 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                        <svg class="chev w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
                     </summary>
-                    <div class="px-6 pb-5 text-sm text-gray-400 leading-relaxed border-t border-white/5 pt-4">
-                        Any <strong class="text-white">MCP-compatible client</strong>: Claude Code, Claude Desktop, Cursor, and others. ContextLayer uses the standard MCP stdio protocol — one <code class="text-brand-300 font-mono text-xs">.mcp.json</code> block and you're connected.
+                    <div class="faq-body">
+                        Any <strong class="text-paper">MCP-compatible client</strong>: Claude Code, Claude Desktop, Cursor, and others. ContextLayer uses the standard MCP stdio protocol — one <code class="font-mono text-sm text-acid">.mcp.json</code> block and you're connected.
                     </div>
                 </details>
 
-                <details class="glass-card rounded-xl group">
-                    <summary class="flex items-center justify-between px-6 py-5 cursor-pointer text-sm font-semibold text-white hover:text-brand-300 transition-colors">
+                <details class="kt-faq">
+                    <summary>
                         Does ContextLayer modify my codebase?
-                        <svg class="w-4 h-4 text-gray-500 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                        <svg class="chev w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
                     </summary>
-                    <div class="px-6 pb-5 text-sm text-gray-400 leading-relaxed border-t border-white/5 pt-4">
-                        <strong class="text-white">No.</strong> ContextLayer is <strong class="text-white">read-only</strong>. It reads your git history and code files to extract knowledge atoms, but never writes to your repository. The only file it creates is a SQLite database in <code class="text-brand-300 font-mono text-xs">~/.contextlayer/</code>.
+                    <div class="faq-body">
+                        <strong class="text-paper">No.</strong> ContextLayer is <strong class="text-paper">read-only</strong>. It reads your git history and code files to extract knowledge atoms, but never writes to your repository. The only file it creates is a SQLite database in <code class="font-mono text-sm text-acid">~/.contextlayer/</code>.
                     </div>
                 </details>
 
-                <details class="glass-card rounded-xl group">
-                    <summary class="flex items-center justify-between px-6 py-5 cursor-pointer text-sm font-semibold text-white hover:text-brand-300 transition-colors">
+                <details class="kt-faq">
+                    <summary>
                         Can I use ContextLayer in CI?
-                        <svg class="w-4 h-4 text-gray-500 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                        <svg class="chev w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
                     </summary>
-                    <div class="px-6 pb-5 text-sm text-gray-400 leading-relaxed border-t border-white/5 pt-4">
-                        <strong class="text-white">Yes.</strong> The v1.1 commands —
-                        <code class="text-brand-300 font-mono text-xs">health</code>,
-                        <code class="text-brand-300 font-mono text-xs">drift</code>, and
-                        <code class="text-brand-300 font-mono text-xs">claude-md</code> — are
-                        <strong class="text-accent-green">keyless, deterministic, and exit-code aware</strong>.
-                        Wire <code class="text-brand-300 font-mono text-xs">contextlayer drift</code>
-                        into a pre-merge GitHub Action to catch convention violations before they ship, and
-                        <code class="text-brand-300 font-mono text-xs">contextlayer health --json</code>
-                        to track index quality over time.
+                    <div class="faq-body">
+                        <strong class="text-paper">Yes.</strong> The v1.1 commands — <code class="font-mono text-sm text-acid">health</code>, <code class="font-mono text-sm text-acid">drift</code>, and <code class="font-mono text-sm text-acid">claude-md</code> — are <strong class="text-acid">keyless, deterministic, and exit-code aware</strong>. Wire <code class="font-mono text-sm text-acid">contextlayer drift</code> into a pre-merge GitHub Action to catch convention violations before they ship, and <code class="font-mono text-sm text-acid">contextlayer health --json</code> to track index quality over time.
                     </div>
                 </details>
             </div>
@@ -1294,43 +1300,44 @@ contextlayer mcp --repo .</pre>
     </main>
 
     <!-- ============================================================ -->
-    <!-- FOOTER                                                        -->
+    <!-- FOOTER                                                         -->
     <!-- ============================================================ -->
-    <footer class="relative z-10 border-t border-white/5">
-        <div class="max-w-5xl mx-auto px-6 py-12">
-            <div class="flex flex-col md:flex-row items-center justify-between gap-6">
-                <div class="flex items-center gap-2.5">
-                    <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-brand-500 to-accent-violet flex items-center justify-center">
-                        <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+    <footer class="relative z-10 bg-acid text-black border-t-2 border-acid py-16 md:py-24 overflow-hidden">
+        <div class="container-wide px-6 md:px-10">
+            <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-10 mb-12">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 bg-black flex items-center justify-center">
+                        <svg class="w-6 h-6 text-acid" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
                     </div>
-                    <span class="text-sm font-bold text-white">ContextLayer<span class="text-brand-400">.dev</span></span>
+                    <span class="display text-2xl md:text-3xl text-black">ContextLayer.dev</span>
                 </div>
-
-                <div class="flex items-center gap-6 text-xs text-gray-500">
-                    <a href="https://github.com/AntarangSharma/ContextLayer.dev" target="_blank" class="hover:text-white transition-colors flex items-center gap-1.5">
-                        <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
-                        GitHub
-                    </a>
-                    <a href="https://github.com/AntarangSharma/ContextLayer.dev/blob/main/USER-MANUAL.md" target="_blank" class="hover:text-white transition-colors">Docs</a>
-                    <a href="https://pypi.org/project/contextlayer-dev/" target="_blank" class="hover:text-white transition-colors">PyPI</a>
-                    <a href="#faq" class="hover:text-white transition-colors">FAQ</a>
-                </div>
-
-                <div class="flex items-center gap-4 text-[11px] font-mono text-gray-600">
-                    <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-accent-green"></span>MIT License</span>
-                    <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-brand-400"></span>Read-only</span>
-                    <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-accent-pink"></span>Zero telemetry</span>
+                <div class="flex flex-wrap items-center gap-6 text-xs font-mono uppercase tracking-widest font-bold text-black">
+                    <a href="https://github.com/AntarangSharma/ContextLayer.dev" target="_blank" class="hover:underline">GitHub</a>
+                    <a href="https://github.com/AntarangSharma/ContextLayer.dev/blob/main/USER-MANUAL.md" target="_blank" class="hover:underline">Docs</a>
+                    <a href="https://pypi.org/project/contextlayer-dev/" target="_blank" class="hover:underline">PyPI</a>
+                    <a href="#faq" class="hover:underline">FAQ</a>
                 </div>
             </div>
 
-            <div class="text-center text-[11px] text-gray-700 mt-8 pt-6 border-t border-white/5">
-                Built with Anthropic Claude (Haiku · Sonnet · Opus) · MCP Python SDK · fastembed · SQLite WAL
+            <div class="display text-[clamp(3rem,12vw,10rem)] text-black leading-[0.86] mb-12 -mx-1">
+                CONTEXT.<br>FOR YOUR AI.
+            </div>
+
+            <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 pt-8 border-t-2 border-black">
+                <div class="flex flex-wrap items-center gap-6 text-xs font-mono uppercase tracking-widest font-bold text-black">
+                    <span class="flex items-center gap-2"><span class="w-2 h-2 bg-black"></span>MIT License</span>
+                    <span class="flex items-center gap-2"><span class="w-2 h-2 bg-black"></span>Read-Only</span>
+                    <span class="flex items-center gap-2"><span class="w-2 h-2 bg-black"></span>Zero Telemetry</span>
+                </div>
+                <div class="text-xs font-mono uppercase tracking-widest text-black opacity-80">
+                    Built with Anthropic Claude (Haiku · Sonnet · Opus) · MCP Python SDK · fastembed · SQLite WAL
+                </div>
             </div>
         </div>
     </footer>
 
     <!-- ============================================================ -->
-    <!-- INTERACTIVITY SCRIPT                                            -->
+    <!-- INTERACTIVITY SCRIPT — preserved, generated HTML uses KT classes -->
     <!-- ============================================================ -->
     <script>
     (async function () {
@@ -1343,7 +1350,7 @@ contextlayer mcp --repo .</pre>
         // Animated count-up for stat numbers
         function animateCount(el, target) {
             const start = performance.now();
-            const dur = 900;
+            const dur = 1100;
             function step(t) {
                 const p = Math.min(1, (t - start) / dur);
                 el.textContent = Math.floor(target * (1 - Math.pow(1 - p, 3)));
@@ -1374,41 +1381,44 @@ contextlayer mcp --repo .</pre>
         document.getElementById('bench-rate').textContent = b.rate_pct + '%';
         document.getElementById('bench-fraction').textContent = b.queries_with_cited_rule_in_top5 + ' of ' + b.total_queries;
 
-        // 3. Canned-question chips
+        // 3. Canned-question chips + live query box
         const chipBox = document.getElementById('canned-questions');
         const input = document.getElementById('query-input');
         const resultsEl = document.getElementById('query-results');
         const btn = document.getElementById('query-button');
 
-        function renderResults(atoms, query) {
-            if (!atoms || atoms.length === 0) {
-                resultsEl.innerHTML = '<div class="text-center text-sm text-gray-500 py-10">No close match for that query. Try one of the chips above — those are guaranteed to return real atoms.</div>';
-                return;
-            }
-            resultsEl.innerHTML = '<div class="text-xs font-mono text-gray-500 mb-2">Top ' + atoms.length + ' atoms returned for: <span class="text-brand-300">"' + escapeHtml(query) + '"</span></div>' +
-                atoms.slice(0, 4).map((a, i) => {
-                    const refs = (a.source_refs || []).slice(0, 3).map(r => '<code class="text-[10px] font-mono text-accent-cyan px-1.5 py-0.5 rounded bg-white/5">' + escapeHtml(r) + '</code>').join(' ');
-                    const ruleBadge = a.is_rule ? '<span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-accent-violet/20 text-accent-violet">rule</span>' : '<span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-white/5 text-gray-500">atom</span>';
-                    return '<div class="rounded-lg border border-white/5 bg-black/30 p-4 hover:border-brand-500/30 transition-colors">' +
-                        '<div class="flex items-center gap-2 mb-1.5">' +
-                            '<span class="text-[10px] font-mono text-gray-600">#' + (i + 1) + '</span>' +
-                            ruleBadge +
-                            '<span class="text-[10px] font-mono text-gray-600 ml-auto">score ' + a.score.toFixed(3) + '</span>' +
-                        '</div>' +
-                        '<div class="text-sm text-gray-200 leading-snug mb-2">' + escapeHtml(a.summary) + '</div>' +
-                        (refs ? '<div class="flex flex-wrap gap-1.5">' + refs + '</div>' : '') +
-                    '</div>';
-                }).join('');
-        }
-
         function escapeHtml(s) {
             return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
         }
 
+        function renderResults(atoms, query) {
+            if (!atoms || atoms.length === 0) {
+                resultsEl.innerHTML = '<div class="text-zinc4 text-base py-12 font-mono uppercase tracking-widest text-xs">No close match. Try a chip above.</div>';
+                return;
+            }
+            resultsEl.innerHTML =
+                '<div class="text-xs font-mono uppercase tracking-widest text-zinc4 mb-4">Top ' + atoms.length + ' atoms · <span class="text-acid">"' + escapeHtml(query) + '"</span></div>' +
+                atoms.slice(0, 4).map((a, i) => {
+                    const refs = (a.source_refs || []).slice(0, 3).map(r => '<span class="qr-chip qr-chip-ref">' + escapeHtml(r) + '</span>').join(' ');
+                    const ruleBadge = a.is_rule
+                        ? '<span class="qr-chip qr-chip-rule">RULE</span>'
+                        : '<span class="qr-chip">ATOM</span>';
+                    return '<div class="qr-card">' +
+                        '<div class="flex items-center gap-2 mb-3">' +
+                            '<span class="text-[10px] font-mono text-zinc4 uppercase tracking-widest">#' + (i + 1) + '</span>' +
+                            ruleBadge +
+                            '<span class="text-[10px] font-mono text-zinc4 uppercase tracking-widest ml-auto">Score ' + a.score.toFixed(3) + '</span>' +
+                        '</div>' +
+                        '<div class="text-base md:text-lg text-paper leading-tight mb-3 font-medium">' + escapeHtml(a.summary) + '</div>' +
+                        (refs ? '<div class="flex flex-wrap gap-2">' + refs + '</div>' : '') +
+                    '</div>';
+                }).join('');
+        }
+
         // Build chips
-        data.queries.forEach((q, i) => {
+        data.queries.forEach((q) => {
             const chip = document.createElement('button');
-            chip.className = 'px-3 py-1.5 rounded-full glass-card text-xs text-gray-300 hover:text-white hover:border-brand-500/40 transition-all';
+            chip.className = 'canned-chip';
             chip.textContent = q.q.length > 60 ? q.q.slice(0, 58) + '…' : q.q;
             chip.addEventListener('click', () => {
                 input.value = q.q;
@@ -1417,7 +1427,7 @@ contextlayer mcp --repo .</pre>
             chipBox.appendChild(chip);
         });
 
-        // Fuzzy match free-text input → nearest canned query (word-overlap Jaccard)
+        // Fuzzy match
         function pickClosest(q) {
             const tok = s => new Set(s.toLowerCase().match(/[a-z0-9]+/g) || []);
             const qt = tok(q);
@@ -1444,7 +1454,7 @@ contextlayer mcp --repo .</pre>
         btn.addEventListener('click', handleAsk);
         input.addEventListener('keydown', e => { if (e.key === 'Enter') handleAsk(); });
 
-        // Auto-run the first canned query so the panel isn't empty on first paint
+        // Auto-run first canned query
         if (data.queries.length) {
             setTimeout(() => renderResults(data.queries[0].atoms, data.queries[0].q), 400);
         }
@@ -1458,19 +1468,18 @@ contextlayer mcp --repo .</pre>
     <div class="island-wrap" role="navigation" aria-label="Page sections">
         <div class="island" id="island" role="button" tabindex="0" aria-expanded="false" aria-controls="island-menu">
             <div class="island-pill">
-                <span class="island-pulse" aria-hidden="true"></span>
+                <span class="island-pulse pulse-dot" aria-hidden="true"></span>
                 <span class="island-active" id="island-active">Contents</span>
                 <svg class="island-progress" viewBox="0 0 24 24" aria-hidden="true">
                     <circle class="track" cx="12" cy="12" r="10" fill="none" stroke-width="2.5" />
                     <circle class="fill"  cx="12" cy="12" r="10" fill="none" stroke-width="2.5" stroke-linecap="round" />
                 </svg>
             </div>
-
             <div class="island-menu" id="island-menu">
                 <div class="island-menu-head">
-                    <span class="label">On this page</span>
+                    <span class="label">On This Page</span>
                     <button class="island-close" id="island-close" aria-label="Close menu">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
                     </button>
                 </div>
                 <div class="island-list" id="island-list"></div>
@@ -1479,8 +1488,7 @@ contextlayer mcp --repo .</pre>
     </div>
 
     <!-- ============================================================ -->
-    <!-- EFFECT 1 — Rotating word in the hero H1                       -->
-    <!-- Width animates to fit each word so the period stays glued.    -->
+    <!-- EFFECT 1 — Rotating word                                        -->
     <!-- ============================================================ -->
     <script>
     (function rotator() {
@@ -1492,9 +1500,6 @@ contextlayer mcp --repo .</pre>
         const reducedMotion = window.matchMedia
             && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-        // Measure each word's natural pixel width at the current font size.
-        // Done by cloning the span into the same H1 (so it inherits everything)
-        // then reading offsetWidth.
         function measure(span) {
             const probe = span.cloneNode(true);
             probe.style.position = 'absolute';
@@ -1506,17 +1511,15 @@ contextlayer mcp --repo .</pre>
             root.appendChild(probe);
             const w = probe.getBoundingClientRect().width;
             probe.remove();
-            return Math.ceil(w + 1); // +1 for sub-pixel safety
+            return Math.ceil(w + 1);
         }
 
         let widths = words.map(measure);
         let current = 0;
 
-        // Set initial state: first word visible, wrapper sized to it.
         root.style.width = widths[0] + 'px';
         words[0].classList.add('in');
 
-        // Re-measure on resize / font-load so the wrapper stays tight.
         let resizeRaf = 0;
         window.addEventListener('resize', () => {
             cancelAnimationFrame(resizeRaf);
@@ -1532,35 +1535,30 @@ contextlayer mcp --repo .</pre>
             });
         }
 
-        if (reducedMotion) return; // First word stays visible, no rotation.
+        if (reducedMotion) return;
 
         setInterval(() => {
             const outgoing = words[current];
             current = (current + 1) % words.length;
             const incoming = words[current];
 
-            // Animate the wrapper width to the next word's width FIRST so
-            // the trailing period travels with the flip rather than jumping.
             root.style.width = widths[current] + 'px';
 
             outgoing.classList.remove('in');
             outgoing.classList.add('out');
 
-            // Re-seed incoming from "below" so it springs in.
             incoming.classList.remove('out');
             incoming.classList.remove('in');
-            // Force reflow so the transition fires from the start state.
             void incoming.offsetWidth;
             requestAnimationFrame(() => incoming.classList.add('in'));
 
-            // After the transition, clean up the outgoing element.
             setTimeout(() => outgoing.classList.remove('out'), 700);
-        }, 2200);
+        }, 2400);
     })();
     </script>
 
     <!-- ============================================================ -->
-    <!-- EFFECT 2 — WebGL2 shader background behind the hero            -->
+    <!-- EFFECT 2 — WebGL2 shader (preserved as-is)                    -->
     <!-- ============================================================ -->
     <script>
     (function shader() {
@@ -1569,19 +1567,13 @@ contextlayer mcp --repo .</pre>
         if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
         const gl = canvas.getContext('webgl2', { antialias: false, alpha: true, premultipliedAlpha: false });
-        if (!gl) {
-            canvas.parentElement.style.display = 'none';
-            return;
-        }
+        if (!gl) { canvas.parentElement.style.display = 'none'; return; }
 
-        // Vertex shader — full-screen quad
         const vsSrc = `#version 300 es
             precision highp float;
             in vec4 position;
             void main() { gl_Position = position; }`;
 
-        // Fragment shader — drifting cosmic clouds, recolored to the brand
-        // (blue / cyan / azure) instead of the orange/yellow original.
         const fsSrc = `#version 300 es
             precision highp float;
             out vec4 O;
@@ -1635,14 +1627,12 @@ contextlayer mcp --repo .</pre>
                     uv += .1 * cos(i * vec2(.1 + .01 * i, .8) + i * i + T * .45 + .1 * uv.x);
                     vec2 p = uv;
                     float d = length(p);
-                    // Recoloured starfield: cool blue/cyan instead of warm.
                     vec3 starTint = cos(sin(i) * vec3(2.2, 1.4, 0.9)) + 1.;
                     col += .00115 / d * starTint;
 
                     float b = noise(i + p + bg * 1.731);
                     col += .0018 * b / length(max(p, vec2(b * p.x * .02, p.y)));
 
-                    // Cool blue cloud bed (brand palette: #228be6 / #22d3ee).
                     vec3 cloudCol = vec3(bg * 0.12, bg * 0.22, bg * 0.40);
                     col = mix(col, cloudCol, d * 0.95);
                 }
@@ -1686,7 +1676,6 @@ contextlayer mcp --repo .</pre>
         const uTime = gl.getUniformLocation(prog, 'time');
 
         function resize() {
-            // Cap DPR so the shader cost stays manageable on retina displays.
             const dpr = Math.min(window.devicePixelRatio || 1, 1.25);
             const w = window.innerWidth;
             const h = window.innerHeight;
@@ -1699,8 +1688,6 @@ contextlayer mcp --repo .</pre>
         window.addEventListener('resize', resize);
         resize();
 
-        // Pause render loop when the tab is hidden — saves battery without
-        // blanking the shader for users who scroll through quickly.
         let active = true;
         document.addEventListener('visibilitychange', () => {
             active = document.visibilityState === 'visible';
@@ -1721,7 +1708,7 @@ contextlayer mcp --repo .</pre>
     </script>
 
     <!-- ============================================================ -->
-    <!-- EFFECT 3 — Dynamic Island TOC: scroll spy + jump-to-section   -->
+    <!-- EFFECT 3 — Dynamic Island TOC                                  -->
     <!-- ============================================================ -->
     <script>
     (function islandTOC() {
@@ -1733,17 +1720,16 @@ contextlayer mcp --repo .</pre>
         const fill     = document.querySelector('.island-progress .fill');
         if (!island || !list || !active) return;
 
-        // Sections we want to expose in the TOC, in document order.
         const SECTION_IDS = ['top', 'try', 'proof', 'how', 'features', 'validate', 'tiers', 'quickstart', 'faq'];
         const LABELS = {
-            top: 'Top of page',
-            try: 'Try a live query',
-            proof: 'The proof',
-            how: 'How it works',
+            top: 'Top',
+            try: 'Try a Query',
+            proof: 'The Proof',
+            how: 'How It Works',
             features: 'Features',
-            validate: 'context_validate',
+            validate: 'Validate',
             tiers: 'Tiers',
-            quickstart: 'Quick start',
+            quickstart: 'Quick Start',
             faq: 'FAQ',
         };
 
@@ -1751,7 +1737,6 @@ contextlayer mcp --repo .</pre>
             .map(id => ({ id, el: document.getElementById(id), label: LABELS[id] }))
             .filter(s => s.el && s.label);
 
-        // Build the menu items.
         sections.forEach(s => {
             const btn = document.createElement('button');
             btn.className = 'toc-item';
@@ -1766,7 +1751,6 @@ contextlayer mcp --repo .</pre>
             list.appendChild(btn);
         });
 
-        // Expand / collapse state.
         let expanded = false;
         function setExpanded(v) {
             expanded = v;
@@ -1782,15 +1766,13 @@ contextlayer mcp --repo .</pre>
         close.addEventListener('click', (e) => { e.stopPropagation(); setExpanded(false); });
         backdrop.addEventListener('click', () => setExpanded(false));
 
-        // Scroll spy: find the topmost section whose top is ≤ 140px from the viewport top.
-        const CIRC = 2 * Math.PI * 10; // r=10 in our SVG
+        const CIRC = 2 * Math.PI * 10;
         let lastActiveId = null;
 
         function setActiveLabel(id) {
             if (id === lastActiveId) return;
             lastActiveId = id;
 
-            // Animate text swap on the pill.
             const labelText = id === 'top' ? 'Contents' : (LABELS[id] || 'Contents');
             active.classList.add('swap-out');
             setTimeout(() => {
@@ -1800,14 +1782,12 @@ contextlayer mcp --repo .</pre>
                 requestAnimationFrame(() => active.classList.remove('swap-in'));
             }, 180);
 
-            // Highlight active row in the menu.
             list.querySelectorAll('.toc-item').forEach(el => {
                 el.classList.toggle('active', el.dataset.id === id);
             });
         }
 
         function onScroll() {
-            // Pick the last section whose top is above the 140px threshold.
             let currentId = sections[0].id;
             for (const s of sections) {
                 const top = s.el.getBoundingClientRect().top;
@@ -1816,7 +1796,6 @@ contextlayer mcp --repo .</pre>
             }
             setActiveLabel(currentId);
 
-            // Update the progress ring.
             const total = document.documentElement.scrollHeight - window.innerHeight;
             const pct = total > 0 ? Math.min(1, Math.max(0, window.scrollY / total)) : 0;
             if (fill) fill.style.strokeDashoffset = (CIRC * (1 - pct)).toFixed(2);
@@ -1824,7 +1803,6 @@ contextlayer mcp --repo .</pre>
         window.addEventListener('scroll', onScroll, { passive: true });
         onScroll();
 
-        // Fade the island in once the page settles.
         requestAnimationFrame(() => island.classList.add('ready'));
     })();
     </script>
