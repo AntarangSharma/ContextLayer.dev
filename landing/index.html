@@ -109,7 +109,7 @@
                         ink:        '#09090B', // rich black canvas
                         paper:      '#FAFAFA', // off-white foreground
                         muted:      '#27272A', // dark gray surface
-                        zinc4:      '#A1A1AA', // muted-foreground (zinc 400)
+                        zinc4:      '#D4D4D8', // muted-foreground (zinc 300 — brightened for readability)
                         line:       '#3F3F46', // border (zinc 700)
                         acid:       '#DFE104', // acid yellow accent
                     }
@@ -379,7 +379,7 @@
             font-family: 'JetBrains Mono', monospace;
             font-size: 11.5px;
             line-height: 1.6;
-            color: #A1A1AA;
+            color: #D4D4D8;
             transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
         }
 
@@ -402,7 +402,7 @@
             letter-spacing: 0.08em;
             padding: 4px 8px;
             border: 1px solid #3F3F46;
-            color: #A1A1AA;
+            color: #D4D4D8;
         }
         .qr-chip-rule { background: #DFE104; color: #000; border-color: #DFE104; }
         .qr-chip-ref  { background: #27272A; color: #FAFAFA; border-color: #27272A; }
@@ -561,7 +561,7 @@
         .island-close {
             background: transparent;
             border: none;
-            color: #A1A1AA;
+            color: #D4D4D8;
             cursor: pointer;
             padding: 4px;
             display: inline-flex;
@@ -591,7 +591,7 @@
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.02em;
-            color: #A1A1AA;
+            color: #D4D4D8;
             cursor: pointer;
             transition: background-color 0.2s ease, color 0.2s ease;
         }
@@ -644,7 +644,7 @@
         details.kt-faq[open] summary .chev { transform: rotate(180deg); color: #DFE104; }
         details.kt-faq .faq-body {
             padding: 0 28px 24px 28px;
-            color: #A1A1AA;
+            color: #D4D4D8;
             line-height: 1.6;
             font-size: 15px;
             border-top: 2px solid #3F3F46;
@@ -867,7 +867,7 @@
             <div class="grid md:grid-cols-2 gap-px bg-line">
                 <div class="bg-ink p-8 md:p-12 relative overflow-hidden">
                     <div class="text-xs font-mono uppercase tracking-widest text-zinc4 mb-6">Without ContextLayer</div>
-                    <div class="massive-num text-[10rem] md:text-[14rem] lg:text-[18rem] text-muted leading-[0.8] mb-4">0%</div>
+                    <div class="massive-num text-[10rem] md:text-[14rem] lg:text-[18rem] text-[#52525B] leading-[0.8] mb-4">0%</div>
                     <p class="text-base md:text-lg text-zinc4 leading-tight">A stock LLM has never read your repo's PRs. It can't cite what it can't see — so it confidently improvises.</p>
                 </div>
                 <div class="bg-acid p-8 md:p-12 relative overflow-hidden text-black">
@@ -898,21 +898,21 @@
 
             <div class="grid md:grid-cols-3 gap-px bg-line">
                 <div class="kt-card p-8 md:p-10 group">
-                    <div class="massive-num text-[5rem] md:text-[6rem] text-muted mb-6 group-hover:text-black transition-colors">01</div>
+                    <div class="massive-num text-[5rem] md:text-[6rem] text-[#52525B] mb-6 group-hover:text-black transition-colors">01</div>
                     <div class="text-xs font-mono uppercase tracking-widest text-acid kt-card-meta mb-4 group-hover:text-black transition-colors">Step 1 · Once</div>
                     <h3 class="display text-2xl md:text-3xl text-paper kt-card-text mb-4 group-hover:text-black transition-colors">Index Your Repo</h3>
                     <p class="text-base text-zinc4 kt-card-text leading-tight mb-4 group-hover:text-black transition-colors"><code class="font-mono text-sm text-acid kt-card-code-name group-hover:text-black">contextlayer index .</code> reads git + PRs and writes a local SQLite of conventions, decisions, deprecations.</p>
                     <div class="text-xs font-mono uppercase tracking-widest text-zinc4 kt-card-meta group-hover:text-black transition-colors">Re-runs near-free</div>
                 </div>
                 <div class="kt-card p-8 md:p-10 group">
-                    <div class="massive-num text-[5rem] md:text-[6rem] text-muted mb-6 group-hover:text-black transition-colors">02</div>
+                    <div class="massive-num text-[5rem] md:text-[6rem] text-[#52525B] mb-6 group-hover:text-black transition-colors">02</div>
                     <div class="text-xs font-mono uppercase tracking-widest text-acid kt-card-meta mb-4 group-hover:text-black transition-colors">Step 2 · Once</div>
                     <h3 class="display text-2xl md:text-3xl text-paper kt-card-text mb-4 group-hover:text-black transition-colors">Plug Into Your AI</h3>
                     <p class="text-base text-zinc4 kt-card-text leading-tight mb-4 group-hover:text-black transition-colors">One <code class="font-mono text-sm text-acid kt-card-code-name group-hover:text-black">.mcp.json</code> block. Claude Code, Cursor, Claude Desktop pick it up automatically.</p>
                     <div class="text-xs font-mono uppercase tracking-widest text-zinc4 kt-card-meta group-hover:text-black transition-colors">No SDK, no shims</div>
                 </div>
                 <div class="kt-card p-8 md:p-10 group">
-                    <div class="massive-num text-[5rem] md:text-[6rem] text-muted mb-6 group-hover:text-black transition-colors">03</div>
+                    <div class="massive-num text-[5rem] md:text-[6rem] text-[#52525B] mb-6 group-hover:text-black transition-colors">03</div>
                     <div class="text-xs font-mono uppercase tracking-widest text-acid kt-card-meta mb-4 group-hover:text-black transition-colors">Step 3 · Every Session</div>
                     <h3 class="display text-2xl md:text-3xl text-paper kt-card-text mb-4 group-hover:text-black transition-colors">AI Cites Your Team</h3>
                     <p class="text-base text-zinc4 kt-card-text leading-tight mb-4 group-hover:text-black transition-colors">Your LLM calls <code class="font-mono text-sm text-acid kt-card-code-name group-hover:text-black">context_query</code> before answering. Replies come back with real PR numbers and commit SHAs.</p>
@@ -1020,38 +1020,38 @@
                         <p class="text-base text-zinc4 leading-tight mb-5">
                             Scores your convention index <strong class="text-paper">0–100 (A–F)</strong> across 6 dimensions. Pure read, no API calls.
                         </p>
-                        <pre class="kt-code p-4 overflow-x-auto whitespace-pre"><span style="color:#71717A">┌──────────────────────────────┐</span>
-<span style="color:#71717A">│</span>  <span style="color:#FAFAFA">Health: A+ (98)</span>             <span style="color:#71717A">│</span>
-<span style="color:#71717A">│</span>                              <span style="color:#71717A">│</span>
-<span style="color:#71717A">│</span>  <span style="color:#DFE104">✓</span> 15 atoms · 8 rules        <span style="color:#71717A">│</span>
-<span style="color:#71717A">│</span>  <span style="color:#DFE104">✓</span> 7 topics · 24 citations   <span style="color:#71717A">│</span>
-<span style="color:#71717A">│</span>  <span style="color:#DFE104">✓</span> No conflicts · all fresh  <span style="color:#71717A">│</span>
-<span style="color:#71717A">└──────────────────────────────┘</span></pre>
+                        <pre class="kt-code p-4 overflow-x-auto whitespace-pre"><span style="color:#A1A1AA">┌──────────────────────────────┐</span>
+<span style="color:#A1A1AA">│</span>  <span style="color:#FAFAFA">Health: A+ (98)</span>             <span style="color:#A1A1AA">│</span>
+<span style="color:#A1A1AA">│</span>                              <span style="color:#A1A1AA">│</span>
+<span style="color:#A1A1AA">│</span>  <span style="color:#DFE104">✓</span> 15 atoms · 8 rules        <span style="color:#A1A1AA">│</span>
+<span style="color:#A1A1AA">│</span>  <span style="color:#DFE104">✓</span> 7 topics · 24 citations   <span style="color:#A1A1AA">│</span>
+<span style="color:#A1A1AA">│</span>  <span style="color:#DFE104">✓</span> No conflicts · all fresh  <span style="color:#A1A1AA">│</span>
+<span style="color:#A1A1AA">└──────────────────────────────┘</span></pre>
                     </div>
                     <div class="bg-ink border-2 border-acid p-8">
                         <code class="font-mono text-base font-bold text-acid block mb-3">contextlayer drift</code>
                         <p class="text-base text-zinc4 leading-tight mb-5">
                             Checks recent commits against indexed rules. Deterministic, <strong class="text-paper">zero LLM calls</strong>. Exits 1 on violations.
                         </p>
-                        <pre class="kt-code p-4 overflow-x-auto whitespace-pre"><span style="color:#71717A">$</span> contextlayer drift --last 10
+                        <pre class="kt-code p-4 overflow-x-auto whitespace-pre"><span style="color:#A1A1AA">$</span> contextlayer drift --last 10
 <span style="color:#DFE104">⚠ 1 potential violation:</span>
 
   commit def5678 (5d ago)
   ┗━ Violates <span style="color:#DFE104">a_2598</span>: "Do not
      use utils/db_helper"
-     <span style="color:#71717A">Source: PR #8</span></pre>
+     <span style="color:#A1A1AA">Source: PR #8</span></pre>
                     </div>
                     <div class="bg-ink border-2 border-acid p-8">
                         <code class="font-mono text-base font-bold text-acid block mb-3">contextlayer claude-md</code>
                         <p class="text-base text-zinc4 leading-tight mb-5">
                             Emits a production-quality <code class="font-mono text-sm text-acid">CLAUDE.md</code> — topic-grouped, rules first, citations inlined. <code class="font-mono text-sm text-acid">--append</code> for existing files.
                         </p>
-                        <pre class="kt-code p-4 overflow-x-auto whitespace-pre"><span style="color:#71717A">## Database Access</span>
+                        <pre class="kt-code p-4 overflow-x-auto whitespace-pre"><span style="color:#A1A1AA">## Database Access</span>
 
-<span style="color:#71717A">### Rules</span>
+<span style="color:#A1A1AA">### Rules</span>
 - <span style="color:#FAFAFA">NEVER share sessions.</span>
-  <span style="color:#71717A">[Scope: routes/**]</span>
-  <span style="color:#71717A">(Source: PR #14)</span></pre>
+  <span style="color:#A1A1AA">[Scope: routes/**]</span>
+  <span style="color:#A1A1AA">(Source: PR #14)</span></pre>
                     </div>
                 </div>
                 <div class="text-xs font-mono uppercase tracking-widest text-zinc4 mt-6">
@@ -1085,7 +1085,7 @@
                 </div>
 
                 <div class="bg-ink p-6 md:p-8 overflow-hidden">
-                    <pre class="kt-code p-5 text-xs md:text-sm leading-relaxed overflow-x-auto"><span style="color:#71717A">// Your LLM calls: context_validate(
+                    <pre class="kt-code p-5 text-xs md:text-sm leading-relaxed overflow-x-auto"><span style="color:#A1A1AA">// Your LLM calls: context_validate(
 //   proposed_change="Add endpoint that uses
 //                    threading for concurrent DB calls"
 // )</span>
@@ -1201,14 +1201,14 @@
             </div>
 
             <div class="kt-card-static p-6 md:p-10">
-                <pre class="kt-code p-6 md:p-8 text-sm md:text-base overflow-x-auto whitespace-pre leading-relaxed"><span style="color:#71717A"># 1. Install</span>
+                <pre class="kt-code p-6 md:p-8 text-sm md:text-base overflow-x-auto whitespace-pre leading-relaxed"><span style="color:#A1A1AA"># 1. Install</span>
 pip install <span style="color:#DFE104">contextlayer-dev</span>
 
-<span style="color:#71717A"># 2. Index — needs ANTHROPIC_API_KEY only for the build step</span>
+<span style="color:#A1A1AA"># 2. Index — needs ANTHROPIC_API_KEY only for the build step</span>
 export <span style="color:#DFE104">ANTHROPIC_API_KEY</span>=sk-ant-...
 contextlayer index .
 
-<span style="color:#71717A"># 3. Plug into your AI — open Claude Code. Done.</span>
+<span style="color:#A1A1AA"># 3. Plug into your AI — open Claude Code. Done.</span>
 contextlayer mcp --repo .</pre>
                 <div class="mt-8 flex flex-col sm:flex-row gap-3">
                     <a href="https://github.com/AntarangSharma/ContextLayer.dev" target="_blank" class="btn-acid">
