@@ -444,49 +444,53 @@
         }
 
         /* ============================================================ */
-        /* HERO SHADER CANVAS — GLSL fragment shader fades into hero      */
+        /* PAGE SHADER CANVAS — fixed, fills the whole viewport          */
         /* ============================================================ */
-        .hero-shader {
-            position: absolute;
+        .page-shader {
+            position: fixed;
             inset: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
+            z-index: 0;            /* above body bg, below content (.bg-mesh shares z-index 0 but is painted first) */
             pointer-events: none;
-            opacity: 0.55;
+            opacity: 0.32;
             mix-blend-mode: screen;
-            /* Fade out at the bottom so it blends into the page content */
-            mask-image: linear-gradient(180deg, #000 0%, #000 55%, transparent 100%);
-            -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 55%, transparent 100%);
         }
-        .hero-shader canvas {
+        .page-shader canvas {
             width: 100%;
             height: 100%;
             display: block;
         }
 
-        /* Rotating word — spring-style flip in the H1 */
+        /* Rotating word — flips in place, wrapper width animates to match  */
+        /* the current word so the trailing period stays glued to it.       */
         .rotator {
             position: relative;
-            display: inline-block;
+            display: inline-flex;
+            align-items: baseline;
             vertical-align: baseline;
-            height: 1.05em;
-            min-width: 4.5ch;
-            text-align: left;
+            height: 1em;
+            line-height: inherit;
             overflow: hidden;
+            transition: width 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+            width: 0; /* set by JS once measured */
         }
         .rotator > span {
             position: absolute;
-            inset: 0;
+            left: 0;
+            top: 0;
             display: inline-block;
+            line-height: inherit;
+            font-size: inherit;
+            font-weight: inherit;
             opacity: 0;
             transform: translateY(110%);
-            transition: transform 0.65s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.45s ease;
+            transition: transform 0.65s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.4s ease;
             background: linear-gradient(135deg, #74c0fc 0%, #4dabf7 50%, #22d3ee 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            color: transparent;
             white-space: nowrap;
+            padding-right: 0.04em; /* tiny breathing room so the gradient edge isn't clipped */
         }
         .rotator > span.in {
             opacity: 1;
@@ -718,7 +722,8 @@
             .island.expanded { width: calc(100vw - 24px); max-width: 360px; height: 60vh; }
         }
         @media (prefers-reduced-motion: reduce) {
-            .hero-shader { display: none; }
+            .page-shader { display: none; }
+            .rotator { transition: none; }
             .rotator > span { transition: none; }
             .island { transition: none; }
         }
@@ -726,6 +731,10 @@
 </head>
 <body class="font-sans antialiased bg-grain">
     <div class="bg-mesh"></div>
+    <!-- Full-page WebGL shader background (z-index 0, behind all content) -->
+    <div class="page-shader" aria-hidden="true">
+        <canvas id="hero-shader-canvas"></canvas>
+    </div>
     <!-- Nav -->
     <nav class="relative z-20 max-w-6xl mx-auto px-6 py-5 flex items-center justify-between">
         <a href="#top" class="flex items-center gap-2.5 group">
@@ -761,11 +770,6 @@
         <!-- HERO                                                          -->
         <!-- ============================================================ -->
         <section class="relative max-w-5xl mx-auto px-6 pt-10 pb-12 text-center">
-            <!-- Shader background — WebGL2 fragment shader, drifts behind hero -->
-            <div class="hero-shader" aria-hidden="true">
-                <canvas id="hero-shader-canvas"></canvas>
-            </div>
-
             <div class="relative z-10 fade-in">
                 <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full glass-card text-xs font-medium text-brand-300 mb-7">
                     <span class="pulse-dot w-2 h-2 rounded-full bg-accent-green inline-block"></span>
@@ -774,10 +778,7 @@
             </div>
 
             <h1 class="relative z-10 text-4xl sm:text-5xl md:text-[68px] font-extrabold leading-[1.02] tracking-tight mb-6 fade-in fade-in-delay-1">
-                Claude forgets your
-                <span class="rotator" id="rotating-word" aria-live="polite">
-                    <span class="in">rules</span><span>patterns</span><span>decisions</span><span>conventions</span><span>context</span>
-                </span>.<br>
+                Claude forgets your <span class="rotator" id="rotating-word" aria-live="polite"><span>rules</span><span>patterns</span><span>decisions</span><span>conventions</span><span>context</span></span>.<br>
                 <span class="gradient-text">We make it remember.</span>
             </h1>
 
@@ -1479,22 +1480,72 @@ contextlayer mcp --repo .</pre>
 
     <!-- ============================================================ -->
     <!-- EFFECT 1 — Rotating word in the hero H1                       -->
+    <!-- Width animates to fit each word so the period stays glued.    -->
     <!-- ============================================================ -->
     <script>
     (function rotator() {
         const root = document.getElementById('rotating-word');
         if (!root) return;
         const words = Array.from(root.children);
+        if (!words.length) return;
+
+        const reducedMotion = window.matchMedia
+            && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        // Measure each word's natural pixel width at the current font size.
+        // Done by cloning the span into the same H1 (so it inherits everything)
+        // then reading offsetWidth.
+        function measure(span) {
+            const probe = span.cloneNode(true);
+            probe.style.position = 'absolute';
+            probe.style.visibility = 'hidden';
+            probe.style.opacity = '1';
+            probe.style.transform = 'none';
+            probe.style.left = '0';
+            probe.style.top = '0';
+            root.appendChild(probe);
+            const w = probe.getBoundingClientRect().width;
+            probe.remove();
+            return Math.ceil(w + 1); // +1 for sub-pixel safety
+        }
+
+        let widths = words.map(measure);
         let current = 0;
-        if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+        // Set initial state: first word visible, wrapper sized to it.
+        root.style.width = widths[0] + 'px';
+        words[0].classList.add('in');
+
+        // Re-measure on resize / font-load so the wrapper stays tight.
+        let resizeRaf = 0;
+        window.addEventListener('resize', () => {
+            cancelAnimationFrame(resizeRaf);
+            resizeRaf = requestAnimationFrame(() => {
+                widths = words.map(measure);
+                root.style.width = widths[current] + 'px';
+            });
+        });
+        if (document.fonts && document.fonts.ready) {
+            document.fonts.ready.then(() => {
+                widths = words.map(measure);
+                root.style.width = widths[current] + 'px';
+            });
+        }
+
+        if (reducedMotion) return; // First word stays visible, no rotation.
 
         setInterval(() => {
             const outgoing = words[current];
             current = (current + 1) % words.length;
             const incoming = words[current];
 
+            // Animate the wrapper width to the next word's width FIRST so
+            // the trailing period travels with the flip rather than jumping.
+            root.style.width = widths[current] + 'px';
+
             outgoing.classList.remove('in');
             outgoing.classList.add('out');
+
             // Re-seed incoming from "below" so it springs in.
             incoming.classList.remove('out');
             incoming.classList.remove('in');
@@ -1635,28 +1686,29 @@ contextlayer mcp --repo .</pre>
         const uTime = gl.getUniformLocation(prog, 'time');
 
         function resize() {
-            const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
-            const w = canvas.clientWidth  || canvas.parentElement.clientWidth  || window.innerWidth;
-            const h = canvas.clientHeight || canvas.parentElement.clientHeight || 600;
+            // Cap DPR so the shader cost stays manageable on retina displays.
+            const dpr = Math.min(window.devicePixelRatio || 1, 1.25);
+            const w = window.innerWidth;
+            const h = window.innerHeight;
             canvas.width  = Math.floor(w * dpr);
             canvas.height = Math.floor(h * dpr);
+            canvas.style.width  = w + 'px';
+            canvas.style.height = h + 'px';
             gl.viewport(0, 0, canvas.width, canvas.height);
         }
-        const ro = new ResizeObserver(resize);
-        ro.observe(canvas);
         window.addEventListener('resize', resize);
         resize();
 
-        // Pause render loop when the hero is offscreen — saves battery.
-        let visible = true;
-        const io = new IntersectionObserver(entries => {
-            visible = entries[0].isIntersecting;
-        }, { rootMargin: '60px' });
-        io.observe(canvas);
+        // Pause render loop when the tab is hidden — saves battery without
+        // blanking the shader for users who scroll through quickly.
+        let active = true;
+        document.addEventListener('visibilitychange', () => {
+            active = document.visibilityState === 'visible';
+        });
 
         let raf = 0;
         function frame(now) {
-            if (visible) {
+            if (active) {
                 gl.useProgram(prog);
                 gl.uniform2f(uRes, canvas.width, canvas.height);
                 gl.uniform1f(uTime, now * 1e-3);
