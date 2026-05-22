@@ -159,9 +159,13 @@ def _run_llm_judge(
     (caller decides how to degrade).
     """
     try:
-        import anthropic
+        import asyncio
+        from contextlayer.extract.llm_client import LLMClient
+        from contextlayer.models import get_model
 
-        client = anthropic.Anthropic()
+        client = LLMClient()
+        model_name = get_model(1)
+
         rules_block = "\n".join(
             f"[{i+1}] id={r['id']} | {r['summary']}"
             + (f" | rationale: {r['rationale']}" if r.get("rationale") else "")
@@ -179,41 +183,45 @@ def _run_llm_judge(
             "change is in 'src/cli/', that rule is NOT violated. "
             "Return your verdict via the report_violations tool."
         )
-        resp = client.messages.create(
-            model="claude-haiku-4-5-20251001",
-            max_tokens=1024,
-            tools=[{
-                "name": "report_violations",
-                "description": "Report which rules the proposed change violates.",
-                "input_schema": {
-                    "type": "object",
-                    "properties": {
-                        "passes": {"type": "boolean", "description": "True iff no rules are violated."},
-                        "violations": {
-                            "type": "array",
-                            "items": {
-                                "type": "object",
-                                "properties": {
-                                    "rule_id": {"type": "string"},
-                                    "why_violated": {"type": "string"},
-                                    "severity": {"type": "string", "enum": ["high", "medium", "low"]},
+
+        async def _call():
+            return await client.create_message(
+                model=model_name,
+                max_tokens=1024,
+                tools=[{
+                    "name": "report_violations",
+                    "description": "Report which rules the proposed change violates.",
+                    "input_schema": {
+                        "type": "object",
+                        "properties": {
+                            "passes": {"type": "boolean", "description": "True iff no rules are violated."},
+                            "violations": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "rule_id": {"type": "string"},
+                                        "why_violated": {"type": "string"},
+                                        "severity": {"type": "string", "enum": ["high", "medium", "low"]},
+                                    },
+                                    "required": ["rule_id", "why_violated", "severity"],
                                 },
-                                "required": ["rule_id", "why_violated", "severity"],
                             },
                         },
+                        "required": ["passes", "violations"],
                     },
-                    "required": ["passes", "violations"],
-                },
-            }],
-            tool_choice={"type": "tool", "name": "report_violations"},
-            messages=[{"role": "user", "content": prompt}],
-        )
+                }],
+                tool_choice={"type": "tool", "name": "report_violations"},
+                messages=[{"role": "user", "content": prompt}],
+            )
+
+        resp = asyncio.run(_call())
         tool_use = next((b for b in resp.content if getattr(b, "type", None) == "tool_use"), None)
         if tool_use is None:
-            raise RuntimeError("Haiku did not return a tool_use block.")
+            raise RuntimeError("Judge did not return a tool_use block.")
         verdict = tool_use.input  # type: ignore[union-attr]
     except Exception as e:
-        log.warning("context_validate Haiku judge failed: %s", e)
+        log.warning("context_validate judge failed: %s", e)
         return None
 
     rules_by_id = {r["id"]: r for r in rules_payload}
@@ -249,11 +257,11 @@ def _run_llm_judge(
         "CALL THIS BEFORE applying any non-trivial code change. Give it a short natural-language "
         "description of what you intend to do (e.g. 'add a new endpoint that fetches billing history "
         "and uses threading for concurrency') or paste a unified diff. The tool retrieves the most "
-        "relevant rules from this repo and reports which ones the change would violate. If "
+        "relevant rules from this repo and reports which ones the change would violate. "
         "Tiered routing (env CONTEXTLAYER_TIER): `free` = deterministic only, "
-        "`hybrid` (default) = deterministic first then escalate to Haiku on uncertainty, "
+        "`hybrid` (default) = deterministic first then escalate to LLM judge on uncertainty, "
         "`premium` = LLM-first. Any tier auto-degrades to deterministic if "
-        "ANTHROPIC_API_KEY is not set."
+        "no API key is set (GEMINI_API_KEY, OPENAI_API_KEY, or ANTHROPIC_API_KEY)."
     )
 )
 def context_validate(proposed_change: str, k: int = 8) -> str:
@@ -317,7 +325,7 @@ def context_validate(proposed_change: str, k: int = 8) -> str:
         "tier": routing.tier,
         "guidance": (
             "Deterministic verdict — no LLM was called. If you disagree, set "
-            "ANTHROPIC_API_KEY and re-run; hybrid tier auto-escalates uncertain cases."
+            "an API key (GEMINI_API_KEY, OPENAI_API_KEY, or ANTHROPIC_API_KEY) and re-run; hybrid tier auto-escalates uncertain cases."
         ),
     }
 

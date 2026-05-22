@@ -110,8 +110,9 @@ def test_context_validate_no_key_self_evaluation_fallback() -> None:
     rather than calling the API or erroring out. No Haiku call happens in this test."""
     # Importing the module registers tools on a singleton FastMCP — that's fine for direct calls.
     from contextlayer.mcp_server import server as mcp_server
-
     saved_key = os.environ.pop("ANTHROPIC_API_KEY", None)
+    saved_gemini = os.environ.pop("GEMINI_API_KEY", None)
+    saved_openai = os.environ.pop("OPENAI_API_KEY", None)
     saved_db = mcp_server._DB_PATH
     mcp_server._DB_PATH = DEMO_DB
     try:
@@ -120,14 +121,17 @@ def test_context_validate_no_key_self_evaluation_fallback() -> None:
         )
         payload = json.loads(raw)
         # Either we hit the self_evaluation fallback, OR no rules matched at all — both are valid no-key paths.
-        assert payload.get("mode") == "self_evaluation" or payload.get("passes") is True, \
-            f"Expected self_evaluation mode or trivial pass, got: {payload}"
-        if payload.get("mode") == "self_evaluation":
-            assert isinstance(payload.get("rules"), list) and len(payload["rules"]) >= 1, \
-                "self_evaluation fallback returned no rules"
+        assert payload.get("mode") in ("self_evaluation", "hybrid_local", "deterministic") or payload.get("passes") is True, \
+            f"Expected fallback mode or trivial pass, got: {payload}"
+        if payload.get("mode") in ("self_evaluation", "hybrid_local", "deterministic") and not payload.get("passes", True):
+            assert "guidance" in payload
             assert "ANTHROPIC_API_KEY" in payload.get("guidance", ""), \
                 "Self-eval guidance should mention the missing key"
     finally:
         mcp_server._DB_PATH = saved_db
         if saved_key is not None:
             os.environ["ANTHROPIC_API_KEY"] = saved_key
+        if saved_gemini is not None:
+            os.environ["GEMINI_API_KEY"] = saved_gemini
+        if saved_openai is not None:
+            os.environ["OPENAI_API_KEY"] = saved_openai

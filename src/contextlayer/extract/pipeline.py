@@ -24,7 +24,7 @@ import time
 from datetime import datetime, timezone
 from pathlib import Path
 
-import anthropic
+from contextlayer.extract.llm_client import LLMClient
 
 from contextlayer.embed import embed_one
 from contextlayer.extract import stage1_haiku, stage2_sonnet
@@ -66,7 +66,7 @@ class GlobalRateLimiter:
 
 
 async def _stage1(
-    client: anthropic.AsyncAnthropic,
+    client: LLMClient,
     events: list[RawEvent],
     limiter: GlobalRateLimiter,
     *,
@@ -92,7 +92,7 @@ async def _stage1(
 
 
 async def _stage2(
-    client: anthropic.AsyncAnthropic,
+    client: LLMClient,
     kept: list[tuple[RawEvent, Stage1Result]],
     limiter: GlobalRateLimiter,
     *,
@@ -239,7 +239,7 @@ async def _run_extraction(
     If Stage 3 Opus fails (e.g., rate limit, API error), fall back to Python dedup
     so we never lose Stage 2 output.
     """
-    client = anthropic.AsyncAnthropic()
+    client = LLMClient()
     limiter = GlobalRateLimiter(rpm=RPM_LIMIT)
 
     # Reset cumulative cache-hit counters so this run's stats are clean.

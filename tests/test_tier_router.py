@@ -12,6 +12,8 @@ from contextlayer import tier as tier_mod
 def _clean_env(monkeypatch):
     monkeypatch.delenv("CONTEXTLAYER_TIER", raising=False)
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
     yield
 
 
@@ -25,6 +27,24 @@ def test_default_tier_is_hybrid_without_key(monkeypatch):
 
 def test_hybrid_with_key_can_escalate(monkeypatch):
     monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-test")
+    r = tier_mod.resolve()
+    assert r.tier == "hybrid"
+    assert r.can_call_llm is True
+    assert r.llm_first is False
+    assert r.escalation_threshold == 0.6
+
+
+def test_hybrid_with_gemini_key_can_escalate(monkeypatch):
+    monkeypatch.setenv("GEMINI_API_KEY", "AIzaSy-test")
+    r = tier_mod.resolve()
+    assert r.tier == "hybrid"
+    assert r.can_call_llm is True
+    assert r.llm_first is False
+    assert r.escalation_threshold == 0.6
+
+
+def test_hybrid_with_openai_key_can_escalate(monkeypatch):
+    monkeypatch.setenv("OPENAI_API_KEY", "sk-test")
     r = tier_mod.resolve()
     assert r.tier == "hybrid"
     assert r.can_call_llm is True

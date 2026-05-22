@@ -16,7 +16,7 @@ from collections import defaultdict
 from dataclasses import dataclass
 from typing import Any
 
-import anthropic
+from contextlayer.extract.llm_client import LLMClient
 
 from contextlayer.extract.atom import STAGE3_TOOL, Atom
 from contextlayer.models import OPUS_MODEL
@@ -54,7 +54,7 @@ class StructureResult:
 
 
 async def structure_atoms(
-    client: anthropic.AsyncAnthropic,
+    client: LLMClient,
     raw_atoms: list[Atom],
     *,
     thinking_budget: int = 8000,
@@ -91,10 +91,13 @@ async def structure_atoms(
     # Note: when extended thinking is enabled, max_tokens must be > thinking_budget.
     # API restriction: thinking cannot be combined with forced tool_choice — we use
     # tool_choice="auto" plus a strong "Return via the structure_atoms tool" instruction.
-    resp = await client.messages.create(
+    
+    # We only pass thinking_budget if we are in anthropic or openai o3-mini/o1 mode.
+    # Our LLMClient handles these parameters internally or ignores them safely.
+    resp = await client.create_message(
         model=OPUS_MODEL,
-        max_tokens=thinking_budget + 8000,  # room for thinking + output
-        thinking={"type": "enabled", "budget_tokens": thinking_budget},
+        max_tokens=8000,  # client will adjust with thinking budget internally
+        thinking_budget=thinking_budget if client.provider in ("anthropic", "openai") else None,
         system=_SYSTEM_PROMPT,
         tools=[STAGE3_TOOL],
         tool_choice={"type": "auto"},

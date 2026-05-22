@@ -29,11 +29,20 @@ app = typer.Typer(
 
 
 def _check_api_key() -> None:
-    if not os.environ.get("ANTHROPIC_API_KEY"):
+    if not (
+        os.environ.get("GEMINI_API_KEY")
+        or os.environ.get("OPENAI_API_KEY")
+        or os.environ.get("ANTHROPIC_API_KEY")
+    ):
         typer.secho(
-            "ERROR: ANTHROPIC_API_KEY is not set.\n"
-            "Get a key at https://console.anthropic.com/ then:\n"
-            "  export ANTHROPIC_API_KEY=sk-ant-...",
+            "ERROR: No LLM API key detected.\n"
+            "Please set one of the following environment variables:\n"
+            "  - GEMINI_API_KEY (Google)\n"
+            "  - OPENAI_API_KEY (OpenAI / OpenRouter)\n"
+            "  - ANTHROPIC_API_KEY (Anthropic)\n"
+            "\n"
+            "Example:\n"
+            "  export GEMINI_API_KEY=AIzaSy-...",
             fg=typer.colors.RED,
             err=True,
         )

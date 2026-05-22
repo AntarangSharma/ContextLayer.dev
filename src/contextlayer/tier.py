@@ -45,5 +45,9 @@ def resolve() -> Routing:
     tier_raw = (os.environ.get("CONTEXTLAYER_TIER") or "hybrid").strip().lower()
     if tier_raw not in ("free", "hybrid", "premium"):
         tier_raw = "hybrid"
-    has_key = bool(os.environ.get("ANTHROPIC_API_KEY"))
+    has_key = bool(
+        os.environ.get("GEMINI_API_KEY")
+        or os.environ.get("OPENAI_API_KEY")
+        or os.environ.get("ANTHROPIC_API_KEY")
+    )
     return Routing(tier=tier_raw, has_api_key=has_key)  # type: ignore[arg-type]

@@ -13,7 +13,7 @@ from __future__ import annotations
 
 import logging
 
-import anthropic
+from contextlayer.extract.llm_client import LLMClient
 
 from contextlayer.extract.atom import STAGE2_BATCH_TOOL, STAGE2_TOOL, Atom
 from contextlayer.ingest import RawEvent
@@ -112,28 +112,33 @@ _SYSTEM_BLOCKS = [
 ]
 
 
-async def extract_one(client: anthropic.AsyncAnthropic, event: RawEvent) -> list[Atom]:
+async def extract_one(client: LLMClient, event: RawEvent) -> list[Atom]:
     """Single Sonnet call for one event. Returns 0-3 Atoms (source_refs populated)."""
     user_msg = (
         f"Event type: {event.source_type}\n"
         f"Event id: {event.source_id}\n"
         f"---\n{event.text}"
     )
-    resp = await client.messages.create(
+    # Only supply cache_control if provider is Anthropic
+    system_blocks = _SYSTEM_BLOCKS
+    if client.provider != "anthropic":
+        system_blocks = _SYSTEM_PROMPT_TEXT
+
+    resp = await client.create_message(
         model=SONNET_MODEL,
         max_tokens=1500,
-        system=_SYSTEM_BLOCKS,
+        system=system_blocks,
         tools=[STAGE2_TOOL],
         tool_choice={"type": "tool", "name": "extract_atoms"},
         messages=[{"role": "user", "content": user_msg}],
     )
-    usage = getattr(resp, "usage", None)
+    usage = resp.usage
     if usage is not None:
         _USAGE["calls"] += 1
-        _USAGE["cache_read"] += getattr(usage, "cache_read_input_tokens", 0) or 0
-        _USAGE["cache_write"] += getattr(usage, "cache_creation_input_tokens", 0) or 0
-        _USAGE["input_tokens"] += getattr(usage, "input_tokens", 0) or 0
-        _USAGE["output_tokens"] += getattr(usage, "output_tokens", 0) or 0
+        _USAGE["cache_read"] += usage.cache_read_input_tokens
+        _USAGE["cache_write"] += usage.cache_creation_input_tokens
+        _USAGE["input_tokens"] += usage.input_tokens
+        _USAGE["output_tokens"] += usage.output_tokens
     atoms: list[Atom] = []
     for block in resp.content:
         if block.type != "tool_use" or block.name != "extract_atoms":
@@ -172,7 +177,7 @@ def _format_batch_user_msg(events: list[RawEvent]) -> str:
 
 
 async def extract_batch(
-    client: anthropic.AsyncAnthropic,
+    client: LLMClient,
     events: list[RawEvent],
 ) -> list[Atom]:
     """Batched Sonnet call: one request handles ~15 events.
@@ -188,21 +193,27 @@ async def extract_batch(
     user_msg = _format_batch_user_msg(events)
     # max_tokens scales with batch size: ~250 tokens per event for up to 3 atoms.
     max_tokens = min(4096, 600 + 250 * len(events))
-    resp = await client.messages.create(
+    
+    # Only supply cache_control if provider is Anthropic
+    system_blocks = _SYSTEM_BLOCKS
+    if client.provider != "anthropic":
+        system_blocks = _SYSTEM_PROMPT_TEXT
+
+    resp = await client.create_message(
         model=SONNET_MODEL,
         max_tokens=max_tokens,
-        system=_SYSTEM_BLOCKS,
+        system=system_blocks,
         tools=[STAGE2_BATCH_TOOL],
         tool_choice={"type": "tool", "name": "extract_atoms_batch"},
         messages=[{"role": "user", "content": user_msg}],
     )
-    usage = getattr(resp, "usage", None)
+    usage = resp.usage
     if usage is not None:
         _USAGE["calls"] += 1
-        _USAGE["cache_read"] += getattr(usage, "cache_read_input_tokens", 0) or 0
-        _USAGE["cache_write"] += getattr(usage, "cache_creation_input_tokens", 0) or 0
-        _USAGE["input_tokens"] += getattr(usage, "input_tokens", 0) or 0
-        _USAGE["output_tokens"] += getattr(usage, "output_tokens", 0) or 0
+        _USAGE["cache_read"] += usage.cache_read_input_tokens
+        _USAGE["cache_write"] += usage.cache_creation_input_tokens
+        _USAGE["input_tokens"] += usage.input_tokens
+        _USAGE["output_tokens"] += usage.output_tokens
 
     out: list[Atom] = []
     for block in resp.content:
