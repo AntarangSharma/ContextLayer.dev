@@ -323,3 +323,81 @@ GitHub Issues: https://github.com/AntarangSharma/ContextLayer.dev/issues
 5. Add new rules with `contextlayer note "..."`, gate CI with `contextlayer drift`
 
 That's it. Welcome to ContextLayer.
+
+---
+
+## 14. ⏺ How the 60-second demo was made
+
+It's not actually a video file. It's a terminal recording converted into an animated SVG. Here's the chain:
+
+### The tools
+
+| Tool | What it does | Where it came from |
+| --- | --- | --- |
+| **asciinema** | Records your terminal session — keystrokes, output, timing — into a small JSON file (.cast) | `pip install asciinema` |
+| **svg-term-cli** | Converts that JSON recording into an animated SVG | `npx svg-term-cli` (one-shot, no install) |
+
+That's it. Two tools, total install time ~20 seconds.
+
+---
+
+### The four-step pipeline
+
+#### Step 1 — Wrote a shell script of what to "perform"
+
+We wrote `/tmp/demo_script.sh` containing the commands we wanted to show running:
+* `contextlayer status --repo demo-data/acme-billing-api`
+* `contextlayer health --repo demo-data/acme-billing-api`
+* `contextlayer note "auth tokens expire in 7d" --repo demo-data/acme-billing-api`
+* `contextlayer drift --last 2 --repo demo-data/acme-billing-api`
+
+Each command runs and produces real live output in the recording.
+
+#### Step 2 — Recorded with asciinema
+
+```bash
+asciinema rec --overwrite \
+  -c "/tmp/demo_script.sh" \
+  --idle-time-limit 2 \
+  -t "contextlayer demo" \
+  docs/demo/demo.cast
+```
+* `-c` tells it to run that script as the "session".
+* `--idle-time-limit 2` collapses pauses longer than 2 seconds (so the watcher isn't waiting through dead time).
+* Output: `demo.cast` — a tiny JSON file. Replayable with `asciinema play docs/demo/demo.cast`.
+
+#### Step 3 — Converted .cast → animated SVG
+
+```bash
+npx -y svg-term-cli \
+  --in docs/demo/demo.cast \
+  --out docs/demo/demo.svg \
+  --window --no-cursor --width 100 --height 28
+```
+This produces `demo.svg` — a regular SVG file that contains the entire animation as CSS keyframes. GitHub renders animated SVG inline in READMEs, so it plays automatically when someone visits the repo. No video player, no external hosting, no Loom/YouTube embed.
+
+#### Step 4 — Embedded in README
+
+```markdown
+## 60-second demo
+![demo](docs/demo/demo.svg)
+```
+
+---
+
+### Why this approach (vs. screen recording)
+
+| Feature | Asciinema → SVG | Screen recording (Loom/QuickTime) |
+| --- | --- | --- |
+| **File size** | ~34 KB | 5–50 MB |
+| **Plays inline on GitHub** | ✅ | ❌ (needs external host) |
+| **Plays on LinkedIn** | ❌ (SVG animation not supported everywhere) | ✅ |
+| **Copy-pasteable text** | ✅ (selectable in the recording) | ❌ |
+| **Recording effort** | Run a script, done | Set up screen, record, edit, upload |
+| **Re-recordable when output changes** | ✅ instant (rerun script) | ❌ have to re-record by hand |
+
+For a GitHub README, the asciinema approach wins because it renders inline and stays in version control. For LinkedIn/Twitter, you can additionally convert it to a real GIF or MP4 using `agg` or `ffmpeg` in about a minute:
+```bash
+agg docs/demo/demo.cast docs/demo/demo.gif
+```
+

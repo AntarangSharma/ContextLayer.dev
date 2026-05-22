@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no, viewport-fit=cover">
     <title>ContextLayer.dev — The Missing Context Layer for AI Coding Agents</title>
     <meta name="description" content="ContextLayer extracts conventions, decisions, and anti-patterns from your repo and serves them to Claude Code via MCP. v1.1 adds health scores, drift detection, and auto-generated CLAUDE.md for CI. Local-first, no-API-key query path, BYOK indexing, MIT.">
     <meta property="og:title" content="ContextLayer.dev — The Missing Context Layer for AI Coding Agents">
@@ -705,9 +705,14 @@
     <div class="noise" aria-hidden="true"></div>
 
     <!-- ============================================================ -->
-    <!-- NAV                                                            -->
+    <!-- CONTENT WRAPPER — prevents horizontal scrollbars and handles layout scaling -->
     <!-- ============================================================ -->
-    <nav class="relative z-20 container-wide px-6 md:px-10 py-6 flex items-center justify-between border-b-2 border-line">
+    <div class="relative w-full overflow-x-hidden flex flex-col min-h-screen">
+
+        <!-- ============================================================ -->
+        <!-- NAV                                                            -->
+        <!-- ============================================================ -->
+        <nav class="relative z-20 container-wide px-6 md:px-10 py-6 flex items-center justify-between border-b-2 border-line">
         <a href="#top" class="flex items-center gap-3 group">
             <div class="w-10 h-10 bg-acid flex items-center justify-center">
                 <svg class="w-5 h-5 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
@@ -1336,6 +1341,8 @@ contextlayer mcp --repo .</pre>
         </div>
     </footer>
 
+    </div> <!-- END CONTENT WRAPPER -->
+
     <!-- ============================================================ -->
     <!-- INTERACTIVITY SCRIPT — preserved, generated HTML uses KT classes -->
     <!-- ============================================================ -->
@@ -1566,144 +1573,149 @@ contextlayer mcp --repo .</pre>
         if (!canvas) return;
         if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-        const gl = canvas.getContext('webgl2', { antialias: false, alpha: true, premultipliedAlpha: false });
-        if (!gl) { canvas.parentElement.style.display = 'none'; return; }
+        try {
+            const gl = canvas.getContext('webgl2', { antialias: false, alpha: true, premultipliedAlpha: false });
+            if (!gl) { canvas.parentElement.style.display = 'none'; return; }
 
-        const vsSrc = `#version 300 es
-            precision highp float;
-            in vec4 position;
-            void main() { gl_Position = position; }`;
+            const vsSrc = `#version 300 es
+                precision highp float;
+                in vec4 position;
+                void main() { gl_Position = position; }`;
 
-        const fsSrc = `#version 300 es
-            precision highp float;
-            out vec4 O;
-            uniform vec2 resolution;
-            uniform float time;
-            #define FC gl_FragCoord.xy
-            #define T time
-            #define R resolution
-            #define MN min(R.x, R.y)
+            const fsSrc = `#version 300 es
+                precision highp float;
+                out vec4 O;
+                uniform vec2 resolution;
+                uniform float time;
+                #define FC gl_FragCoord.xy
+                #define T time
+                #define R resolution
+                #define MN min(R.x, R.y)
 
-            float rnd(vec2 p) {
-                p = fract(p * vec2(12.9898, 78.233));
-                p += dot(p, p + 34.56);
-                return fract(p.x * p.y);
-            }
-            float noise(in vec2 p) {
-                vec2 i = floor(p), f = fract(p), u = f * f * (3. - 2. * f);
-                float a = rnd(i),
-                      b = rnd(i + vec2(1, 0)),
-                      c = rnd(i + vec2(0, 1)),
-                      d = rnd(i + 1.);
-                return mix(mix(a, b, u.x), mix(c, d, u.x), u.y);
-            }
-            float fbm(vec2 p) {
-                float t = 0., a = 1.;
-                mat2 m = mat2(1., -.5, .2, 1.2);
-                for (int i = 0; i < 5; i++) {
-                    t += a * noise(p);
-                    p *= 2. * m;
-                    a *= .5;
+                float rnd(vec2 p) {
+                    p = fract(p * vec2(12.9898, 78.233));
+                    p += dot(p, p + 34.56);
+                    return fract(p.x * p.y);
                 }
-                return t;
-            }
-            float clouds(vec2 p) {
-                float d = 1., t = 0.;
-                for (float i = 0.; i < 3.; i++) {
-                    float a = d * fbm(i * 10. + p.x * .2 + .2 * (1. + i) * p.y + d + i * i + p);
-                    t = mix(t, d, a);
-                    d = a;
-                    p *= 2. / (i + 1.);
+                float noise(in vec2 p) {
+                    vec2 i = floor(p), f = fract(p), u = f * f * (3. - 2. * f);
+                    float a = rnd(i),
+                          b = rnd(i + vec2(1, 0)),
+                          c = rnd(i + vec2(0, 1)),
+                          d = rnd(i + 1.);
+                    return mix(mix(a, b, u.x), mix(c, d, u.x), u.y);
                 }
-                return t;
-            }
-            void main(void) {
-                vec2 uv = (FC - .5 * R) / MN, st = uv * vec2(2, 1);
-                vec3 col = vec3(0);
-                float bg = clouds(vec2(st.x + T * .35, -st.y));
-                uv *= 1. - .25 * (sin(T * .2) * .5 + .5);
-
-                for (float i = 1.; i < 12.; i++) {
-                    uv += .1 * cos(i * vec2(.1 + .01 * i, .8) + i * i + T * .45 + .1 * uv.x);
-                    vec2 p = uv;
-                    float d = length(p);
-                    vec3 starTint = cos(sin(i) * vec3(2.2, 1.4, 0.9)) + 1.;
-                    col += .00115 / d * starTint;
-
-                    float b = noise(i + p + bg * 1.731);
-                    col += .0018 * b / length(max(p, vec2(b * p.x * .02, p.y)));
-
-                    vec3 cloudCol = vec3(bg * 0.12, bg * 0.22, bg * 0.40);
-                    col = mix(col, cloudCol, d * 0.95);
+                float fbm(vec2 p) {
+                    float t = 0., a = 1.;
+                    mat2 m = mat2(1., -.5, .2, 1.2);
+                    for (int i = 0; i < 5; i++) {
+                        t += a * noise(p);
+                        p *= 2. * m;
+                        a *= .5;
+                    }
+                    return t;
                 }
-                O = vec4(col, 1.0);
-            }`;
+                float clouds(vec2 p) {
+                    float d = 1., t = 0.;
+                    for (float i = 0.; i < 3.; i++) {
+                        float a = d * fbm(i * 10. + p.x * .2 + .2 * (1. + i) * p.y + d + i * i + p);
+                        t = mix(t, d, a);
+                        d = a;
+                        p *= 2. / (i + 1.);
+                    }
+                    return t;
+                }
+                void main(void) {
+                    vec2 uv = (FC - .5 * R) / MN, st = uv * vec2(2, 1);
+                    vec3 col = vec3(0);
+                    float bg = clouds(vec2(st.x + T * .35, -st.y));
+                    uv *= 1. - .25 * (sin(T * .2) * .5 + .5);
 
-        function compile(type, src) {
-            const sh = gl.createShader(type);
-            gl.shaderSource(sh, src);
-            gl.compileShader(sh);
-            if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) {
-                console.warn('Shader compile error:', gl.getShaderInfoLog(sh));
-                gl.deleteShader(sh);
-                return null;
+                    for (float i = 1.; i < 12.; i++) {
+                        uv += .1 * cos(i * vec2(.1 + .01 * i, .8) + i * i + T * .45 + .1 * uv.x);
+                        vec2 p = uv;
+                        float d = length(p);
+                        vec3 starTint = cos(sin(i) * vec3(2.2, 1.4, 0.9)) + 1.;
+                        col += .00115 / d * starTint;
+
+                        float b = noise(i + p + bg * 1.731);
+                        col += .0018 * b / length(max(p, vec2(b * p.x * .02, p.y)));
+
+                        vec3 cloudCol = vec3(bg * 0.12, bg * 0.22, bg * 0.40);
+                        col = mix(col, cloudCol, d * 0.95);
+                    }
+                    O = vec4(col, 1.0);
+                }`;
+
+            function compile(type, src) {
+                const sh = gl.createShader(type);
+                gl.shaderSource(sh, src);
+                gl.compileShader(sh);
+                if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) {
+                    console.warn('Shader compile error:', gl.getShaderInfoLog(sh));
+                    gl.deleteShader(sh);
+                    return null;
+                }
+                return sh;
             }
-            return sh;
-        }
 
-        const vs = compile(gl.VERTEX_SHADER, vsSrc);
-        const fs = compile(gl.FRAGMENT_SHADER, fsSrc);
-        if (!vs || !fs) { canvas.parentElement.style.display = 'none'; return; }
+            const vs = compile(gl.VERTEX_SHADER, vsSrc);
+            const fs = compile(gl.FRAGMENT_SHADER, fsSrc);
+            if (!vs || !fs) { canvas.parentElement.style.display = 'none'; return; }
 
-        const prog = gl.createProgram();
-        gl.attachShader(prog, vs);
-        gl.attachShader(prog, fs);
-        gl.linkProgram(prog);
-        if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
-            console.warn('Program link error:', gl.getProgramInfoLog(prog));
-            canvas.parentElement.style.display = 'none';
-            return;
-        }
+            const prog = gl.createProgram();
+            gl.attachShader(prog, vs);
+            gl.attachShader(prog, fs);
+            gl.linkProgram(prog);
+            if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
+                console.warn('Program link error:', gl.getProgramInfoLog(prog));
+                canvas.parentElement.style.display = 'none';
+                return;
+            }
 
-        const buf = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, buf);
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, 1, -1, -1, 1, 1, 1, -1]), gl.STATIC_DRAW);
-        const posLoc = gl.getAttribLocation(prog, 'position');
-        gl.enableVertexAttribArray(posLoc);
-        gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0);
+            const buf = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, 1, -1, -1, 1, 1, 1, -1]), gl.STATIC_DRAW);
+            const posLoc = gl.getAttribLocation(prog, 'position');
+            gl.enableVertexAttribArray(posLoc);
+            gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0);
 
-        const uRes  = gl.getUniformLocation(prog, 'resolution');
-        const uTime = gl.getUniformLocation(prog, 'time');
+            const uRes  = gl.getUniformLocation(prog, 'resolution');
+            const uTime = gl.getUniformLocation(prog, 'time');
 
-        function resize() {
-            const dpr = Math.min(window.devicePixelRatio || 1, 1.25);
-            const w = window.innerWidth;
-            const h = window.innerHeight;
-            canvas.width  = Math.floor(w * dpr);
-            canvas.height = Math.floor(h * dpr);
-            canvas.style.width  = w + 'px';
-            canvas.style.height = h + 'px';
-            gl.viewport(0, 0, canvas.width, canvas.height);
-        }
-        window.addEventListener('resize', resize);
-        resize();
+            function resize() {
+                const dpr = Math.min(window.devicePixelRatio || 1, 1.25);
+                const w = window.innerWidth;
+                const h = window.innerHeight;
+                canvas.width  = Math.floor(w * dpr);
+                canvas.height = Math.floor(h * dpr);
+                canvas.style.width  = w + 'px';
+                canvas.style.height = h + 'px';
+                gl.viewport(0, 0, canvas.width, canvas.height);
+            }
+            window.addEventListener('resize', resize);
+            resize();
 
-        let active = true;
-        document.addEventListener('visibilitychange', () => {
-            active = document.visibilityState === 'visible';
-        });
+            let active = true;
+            document.addEventListener('visibilitychange', () => {
+                active = document.visibilityState === 'visible';
+            });
 
-        let raf = 0;
-        function frame(now) {
-            if (active) {
-                gl.useProgram(prog);
-                gl.uniform2f(uRes, canvas.width, canvas.height);
-                gl.uniform1f(uTime, now * 1e-3);
-                gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+            let raf = 0;
+            function frame(now) {
+                if (active) {
+                    gl.useProgram(prog);
+                    gl.uniform2f(uRes, canvas.width, canvas.height);
+                    gl.uniform1f(uTime, now * 1e-3);
+                    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+                }
+                raf = requestAnimationFrame(frame);
             }
             raf = requestAnimationFrame(frame);
+        } catch (error) {
+            console.warn('WebGL initialization failed, falling back to clean black canvas:', error);
+            canvas.parentElement.style.display = 'none';
         }
-        raf = requestAnimationFrame(frame);
     })();
     </script>
 

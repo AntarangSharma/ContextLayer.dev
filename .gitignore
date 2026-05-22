@@ -40,6 +40,11 @@ Thumbs.db
 # Project-local Claude state (commit CLAUDE.md, not session state)
 .claude/
 
+# Project-local Antigravity state
+.antigravity/
+.antigravitycli/
+sessions/
+
 # ContextLayer-specific
 .contextlayer/
 *.log
@@ -75,3 +80,5 @@ WHY-CONTEXTLAYER.md
 # Generated decks / one-off artifacts
 ContextLayer-Overview.pdf
 ContextLayer-Overview.pptx
+# Added by code-review-graph
+.code-review-graph/

@@ -4,9 +4,8 @@
 
 Every codebase has unwritten rules — *why-this-not-that* decisions, team conventions, deprecated paths, anti-patterns — buried in PR comments, commit messages, and senior engineers' heads. Every AI agent rediscovers them badly, every session. ContextLayer extracts these as structured "knowledge atoms" and serves them to Claude Code (or any MCP client) so your AI answers like a senior engineer who read everything.
 
-```
-Same Claude Code. Same question. Watch the answer change.
-```
+## 60-second demo
+![demo](docs/demo/demo.svg)
 
 ---
 
